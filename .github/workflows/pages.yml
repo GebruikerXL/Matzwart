@@ -1,19 +1,13 @@
 name: Deploy Pages
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - site/**
-      - .github/workflows/pages.yml
-  workflow_dispatch: {}
-  workflow_run:
-    workflows:
-      - Sync Heatmaps
-      - Sync Strava Heatmaps
-    types:
-      - completed
+  workflow_dispatch:
+    inputs:
+      manual:
+        description: "Manually trigger GitHub Pages deploy (not needed for SFTP hosting)"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
