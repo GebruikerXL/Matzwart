@@ -4456,7 +4456,7 @@ async function init() {
   syncProfileLinkNavigationTarget();
   syncHeaderLinkPlacement();
 
-  const resp = await fetch("https://raw.githubusercontent.com/GebruikerXL/git-sweaty/dashboard-data/site/data.json");
+  const resp = await fetch("https://raw.githubusercontent.com/GebruikerXL/Matzwart/dashboard-data/site/data.json");
   if (!resp.ok) {
     throw new Error(`Failed to load data.json (${resp.status})`);
   }
