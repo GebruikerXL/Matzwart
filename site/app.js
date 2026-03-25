@@ -24,7 +24,7 @@ const WEEKDAY_LABELS_BY_WEEK_START = Object.freeze({
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const ACTIVE_DAYS_METRIC_KEY = "active_days";
 const DAYS_OFF_METRIC_KEY = "days_off";
-const DEFAULT_UNITS = Object.freeze({ distance: "mi", elevation: "ft" });
+const DEFAULT_UNITS = Object.freeze({ distance: "km", elevation: "m" });
 const UNIT_SYSTEM_TO_UNITS = Object.freeze({
   imperial: Object.freeze({ distance: "mi", elevation: "ft" }),
   metric: Object.freeze({ distance: "km", elevation: "m" }),
@@ -917,8 +917,8 @@ function syncFilterControlState({
     typeMenuLabel,
     typeMenuText,
     !typeMenuSelection.allMode
-    && typeMenuTypes.length > 1
-    && typeMenuTypes.length < allTypeValues.length
+      && typeMenuTypes.length > 1
+      && typeMenuTypes.length < allTypeValues.length
       ? "Multiple Activities Selected"
       : "",
   );
@@ -926,8 +926,8 @@ function syncFilterControlState({
     yearMenuLabel,
     yearMenuText,
     !yearMenuSelection.allMode
-    && yearMenuYears.length > 1
-    && yearMenuYears.length < allYearValues.length
+      && yearMenuYears.length > 1
+      && yearMenuYears.length < allYearValues.length
       ? "Multiple Years Selected"
       : "",
   );
@@ -952,12 +952,11 @@ function syncFilterControlState({
 }
 
 function setDashboardTitle(source) {
-  const provider = providerDisplayName(source);
-  const title = provider ? `${provider} Activity Heatmaps` : "Activity Heatmaps";
+  const title = "Daniël Heatmaps";
   if (dashboardTitle) {
     dashboardTitle.textContent = title;
   }
-  document.title = `${title}${PAGE_TITLE_SUFFIX}`;
+  document.title = title;
 }
 
 function readCssVar(name, fallback, scope) {
@@ -3148,10 +3147,10 @@ function buildHeatmapArea(aggregates, year, units, colors, type, layout, options
   const metricHeatmapMax = metricHeatmapKey === ACTIVE_DAYS_METRIC_KEY
     ? 1
     : metricHeatmapKey === DAYS_OFF_METRIC_KEY
-    ? 1
-    : metricHeatmapKey
-    ? Number(options.metricMaxByKey?.[metricHeatmapKey] || 0)
-    : 0;
+      ? 1
+      : metricHeatmapKey
+        ? Number(options.metricMaxByKey?.[metricHeatmapKey] || 0)
+        : 0;
   const metricHeatmapActive = Boolean(metricHeatmapKey) && metricHeatmapMax > 0;
   const metricHeatmapColor = options.metricHeatmapColor || colors[4];
   const metricHeatmapEmptyColor = options.metricHeatmapEmptyColor || DEFAULT_COLORS[0];
@@ -3228,8 +3227,8 @@ function buildHeatmapArea(aggregates, year, units, colors, type, layout, options
       const metricValue = metricHeatmapKey === ACTIVE_DAYS_METRIC_KEY
         ? (filled ? 1 : 0)
         : metricHeatmapKey === DAYS_OFF_METRIC_KEY
-        ? (!filled && isDateKeyElapsed(dateStr, todayDateKey) ? 1 : 0)
-        : Number(entry[metricHeatmapKey] || 0);
+          ? (!filled && isDateKeyElapsed(dateStr, todayDateKey) ? 1 : 0)
+          : Number(entry[metricHeatmapKey] || 0);
       cell.style.backgroundImage = "none";
       cell.style.background = metricValue > 0
         ? heatColor(metricHeatmapColor, metricValue, metricHeatmapMax)
@@ -3911,10 +3910,10 @@ function buildStatsOverview(payload, types, years, color, options = {}) {
       const weight = metricKey === ACTIVE_DAYS_METRIC_KEY
         ? Number(activity.active_days || 0)
         : metricKey === DAYS_OFF_METRIC_KEY
-        ? Number(activity[DAYS_OFF_METRIC_KEY] || 0)
-        : metricKey
-        ? Number(activity[metricKey] || 0)
-        : 1;
+          ? Number(activity[DAYS_OFF_METRIC_KEY] || 0)
+          : metricKey
+            ? Number(activity[metricKey] || 0)
+            : 1;
 
       activityCount += 1;
       dayMatrix[row][activity.dayIndex] += weight;
@@ -4456,11 +4455,15 @@ async function init() {
   syncStravaProfileLink();
   syncProfileLinkNavigationTarget();
   syncHeaderLinkPlacement();
-  const resp = await fetch("data.json");
+
+  const resp = await fetch("https://raw.githubusercontent.com/GebruikerXL/git-sweaty/dashboard-data/site/data.json");
   if (!resp.ok) {
     throw new Error(`Failed to load data.json (${resp.status})`);
   }
   const payload = await resp.json();
+
+  // Force metric system unconditionally
+  payload.units = { distance: "km", elevation: "m" };
   if (!payload || typeof payload !== "object") {
     throw new Error("Invalid dashboard data format.");
   }
@@ -5252,7 +5255,7 @@ async function init() {
       if (!useTouchInteractions && tooltip.classList.contains("visible") && pendingTooltipPoint) {
         positionTooltip(pendingTooltipPoint.x, pendingTooltipPoint.y);
       }
-    }).catch(() => {});
+    }).catch(() => { });
   }
 
   window.addEventListener("resize", () => {
