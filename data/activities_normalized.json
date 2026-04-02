@@ -11633,5 +11633,31 @@
     "start_date_local": "2026-04-01T14:38:06Z",
     "type": "Walk",
     "year": 2026
+  },
+  {
+    "date": "2026-04-02",
+    "distance": 9898.6,
+    "elevation_gain": 4.6,
+    "id": "17946842520",
+    "moving_time": 3445.0,
+    "name": "2 April",
+    "raw_activity_type": "Run",
+    "raw_type": "Run",
+    "start_date_local": "2026-04-02T09:27:20Z",
+    "type": "Run",
+    "year": 2026
+  },
+  {
+    "date": "2026-04-02",
+    "distance": 3929.6,
+    "elevation_gain": 8.6,
+    "id": "17950360188",
+    "moving_time": 2736.0,
+    "name": "Namiddagwandeling",
+    "raw_activity_type": "Walk",
+    "raw_type": "Walk",
+    "start_date_local": "2026-04-02T15:19:46Z",
+    "type": "Walk",
+    "year": 2026
   }
 ]
