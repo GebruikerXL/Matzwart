@@ -6397,6 +6397,13 @@
       "subtype": "Run",
       "type": "Run",
       "year": 2026
+    },
+    {
+      "date": "2026-04-25",
+      "hour": 14,
+      "subtype": "Run",
+      "type": "Run",
+      "year": 2026
     }
   ],
   "aggregates": {
@@ -14311,6 +14318,15 @@
           "distance": 5016.1,
           "elevation_gain": 11.6,
           "moving_time": 1622.0
+        },
+        "2026-04-25": {
+          "activity_ids": [
+            "18251766817"
+          ],
+          "count": 1,
+          "distance": 6317.5,
+          "elevation_gain": 11.8,
+          "moving_time": 2094.0
         }
       },
       "VirtualRide": {
@@ -14537,7 +14553,7 @@
       }
     }
   },
-  "generated_at": "2026-04-24T16:02:35.513146+00:00",
+  "generated_at": "2026-04-25T15:36:53.128425+00:00",
   "other_bucket": "OtherSports",
   "repo": "GebruikerXL/Matzwart",
   "source": "strava",
