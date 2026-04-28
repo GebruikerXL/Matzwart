@@ -11919,5 +11919,18 @@
     "start_date_local": "2026-04-27T08:32:06Z",
     "type": "Run",
     "year": 2026
+  },
+  {
+    "date": "2026-04-28",
+    "distance": 4213.6,
+    "elevation_gain": 12.2,
+    "id": "18291308674",
+    "moving_time": 2984.0,
+    "name": "Namiddagwandeling",
+    "raw_activity_type": "Walk",
+    "raw_type": "Walk",
+    "start_date_local": "2026-04-28T13:29:09Z",
+    "type": "Walk",
+    "year": 2026
   }
 ]
