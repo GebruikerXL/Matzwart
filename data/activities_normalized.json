@@ -11984,5 +11984,18 @@
     "start_date_local": "2026-05-03T09:25:07Z",
     "type": "Run",
     "year": 2026
+  },
+  {
+    "date": "2026-05-04",
+    "distance": 30749.0,
+    "elevation_gain": 62.0,
+    "id": "18375216914",
+    "moving_time": 3740.0,
+    "name": "4 mei",
+    "raw_activity_type": "Ride",
+    "raw_type": "Ride",
+    "start_date_local": "2026-05-04T18:45:33Z",
+    "type": "Ride",
+    "year": 2026
   }
 ]
