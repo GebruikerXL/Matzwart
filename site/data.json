@@ -6530,6 +6530,13 @@
       "subtype": "Run",
       "type": "Run",
       "year": 2026
+    },
+    {
+      "date": "2026-05-25",
+      "hour": 9,
+      "subtype": "Padel",
+      "type": "Padel",
+      "year": 2026
     }
   ],
   "aggregates": {
@@ -14125,6 +14132,17 @@
       }
     },
     "2026": {
+      "Padel": {
+        "2026-05-25": {
+          "activity_ids": [
+            "18643983776"
+          ],
+          "count": 1,
+          "distance": 0.0,
+          "elevation_gain": 0.0,
+          "moving_time": 3798.0
+        }
+      },
       "Ride": {
         "2026-02-25": {
           "activity_ids": [
@@ -14841,7 +14859,7 @@
       }
     }
   },
-  "generated_at": "2026-05-24T15:59:12.410217+00:00",
+  "generated_at": "2026-05-25T17:05:22.316673+00:00",
   "other_bucket": "OtherSports",
   "repo": "GebruikerXL/Matzwart",
   "source": "strava",
@@ -14853,6 +14871,10 @@
     "Hike": {
       "accent": "#d6ff6b",
       "label": "Hike"
+    },
+    "Padel": {
+      "accent": "#ffbe0b",
+      "label": "Padel"
     },
     "Pickleball": {
       "accent": "#00f5d4",
@@ -14917,7 +14939,8 @@
     "VirtualRide",
     "Walk",
     "WeightTraining",
-    "Workout"
+    "Workout",
+    "Padel"
   ],
   "units": {
     "distance": "mi",

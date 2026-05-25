@@ -12127,5 +12127,18 @@
     "start_date_local": "2026-05-24T15:03:07Z",
     "type": "Run",
     "year": 2026
+  },
+  {
+    "date": "2026-05-25",
+    "distance": 0.0,
+    "elevation_gain": 0.0,
+    "id": "18643983776",
+    "moving_time": 3798.0,
+    "name": "25 mei",
+    "raw_activity_type": "Workout",
+    "raw_type": "Padel",
+    "start_date_local": "2026-05-25T09:00:50Z",
+    "type": "Padel",
+    "year": 2026
   }
 ]
