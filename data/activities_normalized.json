@@ -12140,5 +12140,18 @@
     "start_date_local": "2026-05-25T09:00:50Z",
     "type": "Padel",
     "year": 2026
+  },
+  {
+    "date": "2026-05-27",
+    "distance": 16219.7,
+    "elevation_gain": 43.0,
+    "id": "18671762127",
+    "moving_time": 2092.0,
+    "name": "27 mei",
+    "raw_activity_type": "Ride",
+    "raw_type": "Ride",
+    "start_date_local": "2026-05-27T09:27:49Z",
+    "type": "Ride",
+    "year": 2026
   }
 ]
