@@ -12205,5 +12205,31 @@
     "start_date_local": "2026-06-01T08:49:01Z",
     "type": "Run",
     "year": 2026
+  },
+  {
+    "date": "2026-06-03",
+    "distance": 5016.3,
+    "elevation_gain": 13.6,
+    "id": "18774502223",
+    "moving_time": 1624.0,
+    "name": "3 juni",
+    "raw_activity_type": "Run",
+    "raw_type": "Run",
+    "start_date_local": "2026-06-03T20:45:21Z",
+    "type": "Run",
+    "year": 2026
+  },
+  {
+    "date": "2026-06-04",
+    "distance": 0.0,
+    "elevation_gain": 0.0,
+    "id": "18780673277",
+    "moving_time": 2105.0,
+    "name": "4 juni",
+    "raw_activity_type": "Rowing",
+    "raw_type": "Rowing",
+    "start_date_local": "2026-06-04T10:29:49Z",
+    "type": "Rowing",
+    "year": 2026
   }
 ]
