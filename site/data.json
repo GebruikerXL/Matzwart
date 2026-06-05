@@ -6586,6 +6586,13 @@
       "subtype": "Rowing",
       "type": "Rowing",
       "year": 2026
+    },
+    {
+      "date": "2026-06-05",
+      "hour": 17,
+      "subtype": "Run",
+      "type": "Run",
+      "year": 2026
     }
   ],
   "aggregates": {
@@ -14736,6 +14743,15 @@
           "distance": 5016.3,
           "elevation_gain": 13.6,
           "moving_time": 1624.0
+        },
+        "2026-06-05": {
+          "activity_ids": [
+            "18798678008"
+          ],
+          "count": 1,
+          "distance": 7612.3,
+          "elevation_gain": 14.4,
+          "moving_time": 2493.0
         }
       },
       "VirtualRide": {
@@ -14971,7 +14987,7 @@
       }
     }
   },
-  "generated_at": "2026-06-04T17:43:25.878617+00:00",
+  "generated_at": "2026-06-05T17:13:06.556215+00:00",
   "other_bucket": "OtherSports",
   "repo": "GebruikerXL/Matzwart",
   "source": "strava",

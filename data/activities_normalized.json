@@ -12231,5 +12231,18 @@
     "start_date_local": "2026-06-04T10:29:49Z",
     "type": "Rowing",
     "year": 2026
+  },
+  {
+    "date": "2026-06-05",
+    "distance": 7612.3,
+    "elevation_gain": 14.4,
+    "id": "18798678008",
+    "moving_time": 2493.0,
+    "name": "5 juni",
+    "raw_activity_type": "Run",
+    "raw_type": "Run",
+    "start_date_local": "2026-06-05T17:28:15Z",
+    "type": "Run",
+    "year": 2026
   }
 ]
