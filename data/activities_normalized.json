@@ -12439,5 +12439,31 @@
     "start_date_local": "2026-06-28T09:34:53Z",
     "type": "Ride",
     "year": 2026
+  },
+  {
+    "date": "2026-06-28",
+    "distance": 5049.2,
+    "elevation_gain": 5.6,
+    "id": "19103487007",
+    "moving_time": 3507.0,
+    "name": "Avondwandeling",
+    "raw_activity_type": "Walk",
+    "raw_type": "Walk",
+    "start_date_local": "2026-06-28T19:06:40Z",
+    "type": "Walk",
+    "year": 2026
+  },
+  {
+    "date": "2026-06-29",
+    "distance": 44742.7,
+    "elevation_gain": 62.0,
+    "id": "19106866011",
+    "moving_time": 5659.0,
+    "name": "29 juni",
+    "raw_activity_type": "Ride",
+    "raw_type": "Ride",
+    "start_date_local": "2026-06-29T07:35:54Z",
+    "type": "Ride",
+    "year": 2026
   }
 ]
