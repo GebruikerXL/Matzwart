@@ -6782,6 +6782,20 @@
       "subtype": "Ride",
       "type": "Ride",
       "year": 2026
+    },
+    {
+      "date": "2026-07-12",
+      "hour": 18,
+      "subtype": "Walk",
+      "type": "Walk",
+      "year": 2026
+    },
+    {
+      "date": "2026-07-13",
+      "hour": 9,
+      "subtype": "Run",
+      "type": "Run",
+      "year": 2026
     }
   ],
   "aggregates": {
@@ -15158,6 +15172,15 @@
           "distance": 6011.6,
           "elevation_gain": 10.2,
           "moving_time": 2193.0
+        },
+        "2026-07-13": {
+          "activity_ids": [
+            "19291045355"
+          ],
+          "count": 1,
+          "distance": 4370.0,
+          "elevation_gain": 13.2,
+          "moving_time": 1960.0
         }
       },
       "VirtualRide": {
@@ -15381,12 +15404,13 @@
         },
         "2026-07-12": {
           "activity_ids": [
-            "19281449674"
+            "19281449674",
+            "19285411537"
           ],
-          "count": 1,
-          "distance": 4005.1,
-          "elevation_gain": 21.8,
-          "moving_time": 3338.0
+          "count": 2,
+          "distance": 9984.1,
+          "elevation_gain": 34.2,
+          "moving_time": 7360.0
         }
       },
       "WeightTraining": {
@@ -15411,7 +15435,7 @@
       }
     }
   },
-  "generated_at": "2026-07-12T15:56:18.371306+00:00",
+  "generated_at": "2026-07-13T17:10:38.342140+00:00",
   "other_bucket": "OtherSports",
   "repo": "GebruikerXL/Matzwart",
   "source": "strava",
