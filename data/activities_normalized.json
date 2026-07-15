@@ -12621,5 +12621,31 @@
     "start_date_local": "2026-07-13T09:04:40Z",
     "type": "Run",
     "year": 2026
+  },
+  {
+    "date": "2026-07-15",
+    "distance": 16255.7,
+    "elevation_gain": 28.0,
+    "id": "19319271079",
+    "moving_time": 1949.0,
+    "name": "15 juli",
+    "raw_activity_type": "Ride",
+    "raw_type": "Ride",
+    "start_date_local": "2026-07-15T08:34:18Z",
+    "type": "Ride",
+    "year": 2026
+  },
+  {
+    "date": "2026-07-15",
+    "distance": 3921.7,
+    "elevation_gain": 8.6,
+    "id": "19319576891",
+    "moving_time": 1425.0,
+    "name": "15 juli (2)",
+    "raw_activity_type": "Run",
+    "raw_type": "Run",
+    "start_date_local": "2026-07-15T09:14:51Z",
+    "type": "Run",
+    "year": 2026
   }
 ]
