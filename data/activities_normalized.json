@@ -12725,5 +12725,31 @@
     "start_date_local": "2026-07-22T07:51:47Z",
     "type": "Run",
     "year": 2026
+  },
+  {
+    "date": "2026-07-24",
+    "distance": 7010.9,
+    "elevation_gain": 18.2,
+    "id": "19441298072",
+    "moving_time": 2336.0,
+    "name": "24 juli",
+    "raw_activity_type": "Run",
+    "raw_type": "Run",
+    "start_date_local": "2026-07-24T07:31:28Z",
+    "type": "Run",
+    "year": 2026
+  },
+  {
+    "date": "2026-07-24",
+    "distance": 55063.1,
+    "elevation_gain": 81.0,
+    "id": "19441897109",
+    "moving_time": 6499.0,
+    "name": "24 juli (2)",
+    "raw_activity_type": "Ride",
+    "raw_type": "Ride",
+    "start_date_local": "2026-07-24T06:22:35Z",
+    "type": "Ride",
+    "year": 2026
   }
 ]
