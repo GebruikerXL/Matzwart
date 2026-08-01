@@ -12816,5 +12816,18 @@
     "start_date_local": "2026-07-30T09:33:57Z",
     "type": "Swim",
     "year": 2026
+  },
+  {
+    "date": "2026-08-01",
+    "distance": 126753.0,
+    "elevation_gain": 222.0,
+    "id": "19555028104",
+    "moving_time": 15589.0,
+    "name": "1 augustus",
+    "raw_activity_type": "Ride",
+    "raw_type": "Ride",
+    "start_date_local": "2026-08-01T08:47:10Z",
+    "type": "Ride",
+    "year": 2026
   }
 ]
