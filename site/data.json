@@ -6950,6 +6950,13 @@
       "subtype": "Run",
       "type": "Run",
       "year": 2026
+    },
+    {
+      "date": "2026-08-10",
+      "hour": 9,
+      "subtype": "Run",
+      "type": "Run",
+      "year": 2026
     }
   ],
   "aggregates": {
@@ -15524,6 +15531,15 @@
           "distance": 7498.4,
           "elevation_gain": 9.0,
           "moving_time": 2522.0
+        },
+        "2026-08-10": {
+          "activity_ids": [
+            "19677788311"
+          ],
+          "count": 1,
+          "distance": 10448.6,
+          "elevation_gain": 11.0,
+          "moving_time": 3734.0
         }
       },
       "Swim": {
@@ -15789,7 +15805,7 @@
       }
     }
   },
-  "generated_at": "2026-08-09T15:26:40.655151+00:00",
+  "generated_at": "2026-08-10T15:56:10.932500+00:00",
   "other_bucket": "OtherSports",
   "repo": "GebruikerXL/Matzwart",
   "source": "strava",
