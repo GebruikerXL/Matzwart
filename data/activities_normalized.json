@@ -12972,5 +12972,18 @@
     "start_date_local": "2026-08-18T10:00:32Z",
     "type": "Run",
     "year": 2026
+  },
+  {
+    "date": "2026-08-20",
+    "distance": 8395.3,
+    "elevation_gain": 54.0,
+    "id": "19819998700",
+    "moving_time": 1124.0,
+    "name": "20 augustus - FTP test",
+    "raw_activity_type": "VirtualRide",
+    "raw_type": "VirtualRide",
+    "start_date_local": "2026-08-20T10:28:49Z",
+    "type": "VirtualRide",
+    "year": 2026
   }
 ]
