@@ -13141,5 +13141,18 @@
     "start_date_local": "2026-09-09T11:34:35Z",
     "type": "Ride",
     "year": 2026
+  },
+  {
+    "date": "2026-09-12",
+    "distance": 10020.2,
+    "elevation_gain": 15.6,
+    "id": "20139556373",
+    "moving_time": 2686.0,
+    "name": "Run Winschoten 10x10",
+    "raw_activity_type": "Run",
+    "raw_type": "Run",
+    "start_date_local": "2026-09-12T09:30:18Z",
+    "type": "Run",
+    "year": 2026
   }
 ]
