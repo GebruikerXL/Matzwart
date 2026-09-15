@@ -7090,6 +7090,13 @@
       "subtype": "Ride",
       "type": "Ride",
       "year": 2026
+    },
+    {
+      "date": "2026-09-15",
+      "hour": 12,
+      "subtype": "Ride",
+      "type": "Ride",
+      "year": 2026
     }
   ],
   "aggregates": {
@@ -15138,6 +15145,15 @@
           "distance": 34829.3,
           "elevation_gain": 180.0,
           "moving_time": 4366.0
+        },
+        "2026-09-15": {
+          "activity_ids": [
+            "20184620198"
+          ],
+          "count": 1,
+          "distance": 66133.3,
+          "elevation_gain": 205.0,
+          "moving_time": 8122.0
         }
       },
       "Rowing": {
@@ -16109,7 +16125,7 @@
       }
     }
   },
-  "generated_at": "2026-09-14T19:43:11.597136+00:00",
+  "generated_at": "2026-09-15T18:41:12.404853+00:00",
   "other_bucket": "OtherSports",
   "repo": "GebruikerXL/Matzwart",
   "source": "strava",
