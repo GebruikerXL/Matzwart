@@ -13232,5 +13232,18 @@
     "start_date_local": "2026-09-24T13:34:42Z",
     "type": "Run",
     "year": 2026
+  },
+  {
+    "date": "2026-09-26",
+    "distance": 10976.0,
+    "elevation_gain": 47.0,
+    "id": "20334855219",
+    "moving_time": 8327.0,
+    "name": "Pieterpad Proloog",
+    "raw_activity_type": "Walk",
+    "raw_type": "Walk",
+    "start_date_local": "2026-09-26T10:14:29Z",
+    "type": "Walk",
+    "year": 2026
   }
 ]
