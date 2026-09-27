@@ -13245,5 +13245,18 @@
     "start_date_local": "2026-09-26T10:14:29Z",
     "type": "Walk",
     "year": 2026
+  },
+  {
+    "date": "2026-09-27",
+    "distance": 21033.3,
+    "elevation_gain": 111.6,
+    "id": "20350356939",
+    "moving_time": 6841.0,
+    "name": "Halve marathon van Haarlem",
+    "raw_activity_type": "Run",
+    "raw_type": "Run",
+    "start_date_local": "2026-09-27T12:02:33Z",
+    "type": "Run",
+    "year": 2026
   }
 ]
