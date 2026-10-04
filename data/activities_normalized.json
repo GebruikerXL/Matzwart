@@ -13310,5 +13310,18 @@
     "start_date_local": "2026-10-03T13:17:43Z",
     "type": "Ride",
     "year": 2026
+  },
+  {
+    "date": "2026-10-04",
+    "distance": 42460.1,
+    "elevation_gain": 89.0,
+    "id": "20445404054",
+    "moving_time": 5439.0,
+    "name": "4 oktober",
+    "raw_activity_type": "Ride",
+    "raw_type": "Ride",
+    "start_date_local": "2026-10-04T11:13:44Z",
+    "type": "Ride",
+    "year": 2026
   }
 ]
