@@ -101,7 +101,7 @@ const G = {
     UI.show('#ending');
     try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
     await wait(2500);
-    UI.focus = (k) => { if (k === 'ok' || k === 'cancel') { UI.focus = null; UI.show('#ending', false); this.busy = false; this.begin(freshState(), true); } };
+    UI.focus = (k) => { if (k === 'ok' || k === 'cancel') { UI.focus = null; UI.show('#ending', false); this.busy = false; const st = freshState(); st.name = this.S.name; this.begin(st, true); } };
   },
 
   // ---------- kaart ----------
@@ -165,6 +165,8 @@ const G = {
     let tx = pl.x + dx, ty = pl.y + dy;
     let npc = this.npcAt(tx, ty);
     if (!npc && tileAt(this.map, tx, ty) === 'counter') npc = this.npcAt(tx + dx, ty + dy);
+    const peer = !npc && Online.peerAt(tx, ty);
+    if (peer) { this.busy = true; await Online.talkTo(peer); this.busy = false; return; }
     if (npc) {
       const r = this.npcRt[npc.id];
       r.dir = { up: 'down', down: 'up', left: 'right', right: 'left' }[pl.dir];
@@ -257,6 +259,7 @@ const G = {
       drawHeld(ctx, w, pl.dir, x, y, pfr, false);
     } });
     }
+    if (this.mode !== 'title') Online.sprites(list, cx, cy);
     list.sort((a, b) => a.y - b.y).forEach((s) => s.draw());
     if (!m.inside) {
       // ochtendlicht
@@ -349,6 +352,7 @@ const G = {
         const P = this.P;
         panel.innerHTML = `<h3>Status</h3>
           <div class="row"><span class="lbl">Naam</span><span>??? (begint met een J… of een G…?)</span></div>
+          <div class="row"><span class="lbl">Spelernaam</span><span>${this.S.name || '-'}</span></div>
           <div class="row"><span class="lbl">Level</span><span>${P.lvl}</span></div>
           <div class="row"><span class="lbl">HP</span><span>${P.hp} / ${P.maxHp}</span></div>
           <div class="row"><span class="lbl">EP</span><span>${P.ep} / ${P.maxEp}</span></div>
@@ -408,8 +412,11 @@ const G = {
     const saved = this.loadSave();
     const k = await UI.list('#titlemenu', ['Nieuw spel', { label: 'Doorgaan', off: !saved }], { keep: true });
     SFX.init();
+    $('#titlemenu').hidden = true;
+    const st = k === 1 && saved ? saved : freshState();
+    if (!st.name) st.name = await askName();
     await UI.fade(true);
-    if (k === 1 && saved) this.begin(saved, false); else this.begin(freshState(), true);
+    if (k === 1 && saved) this.begin(st, false); else this.begin(st, true);
     await UI.fade(false);
   },
 };
@@ -443,6 +450,7 @@ function holdDir(k, down) {
   if (!down && i >= 0) G.held.splice(i, 1);
 }
 addEventListener('keydown', (e) => {
+  if (e.target && e.target.tagName === 'INPUT') return;
   const k = KEYMAP[e.code]; if (!k) return;
   e.preventDefault();
   if (DIRS[k]) holdDir(k, true);
@@ -461,13 +469,16 @@ document.querySelectorAll('#pad .pbtn').forEach((b) => {
 let last = performance.now();
 function loop(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
-  if (G.mode === 'map') G.update(dt); else G.time += dt;
+  if (G.mode === 'map') { G.update(dt); Online.tick(); } else G.time += dt;
   G.render();
+  Online.sync();
+  updateHud();
   requestAnimationFrame(loop);
 }
 
 function start(data) {
   requestAnimationFrame(loop);
+  Online.init();
   if (data && data.S) { G.begin(data.S, false); return; }
   G.title();
 }

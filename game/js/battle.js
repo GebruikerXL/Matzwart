@@ -153,7 +153,7 @@ const Battle = {
     $('#bstats').innerHTML = `<div class="row"><b>???</b><span class="lbl">Lvl ${p.lvl}</span></div>
       <div class="row"><span class="lbl">HP</span><span>${p.hp}/${p.maxHp}</span></div><div class="bar hp"><i style="width:${p.hp / p.maxHp * 100}%"></i></div>
       <div class="row"><span class="lbl">EP</span><span>${p.ep}/${p.maxEp}</span></div><div class="bar ep"><i style="width:${p.ep / p.maxEp * 100}%"></i></div>
-      <div class="wpn">${w ? w.name : 'Lege handen'}</div>${this.chips(this.me, ME_ST)}`;
+      <div class="wpn">${w ? w.name : 'Lege handen'} · EUR ${p.money}</div>${this.chips(this.me, ME_ST)}`;
   },
 
   dmg(atk, def, mult = 1) {

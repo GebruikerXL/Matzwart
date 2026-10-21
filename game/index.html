@@ -83,8 +83,10 @@ body {
 #panel .q.done { color: #8f98bd; }
 #panel .q.done b::after { content: "  ✔"; color: var(--calm); }
 #panel .q small { display: block; color: var(--muted); font-size: 2.6cqw; }
-#hud { left: 2%; top: 3%; font-size: 2.6cqw; padding: 0.8cqw 1.8cqw; }
-#toast { left: 50%; top: 4%; transform: translateX(-50%); font-size: 2.7cqw; padding: 0.8cqw 2.4cqw; white-space: nowrap; }
+#hud { left: 2%; top: 3%; font-size: 2.3cqw; padding: 0.6cqw 1.6cqw; min-width: 24%; max-width: 60%; opacity: .94; }
+#hud .online { font-size: 1.9cqw; color: var(--muted); }
+#hud b { color: var(--gold); font-weight: 600; }
+#toast { left: 50%; top: 18%; transform: translateX(-50%); font-size: 2.7cqw; padding: 0.8cqw 2.4cqw; white-space: nowrap; }
 
 /* Battle */
 #bstats { right: 2%; bottom: 2.5%; width: 31%; font-size: 2.7cqw; }
@@ -122,6 +124,10 @@ body {
 }
 #title .sub, #ending .sub { font-size: 3cqw; color: var(--ink); text-shadow: 0.3cqw 0.3cqw 0 #000; max-width: 80%; }
 #title .list { min-width: 38%; }
+#nameform { width: 70%; display: flex; flex-direction: column; gap: 1.4cqw; font-size: 2.6cqw; text-align: left; }
+#nameform .namerow { display: flex; gap: 1.4cqw; }
+#nameform input { flex: 1; min-width: 0; font: 600 3.4cqw var(--font-ui); padding: 0.8cqw 1.4cqw; border-radius: 0.8cqw; border: 0.4cqw solid var(--win-edge); background: #0a0f2e; color: var(--ink); }
+#nameform button { font: 600 3cqw var(--font-ui); padding: 0.8cqw 2.4cqw; border-radius: 0.8cqw; border: 0.4cqw solid var(--win-edge); background: #6a2b14; color: var(--ink); cursor: pointer; }
 #title .hint { font-size: 2.2cqw; color: var(--muted); position: absolute; bottom: 3%; }
 #ending { background: #000; }
 #ending .sub { white-space: pre-wrap; }
@@ -196,6 +202,10 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
     <h1>BRAK IN<br>MEEDHUIZEN</h1>
     <div class="sub">Je wordt wakker in een schuur. Je hoofd bonkt. Je weet niet meer hoe je heet.</div>
     <div class="list win" id="titlemenu"></div>
+    <form id="nameform" class="win" hidden>
+      <label for="pname">Kies je spelersnaam. Andere spelers zien deze naam boven je hoofd. Je personage weet zijn eigen naam nog steeds niet.</label>
+      <div class="namerow"><input id="pname" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Spelersnaam"><button type="submit">Oké</button></div>
+    </form>
     <div class="hint">Pijltjes / WASD: lopen · Spatie / Enter: oké · Esc / X: menu</div>
   </div>
   <div id="ending" class="ui" hidden>
@@ -226,4 +236,5 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js/story2.js"></script>
 <script src="js/casino.js"></script>
 <script src="js/vapers.js"></script>
+<script src="js/online.js"></script>
 <script src="js/main.js"></script>

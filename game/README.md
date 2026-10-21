@@ -35,6 +35,12 @@ Statuseffecten: vijanden kunnen Ongemakkelijk (slaat beurt over), Misselijk (sch
 
 Het Gokpaleis staat in de A-framestraat, achter de parkeerplaats van de EKA. Er staan een gokkast, een roulettetafel en een hoger-lagertafel. Naast de gokkast staat Aron van der Wal met investeringsadviezen. Volg je zijn tip, dan verlies je gegarandeerd. Doe je precies het omgekeerde, dan win je.
 
+## Online
+
+Bij het starten kies je een spelersnaam. Iedereen die het spel op hetzelfde moment open heeft (op claude.ai), ziet elkaar rondlopen met de naam boven het hoofd. Sta je naast iemand, dan zie je hoeveel geld die speler heeft. Met Spatie kun je zwaaien of ruilen: spullen, wapens, vapes of geld. Linksboven staat altijd hoeveel geld en schuld je hebt.
+
+Voortgang wordt per browser opgeslagen; online zie je elkaar alleen zolang het spel openstaat. Lokaal (als bestand geopend) speel je offline.
+
 ## Bestanden
 
 - `js/sprites.js`: alle pixel-art, in code getekend
@@ -46,4 +52,5 @@ Het Gokpaleis staat in de A-framestraat, achter de parkeerplaats van de EKA. Er 
 - `js/story2.js`: voorwerpen, deuren, intro en finale
 - `js/vapers.js`: vapende tieners, hun dampwolken, de vape-QTE
 - `js/casino.js`: het Gokpaleis, de spelletjes en Aron van der Wal
+- `js/online.js`: andere spelers, ruilen, geld-en-schuldbalk, spelersnaam
 - `js/main.js`: engine (lopen, camera, menu, opslaan)
