@@ -117,7 +117,17 @@ const NPCS = [
         await say('Henk', 'Ik heb er een foto van. Wil je hem zien? Nee? Mooi niet.');
         return;
       }
-      await say('Henk', pick(['Mijn tulpen komen er wel weer bovenop. Jij ook, denk ik.', 'Ga eens naar huis, jongen. Je ziet eruit als een natte krant.', 'Hmpf.']));
+      if (!ownsWeapon('schoffel')) {
+        if ((G.P.stoer || 0) >= 2) {
+          await say('Henk', 'Hm. Je ziet er ineens een stuk stoerder uit. Rook je soms?');
+          await say('Henk', 'Weet je wat, neem mijn schoffel mee. Dan jaag je die hangjongeren uit mijn tulpen. En ik wil hem terug.');
+          await giveWeapon('schoffel');
+          return;
+        }
+        await say('Henk', 'Als je er wat stoerder uitzag, mocht je mijn schoffel lenen. Om die hangjongeren uit mijn tulpen te jagen. Maar zo? Nee.');
+        return;
+      }
+      await say('Henk', pick(['Mijn tulpen komen er wel weer bovenop. Jij ook, denk ik.', 'Ga eens naar huis, jongen. Je ziet eruit als een natte krant.', 'Is mijn schoffel nog heel?']));
     },
   },
   {
@@ -167,7 +177,7 @@ const NPCS = [
       }
       for (;;) {
         const opts = ['Wat kopen'];
-        const acts = [() => G.shop(['frikandelbroodje', 'bitterballen', 'koffie'], 'Gerda')];
+        const acts = [() => G.shop(['frikandelbroodje', 'bitterballen', 'koffie', 'w_darts'], 'Gerda')];
         if (G.quest('rekening') === 1) { opts.push({ label: `Rekening betalen (€${REKENING})`, off: G.P.money < REKENING }); acts.push(payBill); }
         opts.push('Heb je een tip?', 'Doei');
         acts.push(async () => say('Gerda', hint()), null);
@@ -205,6 +215,11 @@ const NPCS = [
   {
     id: 'bestuur', map: 'dorpshuis', x: 11, y: 8, dir: 'up', look: LOOK.bestuur, wander: true,
     async talk() {
+      if (ownsWeapon('tafelvlag')) {
+        await say('Bestuurslid', 'Is dat… ONZE tafelvlag? Waarom is hij nat?');
+        await say('Bestuurslid', 'Ach, hou hem maar. Hij staat je wel.');
+        return;
+      }
       await say('Bestuurslid', 'Ik ben de stoelen aan het tellen. Er missen er twee. Én de tafelvlag.');
       await say('Bestuurslid', 'Jij weet daar zeker niks van? Je had gisteravond wel een tafelvlag om als cape.');
     },
@@ -221,6 +236,7 @@ const NPCS = [
         await say('Thijs', 'Het motorblok is weg. Oopsie.');
         await say('Thijs', 'Jij kwam hier vannacht om drie uur langs. "Ik help je even sleutelen," zei je. Na een uur zei je: "Dit ding zit in de weg."');
         await say('Thijs', 'En toen zei je dat je het naar "iemand die er goed op past" bracht. Meer weet ik ook niet.');
+        await say('Thijs', 'O, en let niet op Mick. Dat is mijn labradoodle. Hij houdt van iedereen. Echt van iedereen.');
         if ((G.P.stoer || 0) >= 3) await say('Thijs', 'Rook jij tegenwoordig? Stoer hoor. Maar vind nou eerst even mijn motorblok.');
         G.quest('motorblok', 1);
         return;
@@ -237,6 +253,9 @@ const NPCS = [
         await me('Thijs en jij tillen het motorblok terug. Het zit er een beetje scheef in, maar de BMW start.');
         await say('Thijs', 'Bedankt, man. Hier, voor de moeite.');
         G.P.money += 15; SFX.item(); UI.toast('+€15');
+        await say('Thijs', 'En hier. Een fotolijst van Mick. Mijn moeder heeft er tien laten maken: Mick en zijn strandbal.');
+        await say('Thijs', 'Ik kan er niet meer naar kijken. Niemand kan dat. Misschien heb jij er iets aan.');
+        await giveWeapon('mick');
         await say('Thijs', 'Na het sleutelen liep je trouwens zingend richting de boerderij van Jansen. "Ik slaap vannacht bij de koeien," riep je.');
         await bijna('Thijs', 'Wacht, ik heb je nummer gewoon in mijn telefoon. Onder…', 'De BMW begint keihard te piepen. Thijs rent naar zijn auto. Als het stil is, weet hij niet meer wat hij zocht.');
         G.quest('motorblok', 3);
@@ -244,6 +263,18 @@ const NPCS = [
         return;
       }
       await say('Thijs', pick(['Hij loopt weer als een zonnetje. Een scheef zonnetje.', 'Als je ooit een lift nodig hebt, weet je me te vinden. Oopsie, je hebt geen idee hoe je heet. Maakt niet uit.']));
+    },
+  },
+  {
+    id: 'mick', map: 'oost', x: 16, y: 8, dir: 'down', look: LOOKS.mick, wander: true,
+    async talk() {
+      await say('Mick', pick(['Woef!', 'Woef woef.', 'Hijg hijg.']));
+      await me(pick([
+        'Mick springt tegen je been op en begint enthousiast te… bewegen. Je schudt hem er voorzichtig af.',
+        'Mick kijkt je diep in de ogen. Te diep.',
+        'Mick snuffelt aan je broek, zucht teleurgesteld en loopt naar de lantaarnpaal. Die heeft meer kans.',
+        'Mick heeft een winkelwagen gevonden. Ze hebben het samen erg gezellig. Je kijkt de andere kant op.',
+      ]));
     },
   },
   {
@@ -275,7 +306,7 @@ const NPCS = [
       for (;;) {
         const korting = q >= 3 ? 0.2 : 0;
         const opts = ['Boodschappen doen'];
-        const acts = [() => G.shop(['krentenbol', 'rookworst', 'chocomel', 'paracetamol', 'energiedrank', 'pakje'], 'Ineke', korting)];
+        const acts = [() => G.shop(['krentenbol', 'rookworst', 'chocomel', 'paracetamol', 'energiedrank', 'pakje', 'w_frikandel', 'w_paraplu'], 'Ineke', korting)];
         if (G.quest('onbetaald') === 2) { opts.push('De dropdief is aangepakt'); acts.push(dropDone); }
         if (G.quest('bal') === 1) { opts.push('Heb je een voetbal gezien?'); acts.push(askBall); }
         opts.push('Doei');
@@ -314,6 +345,8 @@ const NPCS = [
         await say('Trainer Harm', 'Na de penalty\'s vannacht ging je richting de A-framestraat. Je zei dat je "Thijs ging helpen met zijn auto".');
         await bijna('Trainer Harm', 'Je naam staat trouwens op een oud teamshirt in de kantine. Rugnummer 7. En de naam is…', '…eraf gewassen. Op 90 graden. "Sorry," zegt Harm. "Mijn vrouw doet de was."');
         G.P.money += 10; SFX.item(); UI.toast('+€10');
+        await say('Trainer Harm', 'En neem deze cornervlag maar mee. Die zat vannacht ook al in jouw hand.');
+        await giveWeapon('cornervlag');
         G.quest('bal', 4);
         await clue('c_bal');
         return;

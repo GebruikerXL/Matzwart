@@ -25,12 +25,19 @@ Opslaan kan via het menu of op het bankje aan de Dorpsstraat (dat vult ook je HP
 
 Turn-based: Aanvallen, Skills (kosten EP), Praten, Spullen en Vluchten. Sigaretten uit de EKA kosten HP maar geven Stoerheid, waarmee je bij Praten kunt intimideren. Met Praten vul je de Rust-meter van je tegenstander. Bij 100% laat hij je gaan, en dan krijg je extra geld. In het hoge gras kom je willekeurige dorpstypes tegen.
 
+## Wapens
+
+Er zijn 16 wapens te vinden: verstopt in het dorp, als beloning, te koop of als buit van vijanden. Wat je vasthoudt zie je in de hand van je poppetje. Kies je wapen via Menu → Wapens. In een gevecht gebruik je met **Wapen** de speciale aanval, of wissel je van wapen (dat kost een beurt).
+
+Statuseffecten: vijanden kunnen Ongemakkelijk (slaat beurt over), Misselijk (schade per beurt), Verblind (mist vaak) of Verzwakt (minder schade) worden. Jij kunt Misselijk of Duizelig worden; Paracetamol helpt.
+
 ## Bestanden
 
 - `js/sprites.js`: alle pixel-art, in code getekend
 - `js/maps.js`: het dorp, de schuur, het café en het dorpshuis
 - `js/ui.js`: dialoogvensters, keuzelijsten en geluid
 - `js/battle.js`: vechtsysteem, vijanden en voorwerpen
+- `js/weapons.js`: wapens, statuseffecten, wapen-icoontjes en Mick
 - `js/story.js`: personages en opdrachten
 - `js/story2.js`: voorwerpen, deuren, intro en finale
 - `js/main.js`: engine (lopen, camera, menu, opslaan)

@@ -97,6 +97,14 @@ body {
 .bar.hp i { background: var(--hp); }
 .bar.ep i { background: var(--ep); }
 .bar.calm i { background: var(--calm); }
+.chips { display: flex; flex-wrap: wrap; gap: 0.6cqw; margin-top: 0.4cqw; }
+.chip { font-size: 2cqw; padding: 0.1cqw 0.9cqw; border-radius: 0.6cqw; background: #0a0f2e; border: 0.2cqw solid var(--muted); text-shadow: none; }
+.chip.st-ongemak { border-color: #e86fb0; color: #f6a8d0; }
+.chip.st-misselijk { border-color: var(--calm); color: var(--calm); }
+.chip.st-verblind, .chip.st-gedekt { border-color: var(--gold); color: var(--gold); }
+.chip.st-verzwakt, .chip.st-duizelig { border-color: var(--ep); color: #8ccfff; }
+.chip.st-opgepompt { border-color: var(--hp); color: #ff9a8a; }
+.wpn { font-size: 2.3cqw; color: var(--gold); }
 .row { display: flex; justify-content: space-between; gap: 2cqw; font-variant-numeric: tabular-nums; }
 .lbl { color: var(--muted); }
 
@@ -187,6 +195,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js/maps.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/battle.js"></script>
+<script src="js/weapons.js"></script>
 <script src="js/story.js"></script>
 <script src="js/story2.js"></script>
 <script src="js/main.js"></script>

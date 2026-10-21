@@ -101,7 +101,7 @@ function interior(id, name, w, h, floor) {
   rect(m, 1, 2, 3, 2, 'hay'); rect(m, 8, 2, 2, 3, 'hay'); setT(m, 1, 6, 'hay'); setT(m, 9, 6, 'hay');
   setT(m, 5, 8, 'mat_out');
   m.doors.push({ x: 5, y: 8, id: 'uit_schuur' });
-  prop(m, 6, 2, 'hark', true, 'hark');
+  prop(m, 6, 2, 'mestvork', true, 'w_mestvork');
   prop(m, 4, 2, 'emmer', true);
   MAPS.schuur = m;
 })();
@@ -132,6 +132,7 @@ function interior(id, name, w, h, floor) {
   setT(m, 7, 10, 'mat_out');
   m.doors.push({ x: 7, y: 10, id: 'uit_dorpshuis' });
   prop(m, 2, 1, 'poster', true, 'klaverposter');
+  prop(m, 7, 6, 'kaartjes', true, 'w_kaarten');
   prop(m, 12, 1, 'poster', true, 'prikbord');
   prop(m, 13, 3, 'biervat', true);
   MAPS.dorpshuis = m;
@@ -166,7 +167,7 @@ function interior(id, name, w, h, floor) {
 
   prop(m, 12, 8, 'bmwL', true, 'bmw'); prop(m, 13, 8, 'bmwR', true, 'bmw');
   prop(m, 29, 7, 'tomatenplant', true, 'dwergplant');
-  prop(m, 4, 20, 'container', true, 'container'); prop(m, 6, 20, 'container', true, 'container');
+  prop(m, 4, 20, 'container', true, 'w_dildo'); prop(m, 6, 20, 'container', true, 'container');
   prop(m, 15, 14, 'winkelwagen', true, 'winkelwagen'); prop(m, 19, 16, 'winkelwagen', true, 'winkelwagen');
   [[6, 9], [18, 9], [28, 12], [10, 12]].forEach(([x, y]) => prop(m, x, y, 'lamp', true));
   m.doors.push({ x: 0, y: 10, id: 'oost_naar_dorp' }, { x: 0, y: 11, id: 'oost_naar_dorp' });
@@ -193,7 +194,7 @@ function interior(id, name, w, h, floor) {
   rect(m, 6, 14, 1, 1, 'path');
   rect(m, 0, 17, 36, 1, 'water'); rect(m, 0, 18, 36, 10, 'deep');
   rect(m, 18, 17, 1, 5, 'steiger'); rect(m, 17, 22, 3, 1, 'steiger');
-  prop(m, 21, 20, 'boei', true, 'boei');
+  prop(m, 19, 20, 'boei', true, 'boei');
   prop(m, 25, 15, 'ijsco', true, 'ijsco');
   prop(m, 12, 15, 'bank', true, 'bank');
   prop(m, 16, 15, 'bord', true, 'steigerbord');

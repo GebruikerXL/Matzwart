@@ -9,7 +9,7 @@ const PLAYER_LOOK = { skin: '#f0c4a0', hair: '#6b4226', style: 'messy', shirt: '
 
 function freshState() {
   return {
-    P: { lvl: 1, xp: 0, next: 22, hp: 40, maxHp: 40, ep: 12, maxEp: 12, atk: 6, def: 3, money: 12, stoer: 0, items: { krentenbol: 2, sleutel: 1, telefoon: 1 } },
+    P: { lvl: 1, xp: 0, next: 22, hp: 40, maxHp: 40, ep: 12, maxEp: 12, atk: 6, def: 3, money: 12, stoer: 0, weapons: [], wpn: null, items: { krentenbol: 2, sleutel: 1, telefoon: 1 } },
     flags: {}, quests: {},
     pos: { map: 'schuur', x: 3, y: 5, dir: 'down' },
   };
@@ -78,12 +78,13 @@ const G = {
   async shop(items, who, korting = 0) {
     const prijs = (id) => Math.max(1, Math.round(ITEMS[id].price * (1 - korting)));
     for (;;) {
-      const list = items.map((id) => ({ label: ITEMS[id].name, right: '€' + prijs(id), off: this.P.money < prijs(id) }));
+      const list = items.map((id) => ({ label: ITEMS[id].name, right: ITEMS[id].weapon && ownsWeapon(ITEMS[id].weapon) ? 'gekocht' : '€' + prijs(id), off: this.P.money < prijs(id) || (ITEMS[id].weapon && ownsWeapon(ITEMS[id].weapon)) }));
       list.push('Klaar');
       const k = await UI.ask(who, `Wat mag het zijn? Je hebt €${this.P.money}.`, list, true);
       if (k < 0 || k === items.length) return;
       const id = items[k], it = ITEMS[id];
       this.P.money -= prijs(id);
+      if (it.weapon) { await giveWeapon(it.weapon); continue; }
       if (it.pack) this.give(it.pack[0], it.pack[1], true); else this.give(id, 1, true);
       SFX.item();
       UI.toast(`${it.name} gekocht`);
@@ -242,7 +243,12 @@ const G = {
     const pl = this.pl;
     if (this.mode !== 'title') {
     const pfr = pl.moving ? 1 + pl.anim : 0;
-    list.push({ y: pl.py + 0.5, draw: () => drawPerson(PLAYER_LOOK, pl.dir, pfr, pl.px - cx, pl.py - cy) });
+    list.push({ y: pl.py + 0.5, draw: () => {
+      const w = this.P && this.P.wpn, x = pl.px - cx, y = pl.py - cy;
+      drawHeld(ctx, w, pl.dir, x, y, pfr, true);
+      drawPerson(PLAYER_LOOK, pl.dir, pfr, x, y);
+      drawHeld(ctx, w, pl.dir, x, y, pfr, false);
+    } });
     }
     list.sort((a, b) => a.y - b.y).forEach((s) => s.draw());
     if (!m.inside) {
@@ -278,6 +284,15 @@ const G = {
       if (B.foe.id === 'scooter') { ctx.drawImage(getProp('fiets'), VW / 2 - 54 + sx, 120 + bob, 48, 48); }
       ctx.restore();
     }
+    if (B.swing) {
+      const s = B.swing, k = Math.min(1, s.t / 12);
+      ctx.save();
+      ctx.translate(40 + (VW / 2 - 40) * k, 210 - 90 * k - Math.sin(k * Math.PI) * 40);
+      ctx.rotate(-1.2 + k * 2.4);
+      ctx.drawImage(wicon(s.id), -24, -24, 48, 48);
+      ctx.restore();
+      if (++s.t > 16) B.swing = null;
+    }
     if (B.flash > 0) { ctx.fillStyle = `rgba(220,40,40,${B.flash / 20})`; ctx.fillRect(0, 0, VW, VH); B.flash -= 1; }
   },
 
@@ -300,8 +315,10 @@ const G = {
     this.busy = true; SFX.ok();
     let start = 0;
     for (;;) {
-      const k = await UI.list('#menu', ['Spullen', 'Opdrachten', 'Status', 'Opslaan', SFX.on ? 'Geluid: aan' : 'Geluid: uit', 'Terug'], { cancel: true, keep: true, start });
-      start = Math.max(0, k);
+      const k0 = await UI.list('#menu', ['Spullen', 'Wapens', 'Opdrachten', 'Status', 'Opslaan', SFX.on ? 'Geluid: aan' : 'Geluid: uit', 'Terug'], { cancel: true, keep: true, start });
+      start = Math.max(0, k0);
+      if (k0 === 1) { await this.weaponMenu(); continue; }
+      const k = k0 > 1 ? k0 - 1 : k0;
       const panel = $('#panel');
       if (k === 0) {
         const own = Object.keys(this.P.items).filter((id) => this.P.items[id] > 0);
@@ -327,7 +344,8 @@ const G = {
           <div class="row"><span class="lbl">Level</span><span>${P.lvl}</span></div>
           <div class="row"><span class="lbl">HP</span><span>${P.hp} / ${P.maxHp}</span></div>
           <div class="row"><span class="lbl">EP</span><span>${P.ep} / ${P.maxEp}</span></div>
-          <div class="row"><span class="lbl">Aanval</span><span>${P.atk}</span></div>
+          <div class="row"><span class="lbl">Aanval</span><span>${P.atk}${P.wpn ? ` + ${WEAPONS[P.wpn].atk}` : ''}</span></div>
+          <div class="row"><span class="lbl">Wapen</span><span>${P.wpn ? WEAPONS[P.wpn].name : 'Lege handen'}</span></div>
           <div class="row"><span class="lbl">Verdediging</span><span>${P.def}</span></div>
           <div class="row"><span class="lbl">XP</span><span>${P.xp} / ${P.next}</span></div>
           <div class="row"><span class="lbl">Stoerheid</span><span>${P.stoer || 0}</span></div>
@@ -344,6 +362,20 @@ const G = {
     this.busy = false;
   },
 
+  async weaponMenu() {
+    const P = this.P, own = P.weapons || [], panel = $('#panel');
+    const box = (txt) => { panel.innerHTML = `<h3>Wapens</h3>${txt}`; panel.hidden = false; };
+    if (!own.length) { box('Je hebt nog geen wapens. Kijk eens goed rond in het dorp.'); await waitKey(); panel.hidden = true; return; }
+    box(`<div id="wlist" class="list"></div><p id="wdesc" class="lbl"></p><p class="lbl">${own.length} van ${Object.keys(WEAPONS).length} gevonden</p>`);
+    const opts = own.map((id) => ({ label: (P.wpn === id ? '✓ ' : '') + WEAPONS[id].name, right: '+' + WEAPONS[id].atk })).concat([{ label: (P.wpn ? '' : '✓ ') + 'Lege handen' }]);
+    const i = await UI.list('#wlist', opts, {
+      cancel: true, keep: true,
+      onMove: (s) => { const w = WEAPONS[own[s]]; $('#wdesc').textContent = w ? `Speciaal: ${w.sp.name} (${w.sp.ep} EP). ${w.sp.desc}` : 'Niks vasthouden. Handen in je zakken.'; },
+    });
+    if (i >= 0) { P.wpn = own[i] || null; UI.toast(P.wpn ? `Je houdt nu vast: ${WEAPONS[P.wpn].name}` : 'Lege handen'); }
+    panel.hidden = true;
+  },
+
   snapshot() {
     this.S.pos = { map: this.map.id, x: this.pl.x, y: this.pl.y, dir: this.pl.dir };
     return JSON.parse(JSON.stringify(this.S));
@@ -353,6 +385,7 @@ const G = {
 
   begin(state, fresh) {
     this.S = state;
+    state.P.weapons = state.P.weapons || [];
     UI.show('#title', false);
     const p = state.pos;
     this.loadMap(p.map, p.x, p.y, p.dir);

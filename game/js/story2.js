@@ -1,5 +1,5 @@
 // Verhaal deel 2: voorwerpen, deuren, intro en finale.
-const PROP_HIDE = {};
+const PROP_HIDE = { w_mestvork: () => ownsWeapon('mestvork'), w_kaarten: () => ownsWeapon('kaarten') };
 const STEP_EVENTS = {};
 
 const PROPS = {
@@ -7,7 +7,22 @@ const PROPS = {
   plaatsbord: () => me('MEEDHUIZEN. Je weet tenminste wáár je bent. Dat is een begin.'),
   bordoost: () => me('→ A-framestraat · EKA'),
   bordzuid: () => me('↓ Voetbalveld VV Meedhuizen · Zwemsteiger'),
-  bushalte: () => me('Dienstregeling: de bus komt om 7:12 en om 16:48. Het is nu… geen idee.'),
+  bushalte: async () => {
+    if (!ownsWeapon('krant')) {
+      await me('Op het bankje in het bushokje ligt een doorweekte krant. Opgerold is hij verrassend stevig.');
+      await giveWeapon('krant'); return;
+    }
+    await me('Dienstregeling: de bus komt om 7:12 en om 16:48. Het is nu… geen idee.');
+  },
+  w_mestvork: async () => { await me('Een mestvork. Boer Jansen zal hem vast niet missen. Hij heeft er nog drie.'); await giveWeapon('mestvork'); },
+  w_kaarten: async () => { await me('Op de tafel ligt nog een spel klaverjaskaarten. De schoppenboer zit onder het bier.'); await giveWeapon('kaarten'); },
+  w_dildo: async () => {
+    if (ownsWeapon('dildo')) { await me('Een container. Hij ruikt naar gisteren. Er zit verder niks bijzonders meer in.'); return; }
+    await me('Je tilt het deksel van de container op. Tussen de lege dozen ligt iets roze.');
+    await me('Je pakt het op voordat je erover nadenkt. Het is… een dildo. Roze. Flubberig. Toch verrassend stevig.');
+    await me('Wie gooit er nou zoiets weg? Je besluit er geen vragen over te stellen.');
+    await giveWeapon('dildo');
+  },
   tractor: () => me('Een groene trekker. De sleutel zit er nog in. Nee. Je hebt gisteren al genoeg gedaan.'),
   koe0: () => me('De koe kijkt je aan alsof ze precies weet hoe je heet.'),
   koe1: () => me('"Boe." Dat is het niet. Denk je.'),
@@ -42,7 +57,14 @@ const PROPS = {
   // voetbalveld en steiger
   doel: () => me('Het doel. In het net zit een gat ter grootte van een bal.'),
   dug: () => me('De dug-out. Iemand heeft "IK SCHIET ALLES ERIN" in de bank gekrast. Het handschrift komt je bekend voor.'),
-  boei: () => me('Een reddingsboei. Je hoopt maar dat die vannacht niet nodig was.'),
+  boei: async () => {
+    if (!ownsWeapon('tafelvlag')) {
+      await me('Om de reddingsboei is iets vastgeknoopt. Je trekt het eruit: de tafelvlag van het dorpshuis. Kletsnat.');
+      await me('Je had hem vannacht om als cape, zeiden ze. Dat verklaart een hoop.');
+      await giveWeapon('tafelvlag'); return;
+    }
+    await me('Een reddingsboei. Je hoopt maar dat die vannacht niet nodig was.');
+  },
   ijsco: () => me('IJsjes! Gesloten tot de zomer.'),
   steigerbord: () => me('ZWEMSTEIGER. Zwemmen op eigen risico. Niet duiken. Iemand heeft er met stift onder geschreven: "behalve hij".'),
 };
@@ -112,7 +134,7 @@ function hint() {
   if (q('onbetaald') === 1) return 'De dropdief hangt achter de EKA bij de containers.';
   if (q('bal') === 3 && !f.keeperDone) return 'Keeper Kevin is sterk. Koop wat eten bij de EKA voor je gaat.';
   if (q('naam') === 2) return 'Ga naar huis, schat.';
-  return 'Op het bankje in de Dorpsstraat kun je bijkomen en opslaan.';
+  return pick(['Op het bankje in de Dorpsstraat kun je bijkomen en opslaan.', 'Er slingert van alles door het dorp waarmee je kunt meppen. Kijk eens in containers, bij de bushalte en bij de steiger.']);
 }
 
 // ---------- intro ----------

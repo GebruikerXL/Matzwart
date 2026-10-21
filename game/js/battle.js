@@ -63,7 +63,7 @@ const LOOKS = {
 // Tegenstanders. talk: opties met effect op Rust (+) of woede (negatief = vijand sterker)
 const ENEMIES = {
   jogger: {
-    name: 'Fanatieke jogger', look: 'jogger', hp: 22, atk: 5, def: 1, xp: 8, money: 6,
+    drop: 'springtouw', inflict: { st: 'misselijk', ch: 0.25, t: 'De zweetlucht maakt je misselijk.' }, name: 'Fanatieke jogger', look: 'jogger', hp: 22, atk: 5, def: 1, xp: 8, money: 6,
     moves: ['rent tegen je aan', 'zwaait met zijn smartwatch', 'hijgt in je gezicht'],
     talk: [
       { t: 'Vraag naar zijn rondetijd', v: 55, r: '"Vier minuut tweeëntwintig per kilometer!" Hij straalt.' },
@@ -73,7 +73,7 @@ const ENEMIES = {
     spare: 'De jogger knikt, start zijn stopwatch opnieuw en rent verder.',
   },
   buurvrouw: {
-    name: 'Bemoeizuchtige buurvrouw', look: 'buurvrouw', hp: 26, atk: 5, def: 2, xp: 10, money: 7,
+    drop: 'breinaalden', inflict: { st: 'duizelig', ch: 0.25, t: 'Van al dat geroddel word je duizelig.' }, name: 'Bemoeizuchtige buurvrouw', look: 'buurvrouw', hp: 26, atk: 5, def: 2, xp: 10, money: 7,
     moves: ['wijst met haar vinger', 'zucht heel diep', 'begint over vroeger'],
     talk: [
       { t: 'Roddel over Henk', v: 60, r: '"Nee! Echt?!" Ze is helemaal om.' },
@@ -83,7 +83,7 @@ const ENEMIES = {
     spare: 'Ze moet nodig de buurt bijpraten over wat ze net hoorde, en loopt weg.',
   },
   scooter: {
-    name: 'Hangjongere op scooter', look: 'scooter', hp: 30, atk: 7, def: 2, xp: 13, money: 9,
+    drop: 'helm', inflict: { st: 'misselijk', ch: 0.3, t: 'De uitlaatgassen maken je misselijk.' }, name: 'Hangjongere op scooter', look: 'scooter', hp: 30, atk: 7, def: 2, xp: 13, money: 9,
     moves: ['laat zijn uitlaat knallen', 'rijdt over je tenen', 'blaast een dampwolk naar je'],
     talk: [
       { t: 'Bewonder zijn scooter', v: 50, r: '"Opgevoerd tot vijfenveertig, broer." Hij is gevleid.' },
@@ -93,7 +93,7 @@ const ENEMIES = {
     spare: 'Hij laat zijn scooter nog één keer knallen en scheurt weg.',
   },
   enquete: {
-    name: 'Enquêteur met klembord', look: 'enquete', hp: 24, atk: 6, def: 1, xp: 10, money: 8,
+    drop: 'selfiestick', inflict: { st: 'duizelig', ch: 0.3, t: 'Vraag 47 van 112. Je wordt er duizelig van.' }, name: 'Enquêteur met klembord', look: 'enquete', hp: 24, atk: 6, def: 1, xp: 10, money: 8,
     moves: ['stelt een vervolgvraag', 'tikt met haar pen', 'vraagt om je postcode'],
     talk: [
       { t: 'Beantwoord de vragen', v: 35, r: '"Naam?" … Dat weet je dus niet. Ze schrijft "onbekend" op en lacht.' },
@@ -103,7 +103,7 @@ const ENEMIES = {
     spare: 'De enquête is af. Ze bedankt je met een pen met een logo erop. Die pen ben je binnen een minuut kwijt.',
   },
   fietser: {
-    name: 'Wielrenner in strak pak', look: 'fietser', hp: 28, atk: 6, def: 3, xp: 12, money: 8,
+    drop: 'fietspomp', inflict: { st: 'duizelig', ch: 0.2, t: 'Hij suist zo hard langs dat je duizelig wordt.' }, name: 'Wielrenner in strak pak', look: 'fietser', hp: 28, atk: 6, def: 3, xp: 12, money: 8,
     moves: ['belt agressief', 'klikt zijn schoenen los', 'roept "AAN DE KANT!"'],
     talk: [
       { t: 'Vraag naar zijn wattage', v: 55, r: 'Hij praat vijf minuten over wattage. Je knikt op de juiste momenten.' },
@@ -113,7 +113,7 @@ const ENEMIES = {
     spare: 'Hij klikt zijn schoenen weer vast en verdwijnt richting de dijk.',
   },
   winkeldief: {
-    name: 'Dropdief', look: 'dief', hp: 40, atk: 7, def: 2, xp: 22, money: 15, boss: true,
+    inflict: { st: 'misselijk', ch: 0.25, t: 'Hij duwt een zoute drop in je mond. Bah.' }, name: 'Dropdief', look: 'dief', hp: 40, atk: 7, def: 2, xp: 22, money: 15, boss: true,
     moves: ['gooit een zak drop naar je', 'rijdt met een winkelwagen tegen je aan', 'trekt zijn capuchon strak'],
     talk: [
       { t: 'Vraag welke drop het lekkerst is', v: 30, r: '"Zoute muntjes, natuurlijk." Hij ontspant een beetje.' },
@@ -124,7 +124,7 @@ const ENEMIES = {
     spare: 'De dief geeft alle drop terug en belooft voortaan gewoon te betalen.',
   },
   keeper: {
-    name: 'Keeper Kevin', look: 'keeper', hp: 85, atk: 9, def: 4, xp: 45, money: 20, boss: true,
+    inflict: { st: 'duizelig', ch: 0.3, t: 'De bal tegen je hoofd laat je sterretjes zien.' }, name: 'Keeper Kevin', look: 'keeper', hp: 85, atk: 9, def: 4, xp: 45, money: 20, boss: true,
     moves: ['duikt naar je enkels', 'brult "MIJN DOEL!"', 'trapt een bal tegen je hoofd', 'doet een schijnbeweging'],
     talk: [
       { t: 'Wijs naar de verkeerde hoek', v: 25, r: 'Kevin kijkt de verkeerde kant op. Hij voelt zich voor gek gezet, maar moet ook lachen.' },
@@ -152,18 +152,15 @@ const RANDOM_POOL = ['jogger', 'buurvrouw', 'scooter', 'enquete', 'fietser'];
 
 // ---------- Gevecht ----------
 const Battle = {
-  active: false, foe: null, shake: 0, flash: 0, foeHit: 0, foeGone: 0,
+  active: false, foe: null, shake: 0, flash: 0, foeHit: 0, foeGone: 0, swing: null, me: {},
 
   async start(id, P) {
     const E = ENEMIES[id];
     const lvlBoost = E.boss ? 0 : Math.max(0, P.lvl - 1);
-    this.foe = {
-      ...E, id, maxHp: E.hp + lvlBoost * 6, atk: E.atk + lvlBoost, calm: 0, angry: 0, weak: 0, talked: new Set(),
-    };
+    this.foe = { ...E, id, maxHp: E.hp + lvlBoost * 6, atk: E.atk + lvlBoost, calm: 0, angry: 0, talked: new Set(), st: {} };
     this.foe.curHp = this.foe.maxHp;
-    this.P = P; this.active = true; this.foeHit = 0; this.foeGone = 0;
+    this.P = P; this.me = {}; this.active = true; this.foeHit = 0; this.foeGone = 0; this.swing = null;
     SFX.battle();
-    ['#hud'].forEach((s) => UI.show(s, false));
     this.paintFoe(); this.paintStats();
     UI.show('#benemy'); UI.show('#bstats');
     await this.log(E.boss ? `${E.name} wil met je vechten!` : `Een ${E.name.toLowerCase()} houdt je tegen!`);
@@ -174,7 +171,8 @@ const Battle = {
       if (this.foe.curHp <= 0) { result = 'win'; break; }
       if (this.foe.calm >= 100) { result = 'spared'; break; }
       await this.foeTurn();
-      if (P.hp <= 0) result = 'lose';
+      if (this.foe.curHp <= 0) result = 'win';
+      else if (P.hp <= 0) result = 'lose';
     }
     return this.finish(result);
   },
@@ -189,23 +187,30 @@ const Battle = {
     });
   },
 
+  chips(st, names) {
+    const on = Object.keys(st).filter((k) => st[k] > 0);
+    return on.length ? `<div class="chips">${on.map((k) => `<span class="chip st-${k}">${names[k]} ${st[k]}</span>`).join('')}</div>` : '';
+  },
   paintFoe() {
     const f = this.foe;
     $('#benemy').innerHTML = `<div class="row"><b>${f.name}</b><span class="lbl">${f.boss ? 'BAAS' : ''}</span></div>
       ${f.peaceful ? '' : `<div class="row"><span class="lbl">HP</span><span>${Math.max(0, f.curHp)}/${f.maxHp}</span></div><div class="bar hp"><i style="width:${Math.max(0, f.curHp) / f.maxHp * 100}%"></i></div>`}
-      <div class="row"><span class="lbl">Rust</span><span>${Math.min(100, f.calm)}%</span></div><div class="bar calm"><i style="width:${Math.min(100, f.calm)}%"></i></div>`;
+      <div class="row"><span class="lbl">Rust</span><span>${Math.min(100, f.calm)}%</span></div><div class="bar calm"><i style="width:${Math.min(100, f.calm)}%"></i></div>
+      ${this.chips(f.st, FOE_ST)}`;
   },
   paintStats() {
-    const p = this.P;
+    const p = this.P, w = p.wpn && WEAPONS[p.wpn];
     $('#bstats').innerHTML = `<div class="row"><b>???</b><span class="lbl">Lvl ${p.lvl}</span></div>
       <div class="row"><span class="lbl">HP</span><span>${p.hp}/${p.maxHp}</span></div><div class="bar hp"><i style="width:${p.hp / p.maxHp * 100}%"></i></div>
-      <div class="row"><span class="lbl">EP</span><span>${p.ep}/${p.maxEp}</span></div><div class="bar ep"><i style="width:${p.ep / p.maxEp * 100}%"></i></div>`;
+      <div class="row"><span class="lbl">EP</span><span>${p.ep}/${p.maxEp}</span></div><div class="bar ep"><i style="width:${p.ep / p.maxEp * 100}%"></i></div>
+      <div class="wpn">${w ? w.name : 'Lege handen'}</div>${this.chips(this.me, ME_ST)}`;
   },
 
   dmg(atk, def, mult = 1) {
     const base = Math.max(1, atk * 1.6 - def);
     return Math.max(1, Math.round(base * mult * (0.85 + Math.random() * 0.3)));
   },
+  atkNow() { const w = this.P.wpn && WEAPONS[this.P.wpn]; return this.P.atk + (w ? w.atk : 0); },
 
   async hitFoe(n, text) {
     const f = this.foe;
@@ -216,18 +221,49 @@ const Battle = {
     this.paintFoe();
     await this.log(`${text} ${crit ? 'Voltreffer! ' : ''}${n} schade.`);
   },
+  // aanval met het wapen in je hand (of je vuisten)
+  async wHit(mult, text) {
+    if (this.me.duizelig && Math.random() < 0.35) { SFX.no(); await this.log(`${text} …maar je bent duizelig en slaat mis.`); return; }
+    if (this.P.wpn) this.swing = { id: this.P.wpn, t: 0 };
+    if (this.me.opgepompt) mult *= 1.4;
+    await this.hitFoe(this.dmg(this.atkNow(), this.foe.def, mult), text);
+  },
+  async foeSt(k, n) {
+    const f = this.foe;
+    if (f.curHp <= 0) return;
+    if (f.boss && k === 'ongemak') n = 1;
+    f.st[k] = Math.max(f.st[k] || 0, n);
+    this.paintFoe();
+    await this.log(`${f.name} is ${FOE_ST[k].toLowerCase()}.`);
+  },
+  meSt(k, n) { this.me[k] = Math.max(this.me[k] || 0, n); this.paintStats(); },
+  tick(st, keys) { keys.forEach((k) => { if (st[k] > 0) st[k] -= 1; }); },
 
   async playerTurn() {
     const P = this.P, f = this.foe;
+    if (this.me.misselijk) {
+      const n = Math.max(3, Math.round(P.maxHp * 0.06));
+      P.hp = Math.max(1, P.hp - n); this.me.misselijk -= 1; this.paintStats();
+      await this.log(`Je bent misselijk. Je verliest ${n} HP.`);
+    }
     if (f.noises) {
       f.cur = f.noises[Math.floor(Math.random() * f.noises.length)];
       await this.log(`${f.name}: "${f.cur.say}"`);
     }
-    const peace = !!f.peaceful;
+    const r = await this.choose();
+    this.tick(this.me, ['duizelig', 'opgepompt']);
+    this.paintStats();
+    return r;
+  },
+
+  async choose() {
+    const P = this.P, f = this.foe, peace = !!f.peaceful;
+    const W = P.wpn && WEAPONS[P.wpn];
     for (;;) {
       $('#blog').textContent = f.noises ? `${f.name}: "${f.cur.say}"` : 'Wat doe je?';
-      const c = await UI.list('#bcmd', [peace ? { label: 'Aanvallen', off: true } : 'Aanvallen', peace ? { label: 'Skills', off: true } : 'Skills', 'Praten', 'Spullen', f.boss ? { label: 'Vluchten', off: true } : 'Vluchten'], { keep: true });
-      if (c === 2 && f.noises) {
+      const off = (l, o) => (o ? { label: l, off: true } : l);
+      const c = await UI.list('#bcmd', [off('Aanvallen', peace), off('Wapen', peace), off('Skills', peace), 'Praten', 'Spullen', off('Vluchten', f.boss)], { keep: true });
+      if (c === 3 && f.noises) {
         const ans = f.noises.map((n) => n.ans);
         const k = await UI.list('#bsub', ans, { cancel: true, onMove: () => { $('#blog').textContent = `${f.name}: "${f.cur.say}"`; } });
         if (k < 0) continue;
@@ -239,10 +275,32 @@ const Battle = {
       }
       if (c === 0) {
         UI.show('#bcmd', false);
-        await this.hitFoe(this.dmg(P.atk, f.def), 'Je haalt uit.');
+        await this.wHit(1, W ? W.verb : 'Je haalt uit met je vuisten.');
         return null;
       }
       if (c === 1) {
+        const own = P.weapons || [];
+        if (!own.length) { await this.log('Je hebt niks in je handen. Behalve je eigen hoofd.'); continue; }
+        const opts = [], acts = [];
+        if (W) { opts.push({ label: W.sp.name, right: W.sp.ep + ' EP', off: P.ep < W.sp.ep }); acts.push('sp'); }
+        if (own.length > (W ? 1 : 0)) { opts.push(W ? 'Ander wapen pakken' : 'Wapen pakken'); acts.push('swap'); }
+        const k = await UI.list('#bsub', opts, { cancel: true, onMove: (i) => { $('#blog').textContent = acts[i] === 'sp' ? W.sp.desc : 'Wisselen kost je beurt.'; } });
+        if (k < 0) continue;
+        if (acts[k] === 'sp') {
+          UI.show('#bcmd', false);
+          P.ep -= W.sp.ep; this.paintStats();
+          await W.sp.run(this, f, P);
+          return null;
+        }
+        const list = own.filter((id) => id !== P.wpn);
+        const j = await UI.list('#bsub', list.map((id) => ({ label: WEAPONS[id].name, right: '+' + WEAPONS[id].atk })), { cancel: true, onMove: (i) => { $('#blog').textContent = `Speciaal: ${WEAPONS[list[i]].sp.name}. ${WEAPONS[list[i]].sp.desc}`; } });
+        if (j < 0) continue;
+        UI.show('#bcmd', false);
+        P.wpn = list[j]; this.paintStats(); SFX.ok();
+        await this.log(`Je pakt de ${WEAPONS[P.wpn].name.toLowerCase()} erbij.`);
+        return null;
+      }
+      if (c === 2) {
         const avail = SKILLS.filter((s) => P.lvl >= s.lvl);
         const k = await UI.list('#bsub', avail.map((s) => ({ label: s.name, right: s.ep + ' EP', off: P.ep < s.ep })), {
           cancel: true, onMove: (i) => { $('#blog').textContent = avail[i].desc; },
@@ -255,17 +313,18 @@ const Battle = {
           await this.hitFoe(this.dmg(P.atk, f.def, 1.9), 'KOPSTOOT!');
           if (Math.random() < 0.3) { const self = Math.round(P.maxHp * 0.08); P.hp = Math.max(1, P.hp - self); this.shake = 10; SFX.hit(); this.paintStats(); await this.log(`Au. Je kater slaat terug: ${self} schade aan jezelf.`); }
         } else if (s.id === 'adem') {
-          f.weak = 3; SFX.no();
-          await this.log(`Je ademt uit. ${f.name} deinst achteruit en doet minder schade.`);
+          SFX.no();
+          await this.log(`Je ademt uit. ${f.name} deinst achteruit.`);
+          await this.foeSt('verzwakt', 3);
         } else if (s.id === 'powernap') {
           const r = heal(P, Math.round(P.maxHp * 0.4), 0); SFX.heal(); this.paintStats();
           await this.log(`Je doet even je ogen dicht. ${r}.`);
         } else if (s.id === 'dans') {
-          for (let i = 0; i < 3 && f.curHp > 0; i++) await this.hitFoe(this.dmg(P.atk, f.def, 0.75), ['Een draai!', 'Een sprong!', 'De vogeltjesdans!'][i]);
+          for (let i = 0; i < 3 && f.curHp > 0; i++) await this.wHit(0.75, ['Een draai!', 'Een sprong!', 'De vogeltjesdans!'][i]);
         }
         return null;
       }
-      if (c === 2) {
+      if (c === 3) {
         const need = f.boss ? 4 : 2, stoer = P.stoer || 0;
         const opts = f.talk.concat([{ t: 'Intimideren', v: f.boss ? 35 : 70, r: f.intim || `Je blaast rook in het gezicht van ${f.name.toLowerCase()} en kijkt heel stoer. Dat maakt indruk.`, stoer: need }]);
         const k = await UI.list('#bsub', opts.map((t) => (t.stoer ? { label: stoer >= t.stoer ? t.t : `${t.t} (Stoerheid ${t.stoer})`, off: stoer < t.stoer } : { label: t.t })), {
@@ -282,18 +341,20 @@ const Battle = {
         await this.log(again && t.v > 0 ? 'Je probeert het nog een keer. Het werkt een beetje.' : t.r);
         return null;
       }
-      if (c === 3) {
-        const own = Object.keys(P.items).filter((id) => P.items[id] > 0 && !ITEMS[id].key);
+      if (c === 4) {
+        const own = Object.keys(P.items).filter((id) => P.items[id] > 0 && !ITEMS[id].key && ITEMS[id].use);
         if (!own.length) { await this.log('Je zakken zijn leeg. Op een bonnetje na.'); continue; }
         const k = await UI.list('#bsub', own.map((id) => ({ label: ITEMS[id].name, right: '×' + P.items[id] })), { cancel: true, onMove: (i) => { $('#blog').textContent = ITEMS[own[i]].desc; } });
         if (k < 0) continue;
         UI.show('#bcmd', false);
         const id = own[k]; P.items[id] -= 1;
-        const r = ITEMS[id].use(P); SFX.heal(); this.paintStats();
+        const r = ITEMS[id].use(P); SFX.heal();
+        if (id === 'paracetamol') { this.me.misselijk = 0; this.me.duizelig = 0; }
+        this.paintStats();
         await this.log(`${ITEMS[id].name}: ${r}.`);
         return null;
       }
-      if (c === 4) {
+      if (c === 5) {
         UI.show('#bcmd', false);
         if (Math.random() < 0.65) { await this.log('Je rent weg zo hard als een brakke man kan.'); return 'fled'; }
         await this.log('Je struikelt over je eigen veters. Vluchten mislukt.');
@@ -303,17 +364,41 @@ const Battle = {
   },
 
   async foeTurn() {
-    const f = this.foe, P = this.P;
+    const f = this.foe, P = this.P, st = f.st;
+    if (st.misselijk > 0) {
+      const n = Math.max(3, Math.round(f.maxHp * 0.07));
+      st.misselijk -= 1; f.curHp -= n; this.foeHit = 8; this.paintFoe();
+      await this.log(`${f.name} is misselijk en kokhalst. ${n} schade.`);
+      if (f.curHp <= 0) return;
+    }
+    if (st.ongemak > 0) {
+      st.ongemak -= 1; this.paintFoe();
+      await this.log(pick([`${f.name} staat er ongemakkelijk bij en weet niet wat te doen.`, `${f.name} kijkt naar de grond en schuifelt wat.`, `${f.name} moet even bijkomen van wat er net gebeurde.`]));
+      return;
+    }
     const move = f.moves[Math.floor(Math.random() * f.moves.length)];
-    let n = this.dmg(f.atk, P.def, f.weak > 0 ? 0.6 : 1);
-    if (f.weak > 0) f.weak -= 1;
-    // als de vijand al aardig rustig is, slaat hij minder hard
+    if (st.verblind > 0) {
+      st.verblind -= 1; this.paintFoe();
+      if (Math.random() < 0.5) { await this.log(`${f.name} ${move}… maar ziet niks en mist.`); return; }
+    }
+    let n = this.dmg(f.atk, P.def, st.verzwakt > 0 ? 0.6 : 1);
+    if (st.verzwakt > 0) st.verzwakt -= 1;
     if (f.calm >= 50) n = Math.max(1, Math.round(n * 0.7));
     if (f.peaceful) n = Math.min(n, 3);
+    if (this.me.gedekt) {
+      this.me.gedekt = 0; this.paintStats(); this.paintFoe();
+      await this.log(`${f.name} ${move}! Het ketst af op je paraplu.`);
+      return;
+    }
     P.hp = Math.max(0, P.hp - n);
     this.shake = 10; this.flash = 6; SFX.hit();
-    this.paintStats();
+    this.paintStats(); this.paintFoe();
     await this.log(`${f.name} ${move}! ${n} schade.`);
+    const inf = f.inflict;
+    if (inf && P.hp > 0 && !this.me[inf.st] && Math.random() < inf.ch) {
+      this.meSt(inf.st, inf.st === 'misselijk' ? 3 : 2);
+      await this.log(inf.t);
+    }
   },
 
   async finish(result) {
@@ -332,11 +417,16 @@ const Battle = {
         SFX.item(); this.paintStats();
         await this.log(`Level ${P.lvl}! Je voelt je bijna weer mens.${nieuw ? ` Nieuwe skill: ${nieuw.name}.` : ''}`);
       }
+      if (f.drop && !(P.weapons || []).includes(f.drop) && Math.random() < 0.35) {
+        await this.log(`${f.name} laat iets vallen: ${WEAPONS[f.drop].name}!`);
+        await giveWeapon(f.drop, true);
+      }
     } else if (result === 'lose') {
       SFX.lose();
       await this.log('Alles wordt zwart…');
     }
     UI.show('#blog', false); UI.show('#benemy', false); UI.show('#bstats', false);
+    this.me = {};
     this.active = false;
     return result;
   },
