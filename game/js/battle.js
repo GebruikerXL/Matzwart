@@ -160,7 +160,7 @@ const Battle = {
     const base = Math.max(1, atk * 1.6 - def);
     return Math.max(1, Math.round(base * mult * (0.85 + Math.random() * 0.3)));
   },
-  atkNow() { const w = this.P.wpn && WEAPONS[this.P.wpn]; return this.P.atk + (w ? w.atk : 0); },
+  atkNow() { const w = this.P.wpn && WEAPONS[this.P.wpn]; return this.P.atk + (w ? w.atk : 0) + clothBonus(this.P).atk; },
 
   async hitFoe(n, text) {
     const f = this.foe;
@@ -275,7 +275,7 @@ const Battle = {
         return null;
       }
       if (c === 3) {
-        const need = f.boss ? 4 : 2, stoer = P.stoer || 0;
+        const need = f.boss ? 4 : 2, stoer = stoerNow(P);
         const opts = f.talk.concat([{ t: 'Intimideren', v: f.boss ? 35 : 70, r: f.intim || `Je blaast rook in het gezicht van ${f.name.toLowerCase()} en kijkt heel stoer. Dat maakt indruk.`, stoer: need }]);
         const k = await UI.list('#bsub', opts.map((t) => (t.stoer ? { label: stoer >= t.stoer ? t.t : `${t.t} (Stoerheid ${t.stoer})`, off: stoer < t.stoer } : { label: t.t })), {
           cancel: true, onMove: (i) => { $('#blog').textContent = opts[i].stoer ? `Alleen voor echte stoere types. Jouw Stoerheid: ${stoer}.` : 'Wat zeg je?'; },
@@ -331,7 +331,7 @@ const Battle = {
       st.verblind -= 1; this.paintFoe();
       if (Math.random() < 0.5) { await this.log(`${f.name} ${move}… maar ziet niks en mist.`); return; }
     }
-    let n = this.dmg(f.atk, P.def, st.verzwakt > 0 ? 0.6 : 1);
+    let n = this.dmg(f.atk, P.def + clothBonus(P).def, st.verzwakt > 0 ? 0.6 : 1);
     if (st.verzwakt > 0) st.verzwakt -= 1;
     if (f.calm >= 50) n = Math.max(1, Math.round(n * 0.7));
     if (f.peaceful) n = Math.min(n, 3);
@@ -368,6 +368,7 @@ const Battle = {
         await this.log(`Level ${P.lvl}! Je voelt je bijna weer mens.${nieuw ? ` Nieuwe skill: ${nieuw.name}.` : ''}`);
       }
       if (f.vaper) await stealVape(this, f, P);
+      if (f.vaper) await rareDrop(this, f);
       if (f.drop && !(P.weapons || []).includes(f.drop) && Math.random() < 0.35) {
         await this.log(`${f.name} laat iets vallen: ${WEAPONS[f.drop].name}!`);
         await giveWeapon(f.drop, true);

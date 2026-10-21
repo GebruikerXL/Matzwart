@@ -9,7 +9,7 @@ const PLAYER_LOOK = { skin: '#f0c4a0', hair: '#6b4226', style: 'messy', shirt: '
 
 function freshState() {
   return {
-    P: { lvl: 1, xp: 0, next: 22, hp: 40, maxHp: 40, ep: 12, maxEp: 12, atk: 6, def: 3, money: 12, stoer: 0, weapons: [], wpn: null, items: { krentenbol: 2, sleutel: 1, telefoon: 1 } },
+    P: { lvl: 1, xp: 0, next: 22, hp: 40, maxHp: 40, ep: 12, maxEp: 12, atk: 6, def: 3, money: 12, stoer: 0, weapons: [], wpn: null, wear: {}, items: { krentenbol: 2, sleutel: 1, telefoon: 1 } },
     flags: {}, quests: {},
     pos: { map: 'schuur', x: 3, y: 5, dir: 'down' },
   };
@@ -101,7 +101,7 @@ const G = {
     UI.show('#ending');
     try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
     await wait(2500);
-    UI.focus = (k) => { if (k === 'ok' || k === 'cancel') { UI.focus = null; UI.show('#ending', false); this.busy = false; const st = freshState(); st.name = this.S.name; this.begin(st, true); } };
+    UI.focus = (k) => { if (k === 'ok' || k === 'cancel') { UI.focus = null; UI.show('#ending', false); this.busy = false; const st = freshState(); st.name = this.S.name; st.ap = this.S.ap; this.begin(st, true); } };
   },
 
   // ---------- kaart ----------
@@ -255,7 +255,7 @@ const G = {
     list.push({ y: pl.py + 0.5, draw: () => {
       const w = this.P && this.P.wpn, x = pl.px - cx, y = pl.py - cy;
       drawHeld(ctx, w, pl.dir, x, y, pfr, true);
-      drawPerson(PLAYER_LOOK, pl.dir, pfr, x, y);
+      drawPerson(lookFrom(this.S && this.S.ap, this.P && this.P.wear), pl.dir, pfr, x, y);
       drawHeld(ctx, w, pl.dir, x, y, pfr, false);
     } });
     }
@@ -326,13 +326,14 @@ const G = {
     this.busy = true; SFX.ok();
     let start = 0;
     for (;;) {
-      const k0 = await UI.list('#menu', ['Spullen', 'Wapens', 'Opdrachten', 'Status', 'Opslaan', SFX.on ? 'Geluid: aan' : 'Geluid: uit', 'Terug'], { cancel: true, keep: true, start });
+      const k0 = await UI.list('#menu', ['Spullen', 'Wapens', 'Kleding', 'Opdrachten', 'Status', 'Opslaan', SFX.on ? 'Geluid: aan' : 'Geluid: uit', 'Terug'], { cancel: true, keep: true, start });
       start = Math.max(0, k0);
       if (k0 === 1) { await this.weaponMenu(); continue; }
-      const k = k0 > 1 ? k0 - 1 : k0;
+      if (k0 === 2) { await clothesMenu(); continue; }
+      const k = k0 > 2 ? k0 - 2 : k0;
       const panel = $('#panel');
       if (k === 0) {
-        const own = Object.keys(this.P.items).filter((id) => this.P.items[id] > 0);
+        const own = Object.keys(this.P.items).filter((id) => this.P.items[id] > 0 && !ITEMS[id].slot);
         if (!own.length) { panel.innerHTML = '<h3>Spullen</h3>Je zakken zijn leeg.'; panel.hidden = false; await UI.say('', 'Niks.'); panel.hidden = true; continue; }
         panel.innerHTML = '<h3>Spullen</h3><div id="itemlist" class="list"></div><p id="itemdesc" class="lbl"></p>';
         panel.hidden = false;
@@ -356,11 +357,11 @@ const G = {
           <div class="row"><span class="lbl">Level</span><span>${P.lvl}</span></div>
           <div class="row"><span class="lbl">HP</span><span>${P.hp} / ${P.maxHp}</span></div>
           <div class="row"><span class="lbl">EP</span><span>${P.ep} / ${P.maxEp}</span></div>
-          <div class="row"><span class="lbl">Aanval</span><span>${P.atk}${P.wpn ? ` + ${WEAPONS[P.wpn].atk}` : ''}</span></div>
+          <div class="row"><span class="lbl">Aanval</span><span>${P.atk}${P.wpn ? ` + ${WEAPONS[P.wpn].atk}` : ''}${clothBonus(P).atk ? ` + ${clothBonus(P).atk}` : ''}</span></div>
           <div class="row"><span class="lbl">Wapen</span><span>${P.wpn ? WEAPONS[P.wpn].name : 'Lege handen'}</span></div>
-          <div class="row"><span class="lbl">Verdediging</span><span>${P.def}</span></div>
+          <div class="row"><span class="lbl">Verdediging</span><span>${P.def}${clothBonus(P).def ? ` + ${clothBonus(P).def}` : ''}</span></div>
           <div class="row"><span class="lbl">XP</span><span>${P.xp} / ${P.next}</span></div>
-          <div class="row"><span class="lbl">Stoerheid</span><span>${P.stoer || 0}</span></div>
+          <div class="row"><span class="lbl">Stoerheid</span><span>${stoerNow(P)}</span></div>
           <div class="row"><span class="lbl">Geld</span><span>EUR ${P.money}</span></div>
           <div class="row"><span class="lbl">Toestand</span><span>Brak</span></div>`;
         panel.hidden = false; await waitKey(); panel.hidden = true;
@@ -398,6 +399,7 @@ const G = {
   begin(state, fresh) {
     this.S = state;
     state.P.weapons = state.P.weapons || [];
+    state.P.wear = state.P.wear || {};
     UI.show('#title', false);
     const p = state.pos;
     this.loadMap(p.map, p.x, p.y, p.dir);
@@ -415,6 +417,7 @@ const G = {
     $('#titlemenu').hidden = true;
     const st = k === 1 && saved ? saved : freshState();
     if (!st.name) st.name = await askName();
+    if (!st.ap) { $('#title').hidden = true; st.ap = await creator(); }
     await UI.fade(true);
     if (k === 1 && saved) this.begin(st, false); else this.begin(st, true);
     await UI.fade(false);

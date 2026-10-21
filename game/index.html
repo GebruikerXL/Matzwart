@@ -156,6 +156,34 @@ body {
 #qte .qdots b { width: 3cqw; height: 3cqw; border-radius: 50%; border: 0.4cqw solid var(--muted); }
 #qte .qdots b.hit { background: var(--calm); border-color: var(--calm); }
 #qte .qdots b.miss { background: var(--hp); border-color: var(--hp); }
+/* Ruilscherm */
+#trade { inset: 3%; display: flex; flex-direction: column; gap: 1cqw; overflow-y: auto; font-size: 2.5cqw; }
+#trade h3 { font-family: var(--font-title); font-size: 3cqw; margin: 0; color: var(--gold); font-weight: 400; }
+#trade h4 { margin: 0 0 0.6cqw; font-size: 2.4cqw; color: var(--muted); font-weight: 600; }
+#trade .tcols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6cqw; }
+#trade .tcol { background: rgba(0,0,0,.25); border-radius: 1cqw; padding: 1cqw 1.4cqw; min-height: 12cqw; display: flex; flex-direction: column; gap: 0.4cqw; min-width: 0; }
+#trade button { font: 500 2.4cqw var(--font-ui); color: var(--ink); background: rgba(255,255,255,.08); border: 0.25cqw solid transparent; border-radius: 0.7cqw; padding: 0.4cqw 1cqw; text-align: left; cursor: pointer; text-shadow: 0.2cqw 0.2cqw 0 #000; }
+#trade button:disabled { cursor: default; opacity: .85; background: transparent; }
+#trade button.sel, #trade button:hover:not(:disabled) { border-color: var(--gold); background: rgba(255,255,255,.16); }
+#trade .tline.rm::after { content: "  ×"; color: var(--hp); }
+#trade .tinv { display: flex; flex-wrap: wrap; gap: 0.6cqw; }
+#trade .tmoney { display: flex; flex-wrap: wrap; gap: 0.6cqw; align-items: center; }
+#trade .tstatus { margin: 0; color: var(--gold); min-height: 3cqw; }
+#trade .tbtns { display: flex; gap: 1.4cqw; }
+#trade .tacc { background: #2e7a3a; } #trade .tdec { background: #7a2a2a; }
+/* Personage maken */
+#creator { left: 6%; right: 6%; top: 5%; bottom: 5%; display: flex; flex-direction: column; gap: 1.2cqw; font-size: 2.6cqw; }
+#creator h3 { font-family: var(--font-title); font-size: 3.2cqw; margin: 0; color: var(--gold); font-weight: 400; }
+#creator .cwrap { display: flex; gap: 3cqw; align-items: center; flex: 1; }
+#creator canvas { width: 26cqw; height: 26cqw; image-rendering: pixelated; background: rgba(0,0,0,.25); border-radius: 1.4cqw; flex: none; }
+#creator .crows { display: flex; flex-direction: column; gap: 0.5cqw; flex: 1; min-width: 0; }
+#creator .crow { display: grid; grid-template-columns: 1fr auto 16cqw auto; align-items: center; gap: 0.8cqw; padding: 0.3cqw 0.8cqw; border-radius: 0.8cqw; }
+#creator .crow.sel { background: rgba(255,255,255,.14); }
+#creator .crow b { text-align: center; font-weight: 600; }
+#creator .crow.done { display: flex; justify-content: flex-end; }
+#creator button { font: 600 2.6cqw var(--font-ui); color: var(--ink); background: rgba(255,255,255,.1); border: 0.25cqw solid var(--win-edge); border-radius: 0.7cqw; padding: 0.2cqw 1.2cqw; cursor: pointer; }
+#creator .ok { background: #6a2b14; padding: 0.4cqw 3cqw; }
+#creator p { margin: 0; font-size: 2.2cqw; }
 #fade { inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity .35s; }
 #fade.on { opacity: 1; }
 
@@ -188,6 +216,8 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 
   <div id="casino" class="ui win" hidden></div>
   <div id="qte" class="ui win" hidden></div>
+  <div id="trade" class="ui win" hidden></div>
+  <div id="creator" class="ui win" hidden></div>
   <div id="menu" class="ui win list" hidden></div>
   <div id="panel" class="ui win" hidden></div>
 
@@ -236,5 +266,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js/story2.js"></script>
 <script src="js/casino.js"></script>
 <script src="js/vapers.js"></script>
+<script src="js/clothes.js"></script>
+<script src="js/trade.js"></script>
 <script src="js/online.js"></script>
 <script src="js/main.js"></script>

@@ -41,6 +41,14 @@ Bij het starten kies je een spelersnaam. Iedereen die het spel op hetzelfde mome
 
 Voortgang wordt per browser opgeslagen; online zie je elkaar alleen zolang het spel openstaat. Lokaal (als bestand geopend) speel je offline.
 
+## Kleding en uiterlijk
+
+Bij het starten kies je een spelersnaam en je uiterlijk: huidskleur, haarstijl, haarkleur, gezichtsbeharing, gezicht en het formaat van de censuurbalk. Je begint naakt. Kleding heeft 4 vakken (hoofd, bovenlijf, broek, schoenen) en geeft stats (verdediging, aanval, Stoerheid). Je koopt lelijke of nep-designerkleding in de kringloopwinkel, vindt spullen in het dorp (jutezak, vuilniszak, verkeerskegel) en vapers laten heel soms (3%) zeldzame kleding vallen. Aan- en uittrekken via Menu → Kleding.
+
+## Ruilen
+
+Ruilen werkt zoals in Old School RuneScape: ruilverzoek, ruilscherm waarin allebei spullen, wapens, kleding en geld zetten, allebei accepteren, dan een bevestigscherm waar je nog een keer allebei accepteert. Verandert iemand iets, dan vervalt het akkoord.
+
 ## Bestanden
 
 - `js/sprites.js`: alle pixel-art, in code getekend
@@ -52,5 +60,7 @@ Voortgang wordt per browser opgeslagen; online zie je elkaar alleen zolang het s
 - `js/story2.js`: voorwerpen, deuren, intro en finale
 - `js/vapers.js`: vapende tieners, hun dampwolken, de vape-QTE
 - `js/casino.js`: het Gokpaleis, de spelletjes en Aron van der Wal
+- `js/clothes.js`: kleding, censuurbalk, kringloopwinkel, personage maken
+- `js/trade.js`: het ruilscherm
 - `js/online.js`: andere spelers, ruilen, geld-en-schuldbalk, spelersnaam
 - `js/main.js`: engine (lopen, camera, menu, opslaan)

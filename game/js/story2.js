@@ -146,6 +146,8 @@ async function intro() {
   await me('Je naam is…');
   await me('…');
   await me('Je weet je naam niet meer.');
+  await me('Je kijkt naar beneden. Je bent… naakt. Helemaal. Alleen een zwart balkje houdt de boel een beetje netjes.');
+  await me('In de hoek van de schuur ligt een jutezak. Dat is een begin.');
   await me('Je voelt in je zakken: EUR 12, twee krentenbollen en een telefoon. Batterij 1%. Vergrendeld. De pincode weet je natuurlijk ook niet.');
   await me('En een sleutel. Aan de sleutelhanger hangt een J… De rest van de letters is eraf gesleten. Of is het een G?');
   await me('Er zit maar één ding op. Uitzoeken wat er gisteravond is gebeurd.');
