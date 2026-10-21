@@ -317,9 +317,9 @@ NPCS.push(
     async talk() {
       const f = F();
       await say('Vaste gast', pick([
-        'Aron? Doe gewoon het tegenovergestelde van wat hij zegt. Dat doet het hele dorp.',
+        'Ik kom hier al twintig jaar. Gewonnen heb ik nooit. Het gaat om de gezelligheid.',
         'Ik heb ooit één tip van Aron opgevolgd. Ik fiets nu.',
-        f.aronVerlies ? `Hoeveel ben je al kwijt aan Aron? EUR ${f.aronVerlies}? Dat valt nog mee.` : 'Die gokkast valt nooit. Behalve als je niet kijkt.',
+        f.aronVerlies ? `Hoeveel ben je al kwijt aan Aron? EUR ${f.aronVerlies}? Dat valt nog mee.` : 'Aron heeft me ook een keer geholpen. Met verhuizen. Naar een kleiner huis.',
       ]));
     },
   },

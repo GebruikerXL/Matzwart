@@ -17,8 +17,8 @@ Opslaan kan via het menu of op het bankje aan de Dorpsstraat (dat vult ook je HP
 
 - **Wie ben ik?**: verzamel vier herinneringen aan gisteravond (Lanting, de EKA, het voetbalveld, de A-framestraat) en probeer dan je sleutel nog eens bij het gele huis.
 - **De rekening bij Lanting**: betaal je openstaande €47 met geld uit gevechten.
-- **Onbetaalde frikandellen**: Ineke van de EKA vergeeft je als je de dropdief achter de winkel aanpakt. Daarna krijg je 20% korting.
-- **De wedstrijdbal**: de bal van VV Meedhuizen ligt in de EKA, tussen de meloenen. Daarna volgt een penaltyduel met keeper Kevin.
+- **Onbetaalde frikandellen**: Eka van de EKA vergeeft je als je Puutje aanpakt, die 38 koude frikandellen heeft gejat. Daarna krijg je 20% korting.
+- **De wedstrijdbal**: de bal van VV Meedhuizen ligt in de EKA, tussen de meloenen. Daarna volgt een penaltyduel met de keeper.
 - **Het motorblok van Thijs**: Thijs is het motorblok van zijn BMW kwijt. Derkje, uit het piepkleine huisje, heeft het in haar broekzak. Je krijgt het alleen terug door met de juiste geluiden te antwoorden.
 
 ## Gevechten

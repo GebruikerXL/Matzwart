@@ -36,9 +36,9 @@ const PROPS = {
   },
   // Lanting en dorpshuis
   bonnenbak: () => me('Bovenop ligt een bonnetje: "11 bier, 3 bitterballen, 1 rondje voor de zaak (??)". Op naam van: HIJ-DAAR.'),
-  piano: () => me('Je drukt één toets in. Opa Dirk kijkt je vernietigend aan. Of hij slaapt met open ogen.'),
+  piano: () => me('Je drukt één toets in. Yarrin kijkt je vernietigend aan. Of hij slaapt met open ogen. Hij ruikt in elk geval naar frikandel.'),
   cafeposter: () => me('CAFÉ LANTING. Elke vrijdag klaverjassen. Iemand heeft er "VALSSPELER!!" bij geschreven.'),
-  klaverposter: () => me('Uitslag klaverjassen: 1. [een grote bruine bierkring]. 2. Rick.'),
+  klaverposter: () => me('Uitslag klaverjassen: 1. [een grote bruine bierkring]. 2. Otto.'),
   prikbord: () => me('GEZOCHT: wie heeft vannacht de polonaise tot aan de EKA ingezet? Graag melden bij het bestuur. Er staat een tekening bij die erg op jou lijkt.'),
   // A-framestraat
   bmw: () => me(G.quest('motorblok') >= 3 ? 'De BMW heeft weer een motorblok. Het zit er een beetje scheef in, maar hij loopt.' : 'Een zwarte BMW met de motorkap open. Daaronder gaapt een gat waar een motorblok hoort.'),
@@ -46,7 +46,7 @@ const PROPS = {
   container: () => me('Een container. Hij ruikt naar gisteren.'),
   winkelwagen: () => me('Een winkelwagen. Er zit nog een muntje in. Je laat het zitten. Je bent geen dief. Niet meer.'),
   // EKA
-  kassa: () => me(G.quest('onbetaald') >= 3 ? 'Het display van de kassa zegt: "VEREFFEND". Ineke heeft er een smiley achter gezet.' : 'Het display van de kassa zegt: "24× FRIKANDEL — NIET BETAALD".'),
+  kassa: () => me(G.quest('onbetaald') >= 3 ? 'Het display van de kassa zegt: "VEREFFEND". Eka heeft er een smiley achter gezet.' : 'Het display van de kassa zegt: "24× FRIKANDEL — NIET BETAALD".'),
   meloenen: () => me('Een bak meloenen. Een van de meloenen heeft een opvallend ronde, voetbal-vormige deuk.'),
   aanbieding: () => me('AANBIEDING: rookworst, 2e halve prijs. Sigaretten alleen voor stoere types (en niet goed voor je HP).'),
   // dwerghuisje
@@ -127,12 +127,12 @@ async function onEdge() {
 function hint() {
   const f = F(), q = (id) => G.quest(id);
   if (q('rekening') === 1 && G.P.money < REKENING) return `Je rekening is EUR ${REKENING}. In het hoge gras kom je genoeg volk tegen om wat geld bij elkaar te vechten. Of te praten.`;
-  if (!q('onbetaald')) return 'Ineke van de EKA, in de A-framestraat, zocht je vanochtend. Iets met frikandellen.';
+  if (!q('onbetaald')) return 'Eka van de EKA, in de A-framestraat, zocht je vanochtend. Iets met frikandellen.';
   if (!q('bal')) return 'Trainer Harm van het voetbalveld liep hier vanochtend te vloeken. Zuidelijk, over het bruggetje.';
   if (!q('motorblok')) return 'Thijs, uit de A-framestraat, staat al de hele ochtend naar zijn BMW te staren.';
   if (q('motorblok') === 1) return f.zagDerkje ? 'Derkje? Die staat altijd op de zwemsteiger. Ze praat niet, maar ze verstaat geluiden heel goed.' : 'In de A-framestraat staat een piepklein huisje. Daar woont iemand die overal goed op past.';
-  if (q('onbetaald') === 1) return 'De dropdief hangt achter de EKA bij de containers.';
-  if (q('bal') === 3 && !f.keeperDone) return 'Keeper Kevin is sterk. Koop wat eten bij de EKA voor je gaat.';
+  if (q('onbetaald') === 1) return 'Puutje hangt achter de EKA bij de containers. Volg de geur van koude frikandel.';
+  if (q('bal') === 3 && !f.keeperDone) return 'De keeper is sterk. Koop wat eten bij de EKA voor je gaat.';
   if (q('naam') === 2) return 'Ga naar huis, schat.';
   return pick(['Op het bankje in de Dorpsstraat kun je bijkomen en opslaan.', 'Er slingert van alles door het dorp waarmee je kunt meppen. Kijk eens in containers, bij de bushalte en bij de steiger.']);
 }
@@ -162,7 +162,7 @@ async function finale() {
   await me('…maar de mat zit zo onder de modder dat je alleen een J ziet. Of een G.');
   SFX.phone();
   await me('Je telefoon gaat. Op het scherm: MAM.');
-  await say('Mam', 'Hoi lieverd! Met mama. Hoe was het gisteren? Gerda belde al. Iets over 24 frikandellen en een motorblok?');
+  await say('Mam', 'Hoi lieverd! Met mama. Hoe was het gisteren? Die mevrouw van Lanting belde al. Iets over 24 frikandellen en een motorblok?');
   await ask('Mam', 'Lieverd? Ben je er nog?', ['Mam… hoe heet ik?']);
   await say('Mam', 'Hoe je heet? Wat een rare vraag. Jij heet gewoon J—');
   SFX.lose();
