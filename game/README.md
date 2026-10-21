@@ -23,7 +23,7 @@ Opslaan kan via het menu of op het bankje aan de Dorpsstraat (dat vult ook je HP
 
 ## Gevechten
 
-Turn-based: Aanvallen, Skills (kosten EP), Praten, Spullen en Vluchten. Sigaretten uit de EKA kosten HP maar geven Stoerheid, waarmee je bij Praten kunt intimideren. Met Praten vul je de Rust-meter van je tegenstander. Bij 100% laat hij je gaan, en dan krijg je extra geld. In het hoge gras kom je willekeurige dorpstypes tegen.
+Turn-based: Aanvallen, Skills (kosten EP), Praten, Spullen en Vluchten. Sigaretten uit de EKA kosten HP maar geven Stoerheid, waarmee je bij Praten kunt intimideren. Met Praten vul je de Rust-meter van je tegenstander. Bij 100% laat hij je gaan, en dan krijg je extra geld. In het hoge gras zitten vapende tieners (je wordt gewaarschuwd voordat je erin stapt). Versla je er een, dan volgt een quick time event: druk 3 keer op het goede moment en je jat zijn vape plus EUR 18. Aron van der Wal koopt vapes voor EUR 100.
 
 ## Wapens
 
@@ -44,5 +44,6 @@ Het Gokpaleis staat in de A-framestraat, achter de parkeerplaats van de EKA. Er 
 - `js/weapons.js`: wapens, statuseffecten, wapen-icoontjes en Mick
 - `js/story.js`: personages en opdrachten
 - `js/story2.js`: voorwerpen, deuren, intro en finale
+- `js/vapers.js`: vapende tieners, hun dampwolken, de vape-QTE
 - `js/casino.js`: het Gokpaleis, de spelletjes en Aron van der Wal
 - `js/main.js`: engine (lopen, camera, menu, opslaan)

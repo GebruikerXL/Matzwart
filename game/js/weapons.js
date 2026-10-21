@@ -16,23 +16,23 @@ const WEAPONS = {
     sp: { name: 'Roem!', ep: 3, desc: 'Gok: tussen 0,3× en 2,8× schade.', run: (B) => { const m = 0.3 + Math.random() * 2.5; return B.wHit(m, m > 2 ? 'STUK! Honderd roem!' : m < 0.8 ? 'Je hebt alleen een driekaart. Zielig.' : 'Vijftig roem!'); } },
   },
   selfiestick: {
-    name: 'Selfiestick', atk: 3, verb: 'Je prikt met de selfiestick.', from: 'Buit van de enquêteur',
+    name: 'Selfiestick', atk: 3, verb: 'Je prikt met de selfiestick.', from: 'Buit van de TikTok-vaper',
     sp: { name: 'Flitsselfie', ep: 3, desc: 'Lichte schade en verblindt 2 beurten.', run: async (B) => { await B.wHit(0.8, 'Klik! Met flits. Je zet hem meteen in je story.'); await B.foeSt('verblind', 2); } },
   },
   helm: {
-    name: 'Scooterhelm', atk: 3, verb: 'Je slaat met de scooterhelm.', from: 'Buit van de hangjongere',
+    name: 'Scooterhelm', atk: 3, verb: 'Je slaat met de scooterhelm.', from: 'Buit van de vaper op scooter',
     sp: { name: 'Helmstoot', ep: 4, desc: 'Kopstoot zonder hoofdpijn. 1,8× schade.', run: (B) => B.wHit(1.8, 'Je zet de helm op en gaat er met je hoofd vol in.') },
   },
   breinaalden: {
-    name: 'Breinaalden', atk: 3, verb: 'Je prikt met de breinaalden.', from: 'Buit van de buurvrouw',
+    name: 'Breinaalden', atk: 3, verb: 'Je prikt met de breinaalden.', from: 'Mevrouw Bakker',
     sp: { name: 'Recht-averecht', ep: 4, desc: 'Twee prikken en de vijand is Verzwakt.', run: async (B) => { await B.wHit(0.8, 'Recht!'); await B.wHit(0.8, 'Averecht!'); await B.foeSt('verzwakt', 2); } },
   },
   fietspomp: {
-    name: 'Fietspomp', atk: 4, verb: 'Je meppt met de fietspomp.', from: 'Buit van de wielrenner',
+    name: 'Fietspomp', atk: 4, verb: 'Je meppt met de fietspomp.', from: 'Buit van de vaper op fatbike',
     sp: { name: 'Oppompen', ep: 3, desc: 'Je doet 3 beurten 40% meer schade.', run: async (B) => { await B.log('Je zet de pomp op je eigen arm en pompt. Je voelt je opgepompt. Letterlijk.'); B.meSt('opgepompt', 3); } },
   },
   springtouw: {
-    name: 'Springtouw', atk: 3, verb: 'Je zwiept met het springtouw.', from: 'Buit van de jogger',
+    name: 'Springtouw', atk: 3, verb: 'Je zwiept met het springtouw.', from: 'Buit van de vaper in trainingspak',
     sp: { name: 'Vastbinden', ep: 4, desc: 'De vijand slaat een beurt over.', run: async (B) => { await B.log('Je bindt de vijand met het springtouw aan een denkbeeldige lantaarnpaal.'); await B.foeSt('ongemak', 1); } },
   },
   frikandel: {

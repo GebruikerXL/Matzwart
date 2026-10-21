@@ -139,6 +139,17 @@ body {
 #casino .cards { display: flex; gap: 1.4cqw; }
 #casino .card { width: 8cqw; height: 12cqw; background: #f4f1ea; border-radius: 1cqw; border: 0.4cqw solid #1b1420; display: flex; flex-direction: column; align-items: center; justify-content: center; font: 700 4.4cqw var(--font-title); text-shadow: none; }
 #casino .card small { font-size: 3.4cqw; }
+/* Vape jatten */
+#qte { left: 12%; right: 12%; top: 30%; display: flex; flex-direction: column; align-items: center; gap: 1.4cqw; padding-block: 2cqw; }
+#qte h3 { font-family: var(--font-title); font-size: 4cqw; margin: 0; color: var(--gold); font-weight: 400; }
+#qte .qbar { position: relative; width: 90%; height: 5cqw; background: #0a0f2e; border: 0.4cqw solid var(--win-edge); border-radius: 1cqw; overflow: hidden; }
+#qte .zone { position: absolute; top: 0; bottom: 0; background: var(--calm); }
+#qte .mark { position: absolute; top: -0.4cqw; bottom: -0.4cqw; width: 1cqw; margin-left: -0.5cqw; background: var(--gold); box-shadow: 0 0 0 0.3cqw #000; }
+#qte .qhint { font-size: 2.4cqw; color: var(--muted); text-align: center; }
+#qte .qdots { display: flex; gap: 1.6cqw; }
+#qte .qdots b { width: 3cqw; height: 3cqw; border-radius: 50%; border: 0.4cqw solid var(--muted); }
+#qte .qdots b.hit { background: var(--calm); border-color: var(--calm); }
+#qte .qdots b.miss { background: var(--hp); border-color: var(--hp); }
 #fade { inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity .35s; }
 #fade.on { opacity: 1; }
 
@@ -170,6 +181,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
   <div id="bstats" class="ui win" hidden></div>
 
   <div id="casino" class="ui win" hidden></div>
+  <div id="qte" class="ui win" hidden></div>
   <div id="menu" class="ui win list" hidden></div>
   <div id="panel" class="ui win" hidden></div>
 
@@ -213,4 +225,5 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js/story.js"></script>
 <script src="js/story2.js"></script>
 <script src="js/casino.js"></script>
+<script src="js/vapers.js"></script>
 <script src="js/main.js"></script>

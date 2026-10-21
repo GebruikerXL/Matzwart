@@ -62,56 +62,6 @@ const LOOKS = {
 
 // Tegenstanders. talk: opties met effect op Rust (+) of woede (negatief = vijand sterker)
 const ENEMIES = {
-  jogger: {
-    drop: 'springtouw', inflict: { st: 'misselijk', ch: 0.25, t: 'De zweetlucht maakt je misselijk.' }, name: 'Fanatieke jogger', look: 'jogger', hp: 22, atk: 5, def: 1, xp: 8, money: 6,
-    moves: ['rent tegen je aan', 'zwaait met zijn smartwatch', 'hijgt in je gezicht'],
-    talk: [
-      { t: 'Vraag naar zijn rondetijd', v: 55, r: '"Vier minuut tweeëntwintig per kilometer!" Hij straalt.' },
-      { t: 'Ren een stukje mee', v: 40, r: 'Je rent drie meter en moet bijna overgeven. Hij waardeert de moeite.' },
-      { t: 'Bied een frikandel aan', v: -1, r: '"Weet je hoeveel transvet daarin zit?!" Hij wordt boos.' },
-    ],
-    spare: 'De jogger knikt, start zijn stopwatch opnieuw en rent verder.',
-  },
-  buurvrouw: {
-    drop: 'breinaalden', inflict: { st: 'duizelig', ch: 0.25, t: 'Van al dat geroddel word je duizelig.' }, name: 'Bemoeizuchtige buurvrouw', look: 'buurvrouw', hp: 26, atk: 5, def: 2, xp: 10, money: 7,
-    moves: ['wijst met haar vinger', 'zucht heel diep', 'begint over vroeger'],
-    talk: [
-      { t: 'Roddel over Henk', v: 60, r: '"Nee! Echt?!" Ze is helemaal om.' },
-      { t: 'Zeg dat je haast hebt', v: -1, r: '"Haast? Op jouw leeftijd? Toen ík jong was…" Ze wordt feller.' },
-      { t: 'Prijs haar vitrage', v: 45, r: '"Zelf gestreken," zegt ze trots.' },
-    ],
-    spare: 'Ze moet nodig de buurt bijpraten over wat ze net hoorde, en loopt weg.',
-  },
-  scooter: {
-    drop: 'helm', inflict: { st: 'misselijk', ch: 0.3, t: 'De uitlaatgassen maken je misselijk.' }, name: 'Hangjongere op scooter', look: 'scooter', hp: 30, atk: 7, def: 2, xp: 13, money: 9,
-    moves: ['laat zijn uitlaat knallen', 'rijdt over je tenen', 'blaast een dampwolk naar je'],
-    talk: [
-      { t: 'Bewonder zijn scooter', v: 50, r: '"Opgevoerd tot vijfenveertig, broer." Hij is gevleid.' },
-      { t: 'Vraag of hij weet wie je bent', v: 30, r: '"Jij bent die gast van gisteren! Die van de polonaise!" Meer weet hij niet.' },
-      { t: 'Zeg dat hij te hard rijdt', v: -1, r: '"Ben jij politie of zo?" Hij geeft gas.' },
-    ],
-    spare: 'Hij laat zijn scooter nog één keer knallen en scheurt weg.',
-  },
-  enquete: {
-    drop: 'selfiestick', inflict: { st: 'duizelig', ch: 0.3, t: 'Vraag 47 van 112. Je wordt er duizelig van.' }, name: 'Enquêteur met klembord', look: 'enquete', hp: 24, atk: 6, def: 1, xp: 10, money: 8,
-    moves: ['stelt een vervolgvraag', 'tikt met haar pen', 'vraagt om je postcode'],
-    talk: [
-      { t: 'Beantwoord de vragen', v: 35, r: '"Naam?" … Dat weet je dus niet. Ze schrijft "onbekend" op en lacht.' },
-      { t: 'Geef heel enthousiast een 10', v: 50, r: '"Wat een fijne respondent!" Ze vinkt alles af.' },
-      { t: 'Zeg "geen interesse"', v: -1, r: '"Het duurt maar vijf minuutjes!" Ze komt dichterbij.' },
-    ],
-    spare: 'De enquête is af. Ze bedankt je met een pen met een logo erop. Die pen ben je binnen een minuut kwijt.',
-  },
-  fietser: {
-    drop: 'fietspomp', inflict: { st: 'duizelig', ch: 0.2, t: 'Hij suist zo hard langs dat je duizelig wordt.' }, name: 'Wielrenner in strak pak', look: 'fietser', hp: 28, atk: 6, def: 3, xp: 12, money: 8,
-    moves: ['belt agressief', 'klikt zijn schoenen los', 'roept "AAN DE KANT!"'],
-    talk: [
-      { t: 'Vraag naar zijn wattage', v: 55, r: 'Hij praat vijf minuten over wattage. Je knikt op de juiste momenten.' },
-      { t: 'Wijs op de wind', v: 40, r: '"Altijd tegenwind hier, hè." Eindelijk iets waar jullie het over eens zijn.' },
-      { t: 'Vraag waarom hij een panty draagt', v: -1, r: '"Dat is een BIB SHORT." Hij is beledigd.' },
-    ],
-    spare: 'Hij klikt zijn schoenen weer vast en verdwijnt richting de dijk.',
-  },
   winkeldief: {
     inflict: { st: 'misselijk', ch: 0.25, t: 'Hij duwt een koude frikandel in je mond. Bah.' }, name: 'Puutje', look: 'dief', hp: 40, atk: 7, def: 2, xp: 22, money: 15, boss: true,
     moves: ['gooit een koude frikandel naar je', 'rijdt met een winkelwagen tegen je aan', 'trekt zijn capuchon strak'],
@@ -148,7 +98,7 @@ const ENEMIES = {
     spare: 'Derkje klapt in haar handjes, graait diep in haar broekzak en haalt er een heel motorblok uit.',
   },
 };
-const RANDOM_POOL = ['jogger', 'buurvrouw', 'scooter', 'enquete', 'fietser'];
+const RANDOM_POOL = [];
 
 // ---------- Gevecht ----------
 const Battle = {
@@ -417,6 +367,7 @@ const Battle = {
         SFX.item(); this.paintStats();
         await this.log(`Level ${P.lvl}! Je voelt je bijna weer mens.${nieuw ? ` Nieuwe skill: ${nieuw.name}.` : ''}`);
       }
+      if (f.vaper) await stealVape(this, f, P);
       if (f.drop && !(P.weapons || []).includes(f.drop) && Math.random() < 0.35) {
         await this.log(`${f.name} laat iets vallen: ${WEAPONS[f.drop].name}!`);
         await giveWeapon(f.drop, true);

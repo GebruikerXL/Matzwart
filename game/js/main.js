@@ -133,6 +133,13 @@ const G = {
     const [dx, dy] = DIRS[dir];
     const nx = pl.x + dx, ny = pl.y + dy;
     if (!this.free(nx, ny)) return;
+    // waarschuwing vlak voordat je het hoge gras in stapt
+    if (this.map.encounters && this.flags.intro && tileAt(this.map, nx, ny) === 'tall' && tileAt(this.map, pl.x, pl.y) !== 'tall' && this.time - (this.vapeWarn || -99) > 45) {
+      this.vapeWarn = this.time;
+      this.busy = true;
+      UI.say('', 'Je ruikt een sterke vape-lucht. Kijk uit, er kunnen vapende tieners in het gras zitten!').then(() => { this.busy = false; });
+      return;
+    }
     pl.fx = pl.x; pl.fy = pl.y; pl.x = nx; pl.y = ny; pl.moving = true; pl.t = 0;
     pl.anim = (pl.anim + 1) % 2;
   },
@@ -281,7 +288,8 @@ const G = {
       if (B.foeGone) { B.foeGone += 0.02; ctx.globalAlpha = Math.max(0, 1.5 - B.foeGone); }
       if (look.small) ctx.drawImage(img, VW / 2 - 25 + sx, 112 + bob, 50, 50);
       else ctx.drawImage(img, VW / 2 - 40 + sx, 72 + bob, 80, 80);
-      if (B.foe.id === 'scooter') { ctx.drawImage(getProp('fiets'), VW / 2 - 54 + sx, 120 + bob, 48, 48); }
+      if (B.foe.id === 'vaper_scooter' || B.foe.id === 'vaper_fatbike') { ctx.drawImage(getProp('fiets'), VW / 2 - 54 + sx, 120 + bob, 48, 48); }
+      if (B.foe.vaper && !B.foeGone) drawVapeCloud(ctx, t, B.foe.cloud, VW / 2 + sx, 100 + bob);
       ctx.restore();
     }
     if (B.swing) {
@@ -325,10 +333,10 @@ const G = {
         if (!own.length) { panel.innerHTML = '<h3>Spullen</h3>Je zakken zijn leeg.'; panel.hidden = false; await UI.say('', 'Niks.'); panel.hidden = true; continue; }
         panel.innerHTML = '<h3>Spullen</h3><div id="itemlist" class="list"></div><p id="itemdesc" class="lbl"></p>';
         panel.hidden = false;
-        const i = await UI.list('#itemlist', own.map((id) => ({ label: ITEMS[id].name, right: ITEMS[id].key ? '' : '×' + this.P.items[id] })), {
+        const i = await UI.list('#itemlist', own.map((id) => ({ label: ITEMS[id].name, right: ITEMS[id].key && this.P.items[id] < 2 ? '' : '×' + this.P.items[id] })), {
           cancel: true, keep: true, onMove: (s) => { $('#itemdesc').textContent = ITEMS[own[s]].desc; },
         });
-        if (i >= 0 && !ITEMS[own[i]].key) { const r = ITEMS[own[i]].use(this.P); this.take(own[i]); SFX.heal(); UI.toast(`${ITEMS[own[i]].name}: ${r}`); }
+        if (i >= 0 && ITEMS[own[i]].use) { const r = ITEMS[own[i]].use(this.P); this.take(own[i]); SFX.heal(); UI.toast(`${ITEMS[own[i]].name}: ${r}`); }
         panel.hidden = true;
       } else if (k === 1) {
         const qs = Object.keys(QUESTS).filter((id) => this.S.quests[id]);

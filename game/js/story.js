@@ -93,7 +93,7 @@ const NPCS = [
       await say('Boer Jansen', pick([
         'De koeien zijn vandaag ook brak. Geen idee waarom.',
         'Blaarkoppen, dat zijn het. Rood met een witte kop. Net als jij vanochtend, maar dan andersom.',
-        'In het hoge gras kom je allerlei volk tegen. Pas maar op. Al levert het wel een paar euro op.',
+        'In het hoge gras zitten tegenwoordig vapende tieners. Je ruikt ze van verre. Pas maar op.',
         'Op het bankje aan de Dorpsstraat kun je even bijkomen. Doe ik ook altijd.',
       ]));
     },
@@ -102,6 +102,12 @@ const NPCS = [
     id: 'bakker', map: 'dorp', x: 9, y: 19, dir: 'down', look: LOOK.bakker,
     async talk() {
       if (G.quest('naam') >= 2) { await say('Mevrouw Bakker', 'Ga nou maar naar binnen, jongen. Je staat al de hele ochtend voor mijn neus.'); return; }
+      if (!ownsWeapon('breinaalden')) {
+        await say('Mevrouw Bakker', 'Er zitten tegenwoordig van die vapende jongeren in het gras. Je ruikt het tot in mijn keuken. Mango, geloof ik.');
+        await say('Mevrouw Bakker', 'Neem mijn breinaalden maar mee. Voor de zekerheid. Prik ze maar eens een beetje.');
+        await giveWeapon('breinaalden');
+        return;
+      }
       await say('Mevrouw Bakker', pick([
         'Je ziet er slecht uit, jongen. Je stond vannacht een half uur aan een deur te morrelen. Ik hoorde het tot in mijn slaapkamer.',
         'Ik ken jou ergens van. Ik weet alleen niet meer waarvan. Dat heb ik vaker, op mijn leeftijd.',

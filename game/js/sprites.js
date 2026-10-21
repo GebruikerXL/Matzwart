@@ -248,12 +248,15 @@ function drawCharInto(x, L, dir, frame) {
       if (ex.includes('beard')) px(x, 4, 6, 8, 2, H);
       if (ex.includes('mustache')) px(x, 6, 6, 4, 1, H);
       if (ex.includes('blush')) { px(x, 5, 6, 1, 1, '#e88'); px(x, 10, 6, 1, 1, '#e88'); }
+      if (ex.includes('pimples')) { [[5, 3], [10, 2], [4, 6], [11, 5], [8, 6], [6, 2], [9, 7]].forEach(([a, b]) => px(x, a, b, 1, 1, '#d8343a')); px(x, 10, 5, 1, 1, '#ffd0a0'); }
+      if (ex.includes('vape')) { px(x, 13, 9, 2, 4, '#1b1420'); px(x, 13, 9, 2, 1, '#5ad0f0'); px(x, 14, 7, 1, 2, '#9a9aa2'); }
     } else {
       const fx = dir === 'left' ? 5 : 10;
       px(x, fx, 4, 1, 2, E);
       if (ex.includes('glasses')) px(x, dir === 'left' ? 4 : 9, 4, 3, 2, '#2a2a3a');
       if (ex.includes('beard')) px(x, dir === 'left' ? 4 : 7, 6, 5, 2, H);
       if (ex.includes('mustache')) px(x, dir === 'left' ? 4 : 9, 6, 3, 1, H);
+      if (ex.includes('pimples')) { px(x, dir === 'left' ? 6 : 9, 6, 1, 1, '#d8343a'); px(x, dir === 'left' ? 7 : 8, 3, 1, 1, '#d8343a'); }
     }
   }
 }
