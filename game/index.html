@@ -126,6 +126,19 @@ body {
 #ending { background: #000; }
 #ending .sub { white-space: pre-wrap; }
 
+/* Casino */
+#casino { left: 3%; right: 37%; top: 3%; height: 40%; display: flex; flex-direction: column; align-items: center; gap: 1cqw; }
+#casino h3 { font-family: var(--font-title); font-size: 3cqw; margin: 0; color: var(--gold); font-weight: 400; }
+#casino .stage { flex: 1; display: flex; align-items: center; justify-content: center; }
+#casino .msg { font-size: 2.7cqw; text-align: center; min-height: 3.6cqw; }
+#casino .reels { display: flex; gap: 2cqw; }
+#casino .reels canvas { width: 10cqw; height: 10cqw; image-rendering: pixelated; border: 0.5cqw solid var(--gold); border-radius: 1cqw; background: #f4f1ea; }
+#casino .wheel { width: 14cqw; height: 14cqw; border-radius: 50%; border: 0.8cqw solid var(--gold); display: grid; place-items: center; font: 700 6cqw var(--font-title); background: #1b1420; color: #f4f1ea; }
+#casino .wheel[data-k="rood"] { background: #c23b2e; }
+#casino .wheel[data-k="groen"] { background: #1f6a3a; }
+#casino .cards { display: flex; gap: 1.4cqw; }
+#casino .card { width: 8cqw; height: 12cqw; background: #f4f1ea; border-radius: 1cqw; border: 0.4cqw solid #1b1420; display: flex; flex-direction: column; align-items: center; justify-content: center; font: 700 4.4cqw var(--font-title); text-shadow: none; }
+#casino .card small { font-size: 3.4cqw; }
 #fade { inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity .35s; }
 #fade.on { opacity: 1; }
 
@@ -156,6 +169,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
   <div id="bsub" class="ui win list" hidden></div>
   <div id="bstats" class="ui win" hidden></div>
 
+  <div id="casino" class="ui win" hidden></div>
   <div id="menu" class="ui win list" hidden></div>
   <div id="panel" class="ui win" hidden></div>
 
@@ -198,4 +212,5 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js/weapons.js"></script>
 <script src="js/story.js"></script>
 <script src="js/story2.js"></script>
+<script src="js/casino.js"></script>
 <script src="js/main.js"></script>

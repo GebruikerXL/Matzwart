@@ -31,6 +31,10 @@ Er zijn 16 wapens te vinden: verstopt in het dorp, als beloning, te koop of als 
 
 Statuseffecten: vijanden kunnen Ongemakkelijk (slaat beurt over), Misselijk (schade per beurt), Verblind (mist vaak) of Verzwakt (minder schade) worden. Jij kunt Misselijk of Duizelig worden; Paracetamol helpt.
 
+## Casino
+
+Het Gokpaleis staat in de A-framestraat, achter de parkeerplaats van de EKA. Er staan een gokkast, een roulettetafel en een hoger-lagertafel. Naast de gokkast staat Aron van der Wal met investeringsadviezen. Volg je zijn tip, dan verlies je gegarandeerd. Doe je precies het omgekeerde, dan win je.
+
 ## Bestanden
 
 - `js/sprites.js`: alle pixel-art, in code getekend
@@ -40,4 +44,5 @@ Statuseffecten: vijanden kunnen Ongemakkelijk (slaat beurt over), Misselijk (sch
 - `js/weapons.js`: wapens, statuseffecten, wapen-icoontjes en Mick
 - `js/story.js`: personages en opdrachten
 - `js/story2.js`: voorwerpen, deuren, intro en finale
+- `js/casino.js`: het Gokpaleis, de spelletjes en Aron van der Wal
 - `js/main.js`: engine (lopen, camera, menu, opslaan)
