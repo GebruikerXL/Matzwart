@@ -32,7 +32,7 @@ const MAPS = {};
   setT(m, 11, 5, 'path'); setT(m, 12, 5, 'path');
   rect(m, 23, 1, 9, 4, 'grass');
   [[24, 2], [27, 1], [30, 3], [8, 2], [16, 3], [3, 4]].forEach(([x, y]) => setT(m, x, y, 'tree'));
-  // achterpaadje tussen café en Henk
+  // achterpaadje tussen Lanting en Henk
   rect(m, 11, 6, 2, 7, 'path');
   // stoep + Dorpsstraat
   rect(m, 1, 13, 38, 1, 'path');
@@ -57,7 +57,7 @@ const MAPS = {};
   [[18, 29], [31, 30], [2, 30]].forEach(([x, y]) => setT(m, x, y, 'tree'));
   [[2, 23], [22, 19], [23, 23], [38, 18], [21, 22]].forEach(([x, y]) => setT(m, x, y, 'tree'));
 
-  building(m, { id: 'cafe', x: 3, y: 7, w: 8, h: 6, door: 6, label: 'DE GOUDEN KATER', wall: '#9c4530', roof: '#2a2e3a', lit: true, signCol: '#f2c22e', chimney: true });
+  building(m, { id: 'cafe', x: 3, y: 7, w: 8, h: 6, door: 6, label: 'LANTING', wall: '#9c4530', roof: '#2a2e3a', lit: true, signCol: '#f2c22e', chimney: true });
   building(m, { id: 'henk', x: 13, y: 8, w: 6, h: 5, door: 15, wall: '#8e5a46', roof: '#4a3a36', doorCol: '#6b2a2a' });
   building(m, { id: 'dorpshuis', x: 22, y: 6, w: 9, h: 7, door: 26, label: 'DORPSHUIS', wall: '#a8553a', roof: '#33404f', shutter: '#2a4a7a' });
   building(m, { id: 'kerk', x: 33, y: 1, w: 6, h: 12, door: 35, kind: 'church', wall: '#9a4a34', roof: '#3a3f4a' });
@@ -70,8 +70,6 @@ const MAPS = {};
   prop(m, 38, 13, 'bord', true, 'bordoost');
   prop(m, 22, 16, 'bushalte', true, 'bushalte');
   prop(m, 33, 23, 'tractor', true, 'tractor');
-  prop(m, 12, 26, 'fietsSloot', false, 'fiets');
-  prop(m, 10, 18, 'sokkel', false, 'sokkel');
   prop(m, 2, 12, 'biervat', true);
   prop(m, 11, 12, 'kliko', true);
   prop(m, 37, 22, 'emmer', true);
@@ -79,7 +77,12 @@ const MAPS = {};
   prop(m, 14, 13, 'bank', true, 'bank');
   [[6, 28], [14, 27], [25, 29], [35, 28]].forEach(([x, y], i) => prop(m, x, y, 'koe', true, 'koe' + i));
   // randen van de Dorpsstraat
-  m.edges = [{ x: 0, y: 14 }, { x: 0, y: 15 }, { x: 39, y: 14 }, { x: 39, y: 15 }];
+  m.edges = [{ x: 0, y: 14 }, { x: 0, y: 15 }];
+  // uitgangen naar de A-framestraat (oost) en het voetbalveld en de steiger (zuid)
+  m.doors.push({ x: 39, y: 14, id: 'naar_oost' }, { x: 39, y: 15, id: 'naar_oost' });
+  rect(m, 30, 27, 1, 5, 'path');
+  m.doors.push({ x: 30, y: 31, id: 'naar_zuid' });
+  prop(m, 29, 25, 'bord', true, 'bordzuid');
   MAPS.dorp = m;
 })();
 
@@ -103,9 +106,9 @@ function interior(id, name, w, h, floor) {
   MAPS.schuur = m;
 })();
 
-// ---------- Café De Gouden Kater ----------
+// ---------- Café Lanting ----------
 (function () {
-  const m = interior('cafe', 'Café De Gouden Kater', 13, 10, 'floor');
+  const m = interior('cafe', 'Café Lanting', 13, 10, 'floor');
   rect(m, 1, 3, 7, 1, 'counter');
   setT(m, 8, 3, 'floor');
   [[9, 4], [11, 4], [9, 7], [3, 6]].forEach(([x, y]) => { setT(m, x, y, 'table'); setT(m, x - 1, y, 'chair'); setT(m, x + 1 < 12 ? x + 1 : x - 1, y, 'chair'); });
@@ -132,6 +135,95 @@ function interior(id, name, w, h, floor) {
   prop(m, 12, 1, 'poster', true, 'prikbord');
   prop(m, 13, 3, 'biervat', true);
   MAPS.dorpshuis = m;
+})();
+
+// ---------- A-framestraat met de EKA ----------
+(function () {
+  const m = newMap('oost', 'A-framestraat', 34, 24, 'grass');
+  m.encounters = true;
+  rect(m, 0, 0, 34, 1, 'tree'); rect(m, 0, 23, 34, 1, 'tree');
+  rect(m, 0, 0, 1, 24, 'tree'); rect(m, 33, 0, 1, 24, 'tree');
+  rect(m, 1, 1, 32, 1, 'hedge');
+  rect(m, 1, 9, 32, 1, 'path');
+  rect(m, 0, 10, 33, 2, 'road');
+  rect(m, 1, 12, 32, 1, 'path');
+  [2, 8, 14, 20].forEach((x) => rect(m, x, 8, 4, 1, 'asfalt'));
+  rect(m, 12, 8, 2, 1, 'asfalt');
+  // parkeerplaats en achterterrein van de EKA
+  rect(m, 13, 13, 9, 5, 'asfalt');
+  rect(m, 2, 19, 12, 3, 'asfalt');
+  rect(m, 13, 18, 1, 3, 'asfalt');
+  // hoog gras aan de oostkant
+  rect(m, 23, 14, 10, 9, 'tall');
+  [[25, 16], [30, 15], [27, 20], [32, 21], [24, 22]].forEach(([x, y]) => setT(m, x, y, 'tree'));
+  [[2, 3], [26, 3], [31, 4], [31, 7]].forEach(([x, y]) => setT(m, x, y, 'tree'));
+  rect(m, 29, 5, 2, 3, 'flower');
+
+  const af = [['#b07a48', '#33363f'], ['#9a6a3c', '#2a2e3a'], ['#c08a5a', '#3a3f4a'], ['#a8744a', '#2f3340']];
+  [2, 8, 14, 20].forEach((x, i) => building(m, { id: 'aframe' + i, x, y: 3, w: 4, h: 5, door: x + 2, kind: 'aframe', wall: af[i][0], roof: af[i][1], lit: i === 1 }));
+  building(m, { id: 'dwerghuis', x: 27, y: 6, w: 2, h: 2, door: 27, kind: 'tiny' });
+  building(m, { id: 'eka', x: 3, y: 14, w: 10, h: 5, door: 7, kind: 'shop', label: 'EKA', signCol: '#d42a2a' });
+
+  prop(m, 12, 8, 'bmwL', true, 'bmw'); prop(m, 13, 8, 'bmwR', true, 'bmw');
+  prop(m, 29, 7, 'tomatenplant', true, 'dwergplant');
+  prop(m, 4, 20, 'container', true, 'container'); prop(m, 6, 20, 'container', true, 'container');
+  prop(m, 15, 14, 'winkelwagen', true, 'winkelwagen'); prop(m, 19, 16, 'winkelwagen', true, 'winkelwagen');
+  [[6, 9], [18, 9], [28, 12], [10, 12]].forEach(([x, y]) => prop(m, x, y, 'lamp', true));
+  m.doors.push({ x: 0, y: 10, id: 'oost_naar_dorp' }, { x: 0, y: 11, id: 'oost_naar_dorp' });
+  MAPS.oost = m;
+})();
+
+// ---------- Voetbalveld en zwemsteiger ----------
+(function () {
+  const m = newMap('zuid', 'Voetbalveld en zwemsteiger', 36, 28, 'grass');
+  m.encounters = true;
+  rect(m, 0, 0, 36, 1, 'tree'); rect(m, 0, 0, 1, 17, 'tree'); rect(m, 35, 0, 1, 17, 'tree');
+  rect(m, 6, 0, 1, 15, 'path');
+  m.doors.push({ x: 6, y: 0, id: 'zuid_naar_dorp' });
+  // veld met maaistrepen en lijnen
+  for (let x = 9; x <= 32; x++) for (let y = 2; y <= 12; y++) setT(m, x, y, Math.floor(x / 2) % 2 ? 'pitch' : 'pitch2');
+  rect(m, 9, 2, 24, 1, 'lijnh'); rect(m, 9, 12, 24, 1, 'lijnh');
+  rect(m, 9, 2, 1, 11, 'lijnv'); rect(m, 32, 2, 1, 11, 'lijnv'); rect(m, 21, 3, 1, 9, 'lijnv');
+  prop(m, 10, 7, 'goal', true, 'doel'); prop(m, 31, 7, 'goal', true, 'doel');
+  prop(m, 14, 1, 'dug', true, 'dug'); prop(m, 27, 1, 'dug', true, 'dug');
+  building(m, { id: 'kantine', x: 1, y: 2, w: 5, h: 5, door: 3, label: 'KANTINE', wall: '#8a8e98', roof: '#2a4a7a', shutter: '#d42a2a' });
+  rect(m, 1, 8, 5, 6, 'tall'); rect(m, 25, 13, 9, 2, 'tall');
+  // strandje, meer en steiger
+  rect(m, 1, 15, 34, 2, 'sand');
+  rect(m, 6, 14, 1, 1, 'path');
+  rect(m, 0, 17, 36, 1, 'water'); rect(m, 0, 18, 36, 10, 'deep');
+  rect(m, 18, 17, 1, 5, 'steiger'); rect(m, 17, 22, 3, 1, 'steiger');
+  prop(m, 21, 20, 'boei', true, 'boei');
+  prop(m, 25, 15, 'ijsco', true, 'ijsco');
+  prop(m, 12, 15, 'bank', true, 'bank');
+  prop(m, 16, 15, 'bord', true, 'steigerbord');
+  MAPS.zuid = m;
+})();
+
+// ---------- EKA (binnen) ----------
+(function () {
+  const m = interior('eka', 'EKA', 14, 10, 'tegel');
+  [2, 5, 8].forEach((x) => rect(m, x, 3, 1, 4, 'schap'));
+  rect(m, 11, 4, 1, 3, 'counter');
+  setT(m, 6, 9, 'mat_out');
+  m.doors.push({ x: 6, y: 9, id: 'uit_eka' });
+  prop(m, 11, 5, 'kassa', true, 'kassa');
+  prop(m, 3, 8, 'winkelwagen', true, 'winkelwagen');
+  prop(m, 9, 8, 'biervat', true, 'meloenen');
+  prop(m, 6, 1, 'poster', true, 'aanbieding');
+  MAPS.eka = m;
+})();
+
+// ---------- Het piepkleine huisje ----------
+(function () {
+  const m = interior('dwerg', 'Een heel klein huisje', 7, 6, 'plank');
+  setT(m, 3, 5, 'mat_out');
+  m.doors.push({ x: 3, y: 5, id: 'uit_dwerg' });
+  prop(m, 1, 2, 'minibed', true, 'minibed');
+  prop(m, 3, 1, 'foto', true, 'foto');
+  prop(m, 5, 2, 'tomatenplant', true, 'dwergplant2');
+  prop(m, 2, 4, 'brief', false, 'brief');
+  MAPS.dwerg = m;
 })();
 
 // Extra tegels die pas hier bekend zijn

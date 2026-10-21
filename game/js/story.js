@@ -1,31 +1,37 @@
-// Verhaal: personages, opdrachten, deuren en voorwerpen.
+// Verhaal deel 1: opdrachten en personages. Deuren, voorwerpen, intro en finale staan in story2.js.
 const F = () => G.flags;
 const say = (n, t) => G.say(n, t);
 const ask = (n, t, o, c) => G.ask(n, t, o, c);
 const me = (t) => G.say('', t);
+const pick = (l) => l[Math.floor(Math.random() * l.length)];
+const CLUES = ['c_lanting', 'c_eka', 'c_bal', 'c_thijs'];
+const REKENING = 47;
 
 const QUESTS = {
   naam: {
-    name: 'Wie ben ik?', done: 4,
+    name: 'Wie ben ik?', done: 3,
     steps: [
       '',
-      () => `Vraag rond wie je bent. Getuigen gesproken: ${['w_gerda', 'w_bakker', 'w_henk'].filter((f) => F()[f]).length} van 3 (Gerda, mevrouw Bakker, Henk).`,
-      'Rick wacht op je in het dorpshuis.',
-      'Rick zegt dat je in het gele huis naast mevrouw Bakker woont.',
+      () => `Zoek uit wat je gisteravond hebt gedaan. Herinneringen: ${CLUES.filter((c) => F()[c]).length} van 4 (Lanting, de EKA, het voetbalveld, de A-framestraat).`,
+      'Probeer je sleutel nog eens bij het gele huis naast mevrouw Bakker.',
       'Je weet het bijna.',
     ],
   },
-  telefoon: {
-    name: 'Waar is mijn telefoon?', done: 4,
-    steps: ['', 'Gerda zegt dat Henk de buurman je telefoon heeft.', 'Je telefoon is terug, maar leeg. Zoek een oplader.', 'Laad je telefoon op achter de bar bij Gerda.', 'Opgeladen tot 1%. Eén bericht van Rick.'],
+  rekening: {
+    name: 'De rekening bij Lanting', done: 2,
+    steps: ['', () => `Je hebt nog €${REKENING} openstaan bij Gerda in café Lanting. Je hebt nu €${G.P.money}. Gevechten leveren geld op.`, 'Rekening betaald. Gerda vertelde hoe je avond begon.'],
   },
-  fiets: {
-    name: 'Waar is mijn fiets?', done: 6,
-    steps: ['', 'Boer Jansen zag een groene fiets in de sloot liggen, ten zuiden van het dorp.', 'Je kunt niet bij de fiets. Vraag boer Jansen om een hark.', 'Jansen wil eerst koffie. Zwart, drie klontjes. Gerda van het café heeft koffie.', 'Breng de koffie naar boer Jansen.', 'De hark staat in de schuur. Vis je fiets uit de sloot.', 'Fiets gevonden. Nat, maar heel.'],
+  onbetaald: {
+    name: 'Onbetaalde frikandellen', done: 3,
+    steps: ['', 'Ineke van de EKA vergeeft je de 24 frikandellen als je de dropdief achter de winkel aanpakt. Hij hangt bij de containers.', 'De dropdief is aangepakt. Vertel het Ineke.', 'Schuld vereffend. Je krijgt korting in de EKA.'],
   },
-  goedmaken: {
-    name: 'Iets goedmaken', done: 4,
-    steps: ['', 'Mevrouw Bakker mist haar tuinkabouter Gerrit. Jij hebt hem gisteren meegenomen.', 'Er lag een tuinkabouter in je fietsmand. Van wie zou die zijn?', 'Breng Gerrit terug naar mevrouw Bakker.', 'Gerrit staat weer in de tuin.'],
+  bal: {
+    name: 'De wedstrijdbal', done: 4,
+    steps: ['', () => (G.quest('onbetaald') >= 3 ? 'De bal vloog vannacht richting de EKA. Vraag het Ineke eens.' : 'Trainer Harm zoekt de wedstrijdbal. Jij schoot hem vannacht richting de EKA.'), 'Breng de bal terug naar trainer Harm bij het voetbalveld.', 'Win het penaltyduel tegen keeper Kevin en meld je bij trainer Harm.', 'De wedstrijd kan doorgaan.'],
+  },
+  motorblok: {
+    name: 'Het motorblok van Thijs', done: 3,
+    steps: ['', () => (F().zagDerkje ? 'Thijs mist het motorblok van zijn BMW. Derkje, bij de zwemsteiger, had wel heel volle broekzakken…' : 'Thijs mist het motorblok van zijn BMW. Jij zou het gisteravond aan "iemand die er goed op past" hebben gegeven.'), 'Je hebt het motorblok. Breng het naar Thijs in de A-framestraat.', 'De BMW heeft weer een motor. Min of meer.'],
   },
 };
 
@@ -38,12 +44,8 @@ const LOOK = {
   post: { skin: '#c89070', hair: '#2a2020', style: 'cap', cap: '#e08a20', shirt: '#e08a20', pants: '#2a4a7a', extra: [] },
   wachter: { skin: '#e8b898', hair: '#4a3a2a', style: 'short', shirt: '#4a7a5a', pants: '#2a2a3a', extra: ['glasses'] },
   bestuur: { skin: '#f0c9a0', hair: '#5a3a2a', style: 'curly', shirt: '#c23b6e', pants: '#2a2a3a', extra: [] },
+  zwemmer: { skin: '#f0c4a0', hair: '#e0e0e0', style: 'bald', shirt: '#2a6aa6', pants: '#2a6aa6', extra: ['mustache'] },
 };
-
-function bumpNaam() {
-  const f = F();
-  if (G.quest('naam') === 1 && f.w_gerda && f.w_bakker && f.w_henk && f.rickMsg) G.quest('naam', 2);
-}
 
 // Elke keer dat iemand bijna je naam zegt, gebeurt er iets.
 async function bijna(wie, begin, onderbreking) {
@@ -52,131 +54,80 @@ async function bijna(wie, begin, onderbreking) {
   await me(onderbreking);
 }
 
+async function clue(flag) {
+  const f = F();
+  if (f[flag]) return;
+  f[flag] = true;
+  UI.toast(`Herinnering terug: ${CLUES.filter((c) => f[c]).length} van 4`, 2400);
+  if (CLUES.every((c) => f[c]) && G.quest('naam') === 1) {
+    await me('Wacht even. Het komt terug. Stukje voor stukje.');
+    await me('Om acht uur begon je in Lanting. Om vijf voor twaalf rende je met 24 frikandellen de EKA uit.');
+    await me('Om twee uur penalty\'s op het voetbalveld. Om drie uur "hielp" je Thijs met zijn BMW.');
+    await me('En ergens daartussen liep je langs het gele huis naast mevrouw Bakker. Je stond een half uur aan de deur te morrelen.');
+    await me('Misschien… hield je je sleutel gewoon ondersteboven?');
+    G.quest('naam', 2);
+  }
+}
+
 const NPCS = [
   // ---------- dorp ----------
   {
     id: 'boer', map: 'dorp', x: 30, y: 23, dir: 'left', look: LOOK.boer,
     async talk() {
-      const f = F(), q = G.quest('fiets');
+      const f = F();
       if (!f.metBoer) {
         f.metBoer = true;
         await say('Boer Jansen', 'Hé! Daar is ie. Lekker geslapen in mijn schuur?');
-        await say('Boer Jansen', 'Ik vond je vanochtend om vijf uur tussen het stro. Zingend. Iets over een polonaise.');
+        await say('Boer Jansen', 'Ik vond je vanochtend om vijf uur tussen het stro. Zingend. Iets over "slapen bij de koeien".');
         const k = await ask('Boer Jansen', 'Wat wou je vragen?', ['Weet u hoe ik heet?', 'Sorry van de schuur…']);
         if (k === 1) await say('Boer Jansen', 'Ach, geeft niks. De koeien vonden het gezellig. Maar weet je eigenlijk wel hoe je heet?');
         await bijna('Boer Jansen', 'Natuurlijk weet ik dat! Jij bent de zoon van… van…', 'Van binnen roept iemand: "KLAAS! DE KOEIEN STAAN WEER IN DE SLOOT!"');
         await say('Boer Jansen', 'Ja ja, ik kom! … Waar was ik? Oh ja. Geen idee eigenlijk, jongen.');
-        await say('Boer Jansen', 'Vraag het in het dorp. Gerda van café De Gouden Kater weet alles van iedereen.');
-        await say('Boer Jansen', 'En je fiets ligt trouwens in de sloot. Groen ding. Zag hem vanochtend liggen, aan de weilandkant.');
+        await say('Boer Jansen', 'Begin maar bij café Lanting, aan de Dorpsstraat. Gerda weet alles van iedereen. En je hebt daar vast nog een rekening openstaan.');
+        await say('Boer Jansen', 'Oostelijk ligt de A-framestraat met de EKA. Zuidelijk, over het bruggetje, het voetbalveld en de zwemsteiger.');
         G.quest('naam', 1);
-        if (!q) G.quest('fiets', 1);
         UI.toast('Tip: Esc of B opent het menu met je opdrachten', 3200);
         return;
       }
-      if (q === 2) {
-        await say('Boer Jansen', 'Een hark? Kan wel. Maar eerst een bakkie.');
-        await say('Boer Jansen', 'Mijn vrouw heeft de koffiemachine gesloopt. Haal er eentje bij Gerda. Zwart, drie klontjes.');
-        G.quest('fiets', 3); return;
-      }
-      if (q === 3 || q === 4) {
-        if (G.has('koffie_boer')) {
-          G.take('koffie_boer');
-          await say('Boer Jansen', 'Ahh. Zwart, drie klontjes. Gerda weet het.');
-          await say('Boer Jansen', 'De hark staat in de schuur. Pak maar. En niet weer in het stro gaan liggen, hè.');
-          f.harkOk = true; G.quest('fiets', 5); return;
-        }
-        await say('Boer Jansen', 'Eerst koffie. Zwart. Drie klontjes. Bij Gerda.'); return;
-      }
-      const lines = [
+      await say('Boer Jansen', pick([
         'De koeien zijn vandaag ook brak. Geen idee waarom.',
         'Blaarkoppen, dat zijn het. Rood met een witte kop. Net als jij vanochtend, maar dan andersom.',
-        'Als je in het hoge gras loopt, kom je allerlei volk tegen. Pas maar op.',
+        'In het hoge gras kom je allerlei volk tegen. Pas maar op. Al levert het wel een paar euro op.',
         'Op het bankje aan de Dorpsstraat kun je even bijkomen. Doe ik ook altijd.',
-      ];
-      await say('Boer Jansen', lines[Math.floor(Math.random() * lines.length)]);
+      ]));
     },
   },
   {
     id: 'bakker', map: 'dorp', x: 9, y: 19, dir: 'down', look: LOOK.bakker,
     async talk() {
-      const f = F();
-      if (G.has('kabouter')) {
-        G.take('kabouter'); f.kabouterTerug = true;
-        await say('Mevrouw Bakker', 'GERRIT!');
-        await say('Mevrouw Bakker', 'Je hebt hem teruggebracht! Hij is helemaal nat. Wat heb je met hem gedaan?');
-        await me('Je vertelt over de sloot. Mevrouw Bakker zet Gerrit voorzichtig terug op zijn sokkeltje.');
-        await say('Mevrouw Bakker', 'Je zei gisteravond dat hij "ook eens uit moest". Nou, dat is dan gebeurd.');
-        await say('Mevrouw Bakker', 'Je bent eigenlijk best een lieve jongen. Je woont hier al jaren, hè. Hoe heette je ook alweer…');
-        await bijna('Mevrouw Bakker', 'Iets met een J. Of een G. Jo… Ge…', 'Gerrit valt om. Mevrouw Bakker gilt en zet hem weer recht. Ze is de draad kwijt.');
-        await say('Mevrouw Bakker', 'Ik zeg altijd gewoon "jongen". Hier, neem deze oplader. Mijn kleinzoon laat ze overal liggen.');
-        G.give('oplader');
-        f.w_bakker = true;
-        G.quest('goedmaken', 4);
-        if (G.quest('telefoon') === 2) G.quest('telefoon', 3);
-        bumpNaam();
-        return;
-      }
-      if (f.kabouterTerug) {
-        const l = ['Gerrit en ik gaan vanmiddag samen in de zon zitten.', 'Doe je moeder de groeten. Ik weet niet meer hoe zij heet, maar doe ze de groeten.', 'Als je die oplader niet meer nodig hebt, mag je hem houden.'];
-        await say('Mevrouw Bakker', l[Math.floor(Math.random() * l.length)]); return;
-      }
-      if (!f.metBakker) {
-        f.metBakker = true;
-        await say('Mevrouw Bakker', 'Jij! Jij durft hier nog te komen!');
-        await say('Mevrouw Bakker', 'Gisteravond om half twee stond jij in mijn tuin. Met Gerrit in je armen.');
-        await say('Mevrouw Bakker', 'Gerrit is mijn tuinkabouter. Hij staat daar al eenendertig jaar. En nu is hij weg!');
-        const k = await ask('Mevrouw Bakker', 'Nou?', ['Weet u wie ik ben?', 'Sorry. Ik ga hem zoeken.']);
-        if (k === 0) await say('Mevrouw Bakker', 'Wie je bent? Een kabouterdief, dat ben je!');
-        await say('Mevrouw Bakker', 'Zonder Gerrit praat ik niet met je.');
-        if (G.quest('goedmaken') < 2) G.quest('goedmaken', 1);
-        return;
-      }
-      await say('Mevrouw Bakker', 'Zonder Gerrit praat ik niet met je. Hij heeft een rood mutsje. Je kunt hem niet missen.');
+      if (G.quest('naam') >= 2) { await say('Mevrouw Bakker', 'Ga nou maar naar binnen, jongen. Je staat al de hele ochtend voor mijn neus.'); return; }
+      await say('Mevrouw Bakker', pick([
+        'Je ziet er slecht uit, jongen. Je stond vannacht een half uur aan een deur te morrelen. Ik hoorde het tot in mijn slaapkamer.',
+        'Ik ken jou ergens van. Ik weet alleen niet meer waarvan. Dat heb ik vaker, op mijn leeftijd.',
+        'Mijn tuinkabouter staat er gelukkig nog. Dat kan ik niet van iedereen zeggen die hier vannacht langskwam.',
+      ]));
     },
   },
   {
     id: 'henk', map: 'dorp', x: 17, y: 13, dir: 'right', look: LOOKS.henk,
     async talk() {
-      const f = F();
-      if (f.henkBeaten) {
-        const l = ['Die heg, hè. Niet vergeten.', 'Mijn tulpen komen er wel weer bovenop. Jij ook, denk ik.', 'Ga eens naar huis, jongen. Je ziet eruit als een natte krant.'];
-        await say('Henk', l[Math.floor(Math.random() * l.length)]); return;
+      if (!F().metHenk) {
+        F().metHenk = true;
+        await say('Henk', 'JIJ. Jij hebt vannacht om vier uur een polonaise door mijn tulpen gelopen. In je eentje.');
+        await say('Henk', 'Ik heb er een foto van. Wil je hem zien? Nee? Mooi niet.');
+        return;
       }
-      if (!f.metHenk) {
-        f.metHenk = true;
-        await say('Henk', 'JIJ!');
-        await say('Henk', 'Om vier uur vannacht belde jij aan. Zeven keer.');
-        await say('Henk', 'Toen ik opendeed, gooide jij je telefoon naar me en riep je: "BEL ME MAAR ALS JE WEET HOE IK HEET!"');
-        await say('Henk', 'En toen heb je in mijn tulpen geplast.');
-        if (!G.quest('telefoon')) G.quest('telefoon', 1);
-      }
-      const k = await ask('Henk', 'Je telefoon? Die krijg je pas terug als je langs mij komt!', ['Kom maar op, Henk', 'Even niet']);
-      if (k !== 0) { await say('Henk', 'Dat dacht ik al.'); return; }
-      const r = await G.fight('henk');
-      if (r === 'win' || r === 'spared') {
-        f.henkBeaten = true;
-        await say('Henk', 'Goed, goed. Hier heb je je telefoon. Hij is natuurlijk leeg.');
-        G.give('telefoon');
-        G.quest('telefoon', G.has('oplader') ? 3 : 2);
-        await say('Henk', 'En je naam? Je riep "ik ben de koning van Meedhuizen". Dat is geen naam.');
-        await bijna('Henk', 'Maar je moeder riep je vroeger altijd hier op straat. Het was… J… Ja…', 'Een trekker rijdt voorbij en toetert drie keer. Henk zwaait. Hij weet niet meer wat hij zei.');
-        await say('Henk', 'Ligt op het puntje van mijn tong. Komt wel weer.');
-        f.w_henk = true;
-        bumpNaam();
-      } else if (r === 'fled') {
-        await say('Henk', 'Ja, ren maar! Ik heb je telefoon nog!');
-      }
+      await say('Henk', pick(['Mijn tulpen komen er wel weer bovenop. Jij ook, denk ik.', 'Ga eens naar huis, jongen. Je ziet eruit als een natte krant.', 'Hmpf.']));
     },
   },
   {
     id: 'kind', map: 'dorp', x: 20, y: 16, dir: 'down', look: LOOK.kind, wander: true,
     async talk() {
-      const l = [
+      await say('Kind', pick([
         'Mama zegt dat ik niet meer met jou mag praten. Sinds gisteren.',
-        'Jij was het die op de bushalte stond te zingen! Het was heel vals.',
         'Weet je hoe jij heet? Ik wel. Maar ik zeg het niet. Haha!',
-      ];
-      await say('Kind', l[Math.floor(Math.random() * l.length)]);
+        'Ken jij Derkje? Die woont in het allerkleinste huisje van de hele wereld!',
+      ]));
     },
   },
   {
@@ -196,48 +147,34 @@ const NPCS = [
     id: 'wachter', map: 'dorp', x: 23, y: 16, dir: 'left', look: LOOK.wachter,
     async talk() {
       await say('Man bij de bushalte', 'De bus komt hier twee keer per dag. Vandaag nog niet.');
-      await say('Man bij de bushalte', 'Jij hebt gisteren de dienstregeling meegenomen, toch? Je zei dat je hem "ging inlijsten".');
+      await say('Man bij de bushalte', 'Jij liep hier vannacht langs met een zak frikandellen. Je gaf me er drie. Bedankt nog.');
     },
   },
-  // ---------- café ----------
+  // ---------- café Lanting ----------
   {
     id: 'gerda', map: 'cafe', x: 4, y: 2, dir: 'down', look: LOOK.gerda,
     async talk() {
       const f = F();
-      if (!f.w_gerda) {
-        f.w_gerda = true;
+      if (!f.metGerda) {
+        f.metGerda = true;
         await say('Gerda', 'Nou nou. Kijk eens wie we daar hebben. De held van gisteravond.');
         const k = await ask('Gerda', 'Weet je eigenlijk nog hoe je heet?', ['Eh… nee.', 'Natuurlijk! …Nee.']);
-        await bijna('Gerda', k === 0 ? 'Haha! Ik weet het wel, hoor. Jij bent…' : 'Dat dacht ik al. Nou, jij bent…', 'Achter de bar gaat de telefoon. "Café De Gouden Kater, met Gerda? … Nee, we gaan pas om twaalf open."');
-        await say('Gerda', 'Waar waren we? Oh ja. Je hebt hier gisteren een rekening van €47 laten liggen.');
-        await say('Gerda', 'En je kreeg ruzie met Rick. Bij de finale van het klaverjassen. Je noemde hem een valsspeler, waar iedereen bij was.');
-        await say('Gerda', 'Je naam stond op de inschrijflijst, maar daar heeft iemand een heel biertje overheen gegooid. Jij, denk ik.');
-        await say('Gerda', 'En je telefoon? Die heb je om vier uur naar Henk gegooid. De buurman. Vraag het hem maar.');
-        if (G.quest('telefoon') < 1) G.quest('telefoon', 1);
-        bumpNaam();
+        await bijna('Gerda', k === 0 ? 'Haha! Ik weet het wel, hoor. Jij bent…' : 'Dat dacht ik al. Nou, jij bent…', 'Achter de bar gaat de telefoon. "Café Lanting, met Gerda? … Nee, we gaan pas om twaalf open."');
+        await say('Gerda', 'Waar waren we? Oh ja. Je rekening. Die staat nog open: €47.');
+        await say('Gerda', 'Elf bier, drie bitterballen en één "rondje voor de zaak". Betaal eerst maar, schat. Dan vertel ik je wat je hier allemaal hebt uitgespookt.');
+        G.quest('rekening', 1);
         return;
       }
       for (;;) {
         const opts = ['Wat kopen'];
-        const acts = [() => G.shop(['frikandelbroodje', 'koffie', 'energiedrank', 'paracetamol'])];
-        if (G.quest('fiets') === 3 && !G.has('koffie_boer')) {
-          opts.push('Koffie voor boer Jansen');
-          acts.push(async () => {
-            await say('Gerda', 'Zwart met drie klontjes? Dat is voor Klaas Jansen. Hij drinkt niks anders.');
-            await say('Gerda', 'Van het huis. Die rekening van €47 staat nog wel open, hè.');
-            G.give('koffie_boer'); G.quest('fiets', 4);
-          });
-        }
-        if (G.has('telefoon') && G.has('oplader') && G.quest('telefoon') < 4) {
-          opts.push('Telefoon opladen');
-          acts.push(chargePhone);
-        }
+        const acts = [() => G.shop(['frikandelbroodje', 'bitterballen', 'koffie'], 'Gerda')];
+        if (G.quest('rekening') === 1) { opts.push({ label: `Rekening betalen (€${REKENING})`, off: G.P.money < REKENING }); acts.push(payBill); }
         opts.push('Heb je een tip?', 'Doei');
         acts.push(async () => say('Gerda', hint()), null);
-        const k = await ask('Gerda', 'Zeg het maar, schat.', opts, true);
+        const k = await ask('Gerda', G.quest('rekening') === 1 ? `Zeg het maar, schat. Je hebt €${G.P.money}. Je rekening is €${REKENING}.` : 'Zeg het maar, schat.', opts, true);
         if (k < 0 || !acts[k]) { await say('Gerda', 'Doei! En drink vandaag maar water.'); return; }
         await acts[k]();
-        if (opts[k] !== 'Wat kopen') return;
+        if (k !== 0) return;
       }
     },
   },
@@ -251,38 +188,18 @@ const NPCS = [
         await bijna('Opa Dirk', 'Wacht, wacht, ik weet het. Jij heet…', 'Opa Dirk valt in slaap. Midden in de zin. Hij snurkt zacht.');
         return;
       }
-      const l = ['Zzz…', 'Hè? Wat? Ik sliep niet.', 'Vroeger was hier alles beter. Behalve het bier. Dat is hetzelfde.'];
-      await say('Opa Dirk', l[Math.floor(Math.random() * l.length)]);
+      await say('Opa Dirk', pick(['Zzz…', 'Hè? Wat? Ik sliep niet.', 'Vroeger was hier alles beter. Behalve het bier. Dat is hetzelfde.']));
     },
   },
   // ---------- dorpshuis ----------
   {
     id: 'rick', map: 'dorpshuis', x: 7, y: 3, dir: 'down', look: LOOKS.rick,
     async talk() {
-      const f = F();
-      if (f.rickBeaten) {
-        await say('Rick', 'Ga nou maar naar huis, man. Het gele huis. Naast mevrouw Bakker.'); return;
-      }
-      if (!f.metRick) {
-        f.metRick = true;
-        await say('Rick', 'Daar ben je eindelijk.');
-        await say('Rick', 'Gisteravond. Finale klaverjassen. Jij en ik.');
-        await say('Rick', 'Jij verloor. En toen noemde je mij een valsspeler. Waar het hele dorp bij was.');
-        await say('Rick', 'Daarna sprong je op tafel en begon je een polonaise. Iedereen deed mee. Behalve ik.');
-      }
-      const k = await ask('Rick', 'Dat maken we nu af.', ['Rick, ik weet niet eens hoe ik heet', 'Kom maar op']);
-      if (k === 0) await say('Rick', 'Ik wel. Versla me, dan vertel ik het je.');
-      const r = await G.fight('rick');
-      if (r !== 'win' && r !== 'spared') return;
-      f.rickBeaten = true;
-      await say('Rick', 'Oké. Oké! Je wint.');
-      await say('Rick', 'Eerlijk gezegd was het best een mooie avond. Die polonaise ging helemaal tot aan de kerk.');
-      await say('Rick', 'Hier. Dit heb je hier laten liggen.');
-      await me('Rick geeft je je portemonnee. Je maakt hem gretig open. Daarin: een bierviltje, een stempelkaart van de snackbar, en geen ID-kaart.');
-      await me('Natuurlijk niet.');
-      await bijna('Rick', 'Je naam? Iedereen noemt je gewoon "die van het gele huis". Maar je echte naam is…', 'De klok van de kerk begint te slaan. Twaalf keer. Rick wacht beleefd tot hij klaar is, en is dan vergeten wat hij wilde zeggen.');
-      await say('Rick', 'Nou ja. Je woont in het gele huis, naast mevrouw Bakker. Ga daar maar kijken.');
-      G.quest('naam', 3);
+      await say('Rick', pick([
+        'Je noemde me gisteren bij het klaverjassen een valsspeler. Ik ben nog steeds boos. Een beetje.',
+        'Die polonaise van jou ging trouwens helemaal tot aan de EKA. Dat moet ik je nageven.',
+        'Ga eens douchen, man. Je ruikt naar koe.',
+      ]));
     },
   },
   {
@@ -292,167 +209,199 @@ const NPCS = [
       await say('Bestuurslid', 'Jij weet daar zeker niks van? Je had gisteravond wel een tafelvlag om als cape.');
     },
   },
+  // ---------- A-framestraat ----------
+  {
+    id: 'thijs', map: 'oost', x: 11, y: 8, dir: 'right', look: LOOKS.thijs,
+    async talk() {
+      const f = F(), q = G.quest('motorblok');
+      if (!q) {
+        f.metThijs = true;
+        await say('Thijs', 'Hé! Jij bent het. Mooi dat je er bent, ik kan wel wat hulp gebruiken.');
+        await say('Thijs', 'Kijk. Mijn BMW. Motorkap open. En daaronder… niks.');
+        await say('Thijs', 'Het motorblok is weg. Oopsie.');
+        await say('Thijs', 'Jij kwam hier vannacht om drie uur langs. "Ik help je even sleutelen," zei je. Na een uur zei je: "Dit ding zit in de weg."');
+        await say('Thijs', 'En toen zei je dat je het naar "iemand die er goed op past" bracht. Meer weet ik ook niet.');
+        if ((G.P.stoer || 0) >= 3) await say('Thijs', 'Rook jij tegenwoordig? Stoer hoor. Maar vind nou eerst even mijn motorblok.');
+        G.quest('motorblok', 1);
+        return;
+      }
+      if (q === 1 || (q === 2 && !G.has('motorblok'))) {
+        await say('Thijs', pick(['Nog steeds geen motor. Hij rolt wel lekker van de heuvel af.', 'Een motorblok weegt ruim honderd kilo. Hoe raak je dat kwijt? Oopsie, blijkbaar.']));
+        return;
+      }
+      if (G.has('motorblok')) {
+        G.take('motorblok');
+        await say('Thijs', 'MIJN MOTORBLOK! Waar was die?');
+        await me('Je vertelt over Derkje en haar broekzak.');
+        await say('Thijs', 'In de broekzak van Derkje? Van het kleine huisje? Hoe past dat erin?');
+        await me('Thijs en jij tillen het motorblok terug. Het zit er een beetje scheef in, maar de BMW start.');
+        await say('Thijs', 'Bedankt, man. Hier, voor de moeite.');
+        G.P.money += 15; SFX.item(); UI.toast('+€15');
+        await say('Thijs', 'Na het sleutelen liep je trouwens zingend richting de boerderij van Jansen. "Ik slaap vannacht bij de koeien," riep je.');
+        await bijna('Thijs', 'Wacht, ik heb je nummer gewoon in mijn telefoon. Onder…', 'De BMW begint keihard te piepen. Thijs rent naar zijn auto. Als het stil is, weet hij niet meer wat hij zocht.');
+        G.quest('motorblok', 3);
+        await clue('c_thijs');
+        return;
+      }
+      await say('Thijs', pick(['Hij loopt weer als een zonnetje. Een scheef zonnetje.', 'Als je ooit een lift nodig hebt, weet je me te vinden. Oopsie, je hebt geen idee hoe je heet. Maakt niet uit.']));
+    },
+  },
+  {
+    id: 'dief', map: 'oost', x: 9, y: 20, dir: 'left', look: LOOKS.dief, show: () => G.quest('onbetaald') === 1,
+    async talk() {
+      await say('Dropdief', 'Wat moet je? Dit is mijn plek.');
+      const k = await ask('Dropdief', 'Kom je soms van die caissière?', ['Geef die drop terug!', 'Nee hoor, ik loop maar wat']);
+      if (k !== 0) { await say('Dropdief', 'Loop dan maar door.'); return; }
+      const r = await G.fight('winkeldief');
+      if (r === 'win' || r === 'spared') {
+        await say('Dropdief', 'Oké, oké. Ik betaal voortaan. Zeg maar tegen Ineke dat het niet meer gebeurt.');
+        G.quest('onbetaald', 2);
+      }
+    },
+  },
+  // ---------- EKA ----------
+  {
+    id: 'ineke', map: 'eka', x: 12, y: 5, dir: 'left', look: LOOKS.ineke,
+    async talk() {
+      const f = F(), q = G.quest('onbetaald');
+      if (!q) {
+        await say('Ineke', 'JIJ.');
+        await say('Ineke', 'Gisteravond, vijf voor twaalf. Jij rende naar binnen en griste 24 frikandellen uit de vriezer.');
+        await say('Ineke', '"Zet maar op de rekening van het dorp!" riep je. En weg was je.');
+        await say('Ineke', 'Ik bel de politie niet, als je me een handje helpt. Achter de winkel, bij de containers, hangt al de hele week een dropdief rond. Pak hem aan.');
+        G.quest('onbetaald', 1);
+        return;
+      }
+      for (;;) {
+        const korting = q >= 3 ? 0.2 : 0;
+        const opts = ['Boodschappen doen'];
+        const acts = [() => G.shop(['krentenbol', 'rookworst', 'chocomel', 'paracetamol', 'energiedrank', 'pakje'], 'Ineke', korting)];
+        if (G.quest('onbetaald') === 2) { opts.push('De dropdief is aangepakt'); acts.push(dropDone); }
+        if (G.quest('bal') === 1) { opts.push('Heb je een voetbal gezien?'); acts.push(askBall); }
+        opts.push('Doei');
+        acts.push(null);
+        const k = await ask('Ineke', korting ? 'Wat mag het zijn? Jij krijgt 20% korting.' : 'Wat mag het zijn?', opts, true);
+        if (k < 0 || !acts[k]) { await say('Ineke', 'Fijne dag. Betalen is ook een optie, hè.'); return; }
+        await acts[k]();
+        if (k !== 0) return;
+      }
+    },
+  },
+  // ---------- voetbalveld en steiger ----------
+  {
+    id: 'trainer', map: 'zuid', x: 8, y: 5, dir: 'down', look: LOOKS.trainer,
+    async talk() {
+      const f = F(), q = G.quest('bal');
+      if (!q) {
+        await say('Trainer Harm', 'Jij! Jij hebt vannacht om twee uur de wedstrijdbal over het hek geknald. Recht richting de EKA.');
+        await say('Trainer Harm', '"Penaltytoernooi!" riep je. Om twee uur \'s nachts. Met frikandellen als prijs.');
+        await say('Trainer Harm', 'Vanmiddag speelt VV Meedhuizen. Zonder bal geen wedstrijd. Ga hem zoeken.');
+        G.quest('bal', 1);
+        return;
+      }
+      if (q === 1) { await say('Trainer Harm', 'De bal ging richting de EKA. Misschien heeft iemand daar hem gevonden.'); return; }
+      if (q === 2 && G.has('bal')) {
+        G.take('bal');
+        await say('Trainer Harm', 'DE BAL! Hij ruikt naar meloen, maar dat geeft niet.');
+        await say('Trainer Harm', 'Weet je nog wat je vannacht riep? "Ik schiet élke penalty langs Kevin!"');
+        await say('Trainer Harm', 'Kevin heeft geen oog dichtgedaan. Hij staat in het doel op je te wachten. Rechterkant van het veld.');
+        G.quest('bal', 3);
+        return;
+      }
+      if (q === 3 && !f.keeperDone) { await say('Trainer Harm', 'Kevin staat in het doel. Rechterkant. Succes. Je gaat het nodig hebben.'); return; }
+      if (q === 3 && f.keeperDone) {
+        await say('Trainer Harm', 'Langs Kevin! Ongelooflijk. Die jongen houdt zelfs zijn eigen schaduw tegen.');
+        await say('Trainer Harm', 'Na de penalty\'s vannacht ging je richting de A-framestraat. Je zei dat je "Thijs ging helpen met zijn auto".');
+        await bijna('Trainer Harm', 'Je naam staat trouwens op een oud teamshirt in de kantine. Rugnummer 7. En de naam is…', '…eraf gewassen. Op 90 graden. "Sorry," zegt Harm. "Mijn vrouw doet de was."');
+        G.P.money += 10; SFX.item(); UI.toast('+€10');
+        G.quest('bal', 4);
+        await clue('c_bal');
+        return;
+      }
+      await say('Trainer Harm', pick(['Vanmiddag winnen we. Dankzij jou. Een beetje.', 'Kom je vanmiddag kijken? Neem geen frikandellen mee.']));
+    },
+  },
+  {
+    id: 'keeper', map: 'zuid', x: 30, y: 7, dir: 'left', look: LOOKS.keeper,
+    async talk() {
+      const f = F(), q = G.quest('bal');
+      if (f.keeperDone) { await say('Keeper Kevin', 'Volgende keer stop ik ze allemaal. Allemaal!'); return; }
+      if (q < 3) { await say('Keeper Kevin', pick(['Ik train. Zonder bal. Dat gaat best.', 'Jij. Jij zei vannacht dat ik niks tegenhoud. We zullen zien.'])); return; }
+      await say('Keeper Kevin', 'Daar is ie. De man die élke penalty zou maken.');
+      const k = await ask('Keeper Kevin', 'Klaar voor het penaltyduel?', ['Kom maar op', 'Nog even niet']);
+      if (k !== 0) { await say('Keeper Kevin', 'Bang?'); return; }
+      const r = await G.fight('keeper');
+      if (r === 'win' || r === 'spared') {
+        f.keeperDone = true;
+        await say('Keeper Kevin', 'Goed. Die zat. Ga het Harm maar vertellen.');
+      }
+    },
+  },
+  {
+    id: 'derkje', map: 'zuid', x: 19, y: 22, dir: 'left', look: LOOKS.derkje, show: () => F().dwerghuis || F().metThijs,
+    async talk() {
+      const f = F();
+      if (!f.tomaat) {
+        f.tomaat = true; f.zagDerkje = true;
+        await me('Aan het eind van de steiger staat een heel klein vrouwtje. Op haar trui staat met de hand geborduurd: DERKJE.');
+        await say('Derkje', 'Mrrrp?');
+        await me('Je zegt voorzichtig hallo.');
+        await say('Derkje', 'Iiiieee! Blubblub.');
+        await me('Ze graait in haar broekzak en geeft je… een tomaat.');
+        await me('Je eet hem op. Hij smaakt naar zomer en een beetje naar broekzak.');
+        await G.levelUpNow();
+      }
+      if (f.metThijs && G.quest('motorblok') === 1) {
+        await me('Haar broekzak puilt enorm uit. Er steekt een stuk metaal uit, met een blauw-wit logo.');
+        await me('Dat is het motorblok van Thijs!');
+        const k = await ask('', 'Derkje kan niet praten. Ze maakt alleen geluiden. Misschien moet jij dat ook doen.', ['Probeer het met geluiden', 'Laat maar']);
+        if (k !== 0) { await say('Derkje', 'Hrmpf.'); return; }
+        const r = await G.fight('derkje');
+        if (r === 'spared' || r === 'win') {
+          await me('Derkje legt het motorblok in je armen. Het is zwaar en een beetje warm.');
+          G.give('motorblok');
+          G.quest('motorblok', 2);
+          await say('Derkje', 'Tsjiep!');
+        }
+        return;
+      }
+      await say('Derkje', pick(['Tsjiep tsjiep?', 'Blubblub…', 'Mrrrp.', 'Iiiieee!']));
+      await me(pick(['Derkje kijkt tevreden over het water.', 'Derkje wiebelt heen en weer.', 'Derkje maakt een geluid als een fluitketel.']));
+    },
+  },
+  {
+    id: 'zwemmer', map: 'zuid', x: 22, y: 16, dir: 'down', look: LOOK.zwemmer, wander: true,
+    async talk() {
+      await say('IJszwemmer', pick([
+        'Vijftien graden. Heerlijk. Jij sprong er vannacht trouwens ook in. In je onderbroek.',
+        'Niet van de steiger duiken, staat er. Jij deed het toch. Twee keer.',
+        'Dat kleine vrouwtje op de steiger? Derkje. Ze staat daar elke dag. Niemand weet waarom.',
+      ]));
+    },
+  },
 ];
 
-// ---------- voorwerpen in de wereld ----------
-const PROP_HIDE = {
-  fiets: () => F().fiets,
-  hark: () => G.has('hark') || F().fiets,
-};
-
-const PROPS = {
-  plaatsbord: () => me('MEEDHUIZEN. Je weet tenminste wáár je bent. Dat is een begin.'),
-  bordoost: () => me('Er staat "Doorgaand verkeer". Jij gaat nergens heen tot je weet wie je bent.'),
-  bushalte: () => me('Dienstregeling: weg. Op de plek waar hij hing staat met stift: "INGELIJST".'),
-  tractor: () => me('Een groene trekker. De sleutel zit er nog in. Nee. Je hebt gisteren al genoeg gedaan.'),
-  koe0: () => me('De koe kijkt je aan alsof ze precies weet hoe je heet.'),
-  koe1: () => me('"Boe." Dat is het niet. Denk je.'),
-  koe2: () => me('Een Groninger blaarkop. Rood met een witte kop. Ze kauwt rustig verder.'),
-  koe3: () => me('De koe draait zich om. Ook zij heeft je gisteren gezien.'),
-  sokkel: () => me(F().kabouterTerug ? 'Gerrit staat weer op zijn plek. Hij kijkt nog altijd verwijtend.' : 'Een leeg sokkeltje. In het mos staan twee piepkleine voetafdrukken.'),
-  bank: async () => {
-    G.P.hp = G.P.maxHp; G.P.ep = G.P.maxEp; SFX.heal();
-    await me('Je gaat even op het bankje zitten en kijkt naar de Dorpsstraat. Je voelt je een stuk beter. (HP en EP vol)');
-    const k = await ask('', 'Wil je opslaan?', ['Opslaan', 'Nee']);
-    if (k === 0) UI.toast(G.save() ? 'Opgeslagen' : 'Opslaan lukt niet in deze browser');
-  },
-  fiets: async () => {
-    const f = F();
-    if (G.has('hark')) {
-      await me('Je steekt de hark in de sloot en graait wat rond. Kroos. Een schoen. Een winkelwagentje?');
-      await me('Beet! Je trekt een groene fiets uit het water. Met een snor van kroos.');
-      f.fiets = true; G.take('hark'); G.give('fiets');
-      G.quest('fiets', 6);
-      await me('In de fietsmand ligt… een tuinkabouter met een rood mutsje. Hij kijkt je verwijtend aan.');
-      G.give('kabouter');
-      G.quest('goedmaken', f.metBakker ? 3 : 2);
-      return;
-    }
-    await me('In de sloot ligt een groene fiets. Dat is vast de jouwe. Je kunt er niet bij zonder iets met een lange steel.');
-    if (G.quest('fiets') < 2) G.quest('fiets', 2);
-  },
-  hark: async () => {
-    if (!F().harkOk) { await me('Een hark van boer Jansen. Na gisteren lijkt het je geen goed plan om zomaar iets mee te nemen.'); return; }
-    G.give('hark');
-    await me('Je pakt de hark. Lang genoeg voor de sloot.');
-  },
-  bonnenbak: () => me('Bovenop ligt een bonnetje: "Tafel 4: 11 bier, 3 bitterballen, 1 rondje voor de zaak (??)". Het handschrift lijkt op dat van jou.'),
-  piano: () => me('Je drukt één toets in. Opa Dirk kijkt je vernietigend aan. Of hij slaapt met open ogen.'),
-  cafeposter: () => me('KLAVERJASCOMPETITIE MEEDHUIZEN. Finale vrijdagavond in het dorpshuis. Iemand heeft er "VALSSPELER!!" bij geschreven.'),
-  klaverposter: () => me('Uitslag klaverjassen: 1. Rick. 2. [een grote bruine bierkring].'),
-  prikbord: () => me('GEZOCHT: Wie heeft gisteravond de polonaise ingezet? Graag melden bij het bestuur. Er staat een tekening bij. Die lijkt heel erg op jou.'),
-};
-
-// ---------- deuren ----------
-const DOORS = {
-  cafe: () => G.warp('cafe', 6, 8, 'up'),
-  uit_cafe: () => G.warp('dorp', 6, 13, 'down'),
-  schuur: () => G.warp('schuur', 5, 7, 'up'),
-  uit_schuur: async () => {
-    await G.warp('dorp', 36, 22, 'down');
-    if (!F().metBoer) {
-      G.busy = true;
-      await say('Boer Jansen', 'Hé! Jij daar! Kom eens even hier!');
-      G.busy = false;
-    }
-  },
-  dorpshuis: async () => {
-    if (!F().rickMsg) {
-      await me('Op de deur hangt een briefje: "Gesloten tot vanavond. P.S. Wie heeft het toilet zo achtergelaten?!"');
-      G.stepBack(); return;
-    }
-    await G.warp('dorpshuis', 7, 9, 'up');
-  },
-  uit_dorpshuis: () => G.warp('dorp', 26, 13, 'down'),
-  kerk: async () => { await me('De kerkdeur is dicht. Binnen oefent iemand op het orgel. Elke noot doet pijn.'); G.stepBack(); },
-  bakker: async () => { await me('Aanbellen bij mevrouw Bakker? Ze staat toch gewoon in haar tuin.'); G.stepBack(); },
-  boerderij: async () => { await me('"SCHOENEN UIT!" roept iemand van binnen. Je loopt maar weer verder.'); G.stepBack(); },
-  henk: async () => {
-    await me('Je belt aan. Henk staat drie meter verderop en kijkt je aan.');
-    await say('Henk', 'Ik sta híér.');
-    G.stepBack();
-  },
-  geelhuis: async () => {
-    if (!F().rickBeaten) {
-      await me('Een geel huis. Je probeert je sleutel. Hij past niet. Je draait hem om. Past nog steeds niet.');
-      await me('Gek. Dit zal wel niet jouw huis zijn.');
-      G.stepBack(); return;
-    }
-    await finale();
-  },
-};
-
-const STEP_EVENTS = {};
-
-async function onEdge() {
-  await me('Je kunt het dorp niet uit. Niet zonder je naam. En eigenlijk ook niet zonder je fiets.');
+async function payBill() {
+  G.P.money -= REKENING; SFX.item();
+  G.quest('rekening', 2);
+  await say('Gerda', 'Kijk eens aan. Betaald. Dan zal ik je vertellen hoe je avond begon.');
+  await say('Gerda', 'Om acht uur kwam je binnen. Je won drie potjes klaverjassen van Rick en noemde hem daarna een valsspeler. Iedereen erbij.');
+  await say('Gerda', 'Om half twaalf sprong je op tafel en riep: "IK HAAL FRIKANDELLEN VOOR HET HELE DORP!" En weg was je. Richting de EKA.');
+  await bijna('Gerda', 'Je rekening stond trouwens op naam. Even kijken wat ik had opgeschreven…', 'Op het bonnetje staat: "HIJ-DAAR". In Gerda\'s eigen handschrift.');
+  await clue('c_lanting');
 }
 
-async function chargePhone() {
-  const f = F();
-  await me('Je prikt de oplader achter de bar in het stopcontact. Na een eeuwigheid gaat het scherm aan.');
-  await me('Batterij: 1%.');
-  SFX.phone();
-  await me('Bzzt. Eén nieuw bericht.');
-  await say('Rick', '"Ik zit in het dorpshuis. Jij weet waarom. Kom maar op."');
-  await me('Je wilt verder kijken, maar het scherm is vergrendeld. Pincode? Je weet niet eens hoe je heet.');
-  await say('Gerda', 'Rick? Die is nog steeds boos over gisteren. Het dorpshuis is aan de overkant. Succes, schat.');
-  f.rickMsg = true;
-  G.quest('telefoon', 4);
-  bumpNaam();
+async function dropDone() {
+  await say('Ineke', 'Echt? Hij betaalt voortaan? Nou, dan zijn wij quitte. En je krijgt voortaan 20% korting.');
+  G.quest('onbetaald', 3);
+  await say('Ineke', 'Je zei vannacht nog dat je de frikandellen naar het voetbalveld bracht. "Voor het penaltytoernooi."');
+  await bijna('Ineke', 'Weet je wat, je hebt een bonuskaart. Daar staat je naam op. Ik print hem even…', 'De bonprinter ratelt, piept en spuugt een leeg strookje uit. "Papier op," zegt Ineke.');
+  await clue('c_eka');
 }
 
-function hint() {
-  const f = F();
-  if (G.quest('fiets') === 3) return 'Koffie voor Klaas Jansen? Vraag het me maar.';
-  if (!f.henkBeaten) return 'Henk heeft je telefoon. Hij staat altijd voor zijn huis, naast het achterpaadje. Ga goed uitgerust: koop wat te eten.';
-  if (G.quest('fiets') < 2) return 'Je fiets ligt in de sloot, aan de zuidkant van het dorp. Loop langs het gele huis naar beneden.';
-  if (G.quest('fiets') < 6) return 'Boer Jansen heeft vast iets om je fiets uit de sloot te vissen.';
-  if (G.has('kabouter')) return 'Een kabouter met een rood mutsje? Die is van mevrouw Bakker. Ze staat in haar tuin.';
-  if (G.has('telefoon') && G.has('oplader')) return 'Je kunt hier je telefoon opladen.';
-  if (f.rickMsg && !f.rickBeaten) return 'Rick zit in het dorpshuis. Hij praat graag over klaverjassen.';
-  if (f.rickBeaten) return 'Ga naar huis, schat. Het gele huis.';
-  return 'Op het bankje in de Dorpsstraat kun je bijkomen en opslaan.';
+async function askBall() {
+  if (G.quest('onbetaald') < 3) { await say('Ineke', 'Een voetbal? Die heb ik, ja. Maar die krijg je pas als we quitte zijn. Eerst die dropdief.'); return; }
+  await say('Ineke', 'Die lag vanochtend tussen de meloenen. Hoe hij daar kwam, wil ik niet weten.');
+  G.give('bal');
+  G.quest('bal', 2);
 }
-
-// ---------- intro ----------
-async function intro() {
-  await me('…');
-  await me('Ugh.');
-  await me('Waar ben je? Het ruikt naar stro en naar koe. Je hoofd voelt als een kermis.');
-  await me('Oké. Rustig. Eerst de basis. Je naam is…');
-  await me('Je naam is…');
-  await me('…');
-  await me('Je weet je naam niet meer.');
-  await me('Je voelt in je zakken: €12, een licht geplet frikandelbroodje, en een sleutel.');
-  await me('Aan de sleutel hangt een sleutelhanger met een J… De rest van de letters is eraf gesleten. Of is het een G?');
-  await me('Er zit maar één ding op. Uitzoeken wat er gisteravond is gebeurd.');
-  F().intro = true;
-  UI.toast('Pijltjes of WASD om te lopen, Spatie om te praten', 3500);
-}
-
-// ---------- finale ----------
-async function finale() {
-  G.busy = true;
-  await me('Je steekt de sleutel in het slot. Ondersteboven, net als vanochtend. Je draait hem om.');
-  await me('Klik.');
-  await me('Het gele huis. Jouw huis. Op de deurmat staat een naam. Je bukt…');
-  await me('…maar de mat zit zo onder de modder dat je alleen een J ziet. Of een G.');
-  SFX.phone();
-  await me('Je telefoon gaat. Op het scherm: MAM.');
-  await say('Mam', 'Hoi lieverd! Met mama. Hoe was het gisteren? Gerda belde al. Iets over een polonaise?');
-  await ask('Mam', 'Lieverd? Ben je er nog?', ['Mam… hoe heet ik?']);
-  await say('Mam', 'Hoe je heet? Wat een rare vraag. Jij heet gewoon J—');
-  SFX.lose();
-  await me('Piep.');
-  await me('Batterij leeg.');
-  await me('Je staart naar het zwarte scherm. Het lag op het puntje van je tong. Je voelt het. Het begint met een…');
-  G.quest('naam', 4);
-  await UI.fade(true);
-  G.ending('Je weet het bijna.\n\nBedankt voor het spelen,\n…eh…\nhoe heette jij ook alweer?\n\n(Druk op Spatie of A om opnieuw te beginnen)');
-  await UI.fade(false);
-}
-
-// Het teruggezette kabouterbeeldje
-MAPS.dorp.props.push({ x: 10, y: 18, name: 'kabouter', solid: false, id: 'kabouterTerug' });
-PROP_HIDE.kabouterTerug = () => !F().kabouterTerug;

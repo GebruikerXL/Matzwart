@@ -7,19 +7,36 @@ const SKILLS = [
 ];
 
 const ITEMS = {
-  frikandelbroodje: { name: 'Frikandelbroodje', desc: '+30 HP', price: 3, use: (p) => heal(p, 30, 0) },
-  koffie: { name: 'Bakkie koffie', desc: '+12 EP', price: 2, use: (p) => heal(p, 0, 12) },
+  // EKA
+  krentenbol: { name: 'Krentenbol', desc: '+20 HP', price: 2, use: (p) => heal(p, 20, 0) },
+  rookworst: { name: 'Rookworst', desc: '+45 HP', price: 4, use: (p) => heal(p, 45, 0) },
+  chocomel: { name: 'Pak chocomel', desc: '+12 EP', price: 2, use: (p) => heal(p, 0, 12) },
   paracetamol: { name: 'Paracetamol', desc: '+70 HP', price: 6, use: (p) => heal(p, 70, 0) },
   energiedrank: { name: 'Energiedrankje', desc: '+25 HP, +25 EP', price: 5, use: (p) => heal(p, 25, 25) },
+  pakje: { name: 'Pakje sigaretten', desc: '5 sigaretten. Ongezond, maar stoer.', price: 6, pack: ['sigaret', 5] },
+  sigaret: { name: 'Sigaret', desc: '-8 HP, -2 max HP, +1 Stoerheid', use: smoke },
+  // Lanting
+  frikandelbroodje: { name: 'Frikandelbroodje', desc: '+30 HP', price: 3, use: (p) => heal(p, 30, 0) },
+  bitterballen: { name: 'Bitterballen', desc: '+25 HP, +5 EP', price: 3, use: (p) => heal(p, 25, 5) },
+  koffie: { name: 'Bakkie koffie', desc: '+12 EP', price: 2, use: (p) => heal(p, 0, 12) },
   // sleutelvoorwerpen
-  koffie_boer: { name: 'Koffie voor Jansen', desc: 'Zwart, drie klontjes.', key: true },
-  hark: { name: 'Hark', desc: 'Van boer Jansen. Lang genoeg voor de sloot.', key: true },
-  kabouter: { name: 'Tuinkabouter Gerrit', desc: 'Kijkt je verwijtend aan.', key: true },
-  fiets: { name: 'Fiets', desc: 'Nat. Groen. Waarschijnlijk van jou.', key: true },
-  telefoon: { name: 'Telefoon', desc: 'Leeg. Volledig leeg.', key: true },
-  oplader: { name: 'Oplader', desc: 'Van mevrouw Bakker. Past precies.', key: true },
+  motorblok: { name: 'Motorblok', desc: 'Zwaar, vettig en een beetje warm van Derkjes broekzak.', key: true },
+  bal: { name: 'Wedstrijdbal', desc: 'Van VV Meedhuizen. Ruikt naar meloen.', key: true },
+  telefoon: { name: 'Telefoon', desc: 'Batterij 1%. Vergrendeld. Pincode? Geen idee.', key: true },
   sleutel: { name: 'Sleutel met hanger "J…"', desc: 'De rest van de letters is eraf gesleten.', key: true },
 };
+function smoke(p) {
+  p.maxHp = Math.max(20, p.maxHp - 2);
+  p.hp = Math.max(1, Math.min(p.maxHp, p.hp - 8));
+  p.stoer = (p.stoer || 0) + 1;
+  return `Kuch! -8 HP, max HP -2, Stoerheid ${p.stoer}`;
+}
+function levelUp(P) {
+  P.lvl += 1; P.next = Math.round(P.next * 1.55);
+  P.maxHp += 9; P.maxEp += 3; P.atk += 2; P.def += 1;
+  P.hp = P.maxHp; P.ep = P.maxEp;
+  return SKILLS.find((s) => s.lvl === P.lvl);
+}
 function heal(p, hp, ep) {
   const h = Math.min(p.maxHp - p.hp, hp), e = Math.min(p.maxEp - p.ep, ep);
   p.hp += h; p.ep += e;
@@ -35,12 +52,18 @@ const LOOKS = {
   fietser: { skin: '#e0b090', hair: '#888', style: 'bald', shirt: '#f2c22e', pants: '#222', extra: ['mustache'] },
   henk: { skin: '#e8b090', hair: '#9a9aa0', style: 'bald', shirt: '#6a7a5a', pants: '#4a3a2a', extra: ['mustache', 'belly'] },
   rick: { skin: '#e0b494', hair: '#b8742a', style: 'messy', shirt: '#2a3a6a', pants: '#1b1b2a', extra: ['beard'] },
+  thijs: { skin: '#f0c4a0', hair: '#111111', style: 'short', shirt: '#f4f1ea', pants: '#2f4f7f', extra: [] },
+  derkje: { skin: '#f0c9a0', hair: '#7a4a2a', style: 'bun', shirt: '#e8433a', pants: '#2e7a3a', extra: ['blush'], small: true },
+  keeper: { skin: '#e0b090', hair: '#d8b25a', style: 'short', shirt: '#f2c22e', pants: '#1b1b2a', extra: [] },
+  trainer: { skin: '#e8b898', hair: '#6a6a70', style: 'bald', shirt: '#2a4a9a', pants: '#2a4a9a', extra: ['mustache'] },
+  ineke: { skin: '#f0c9a0', hair: '#c88a3a', style: 'curly', shirt: '#d42a2a', pants: '#2a2a3a', extra: ['apron'] },
+  dief: { skin: '#e0b090', hair: '#222', style: 'cap', cap: '#2a2a2a', shirt: '#3a3a44', pants: '#2a2a3a', extra: [] },
 };
 
 // Tegenstanders. talk: opties met effect op Rust (+) of woede (negatief = vijand sterker)
 const ENEMIES = {
   jogger: {
-    name: 'Fanatieke jogger', look: 'jogger', hp: 22, atk: 5, def: 1, xp: 8, money: 3,
+    name: 'Fanatieke jogger', look: 'jogger', hp: 22, atk: 5, def: 1, xp: 8, money: 6,
     moves: ['rent tegen je aan', 'zwaait met zijn smartwatch', 'hijgt in je gezicht'],
     talk: [
       { t: 'Vraag naar zijn rondetijd', v: 55, r: '"Vier minuut tweeëntwintig per kilometer!" Hij straalt.' },
@@ -50,7 +73,7 @@ const ENEMIES = {
     spare: 'De jogger knikt, start zijn stopwatch opnieuw en rent verder.',
   },
   buurvrouw: {
-    name: 'Bemoeizuchtige buurvrouw', look: 'buurvrouw', hp: 26, atk: 5, def: 2, xp: 10, money: 4,
+    name: 'Bemoeizuchtige buurvrouw', look: 'buurvrouw', hp: 26, atk: 5, def: 2, xp: 10, money: 7,
     moves: ['wijst met haar vinger', 'zucht heel diep', 'begint over vroeger'],
     talk: [
       { t: 'Roddel over Henk', v: 60, r: '"Nee! Echt?!" Ze is helemaal om.' },
@@ -60,7 +83,7 @@ const ENEMIES = {
     spare: 'Ze moet nodig de buurt bijpraten over wat ze net hoorde, en loopt weg.',
   },
   scooter: {
-    name: 'Hangjongere op scooter', look: 'scooter', hp: 30, atk: 7, def: 2, xp: 13, money: 6,
+    name: 'Hangjongere op scooter', look: 'scooter', hp: 30, atk: 7, def: 2, xp: 13, money: 9,
     moves: ['laat zijn uitlaat knallen', 'rijdt over je tenen', 'blaast een dampwolk naar je'],
     talk: [
       { t: 'Bewonder zijn scooter', v: 50, r: '"Opgevoerd tot vijfenveertig, broer." Hij is gevleid.' },
@@ -70,7 +93,7 @@ const ENEMIES = {
     spare: 'Hij laat zijn scooter nog één keer knallen en scheurt weg.',
   },
   enquete: {
-    name: 'Enquêteur met klembord', look: 'enquete', hp: 24, atk: 6, def: 1, xp: 10, money: 5,
+    name: 'Enquêteur met klembord', look: 'enquete', hp: 24, atk: 6, def: 1, xp: 10, money: 8,
     moves: ['stelt een vervolgvraag', 'tikt met haar pen', 'vraagt om je postcode'],
     talk: [
       { t: 'Beantwoord de vragen', v: 35, r: '"Naam?" … Dat weet je dus niet. Ze schrijft "onbekend" op en lacht.' },
@@ -80,7 +103,7 @@ const ENEMIES = {
     spare: 'De enquête is af. Ze bedankt je met een pen met een logo erop. Die pen ben je binnen een minuut kwijt.',
   },
   fietser: {
-    name: 'Wielrenner in strak pak', look: 'fietser', hp: 28, atk: 6, def: 3, xp: 12, money: 5,
+    name: 'Wielrenner in strak pak', look: 'fietser', hp: 28, atk: 6, def: 3, xp: 12, money: 8,
     moves: ['belt agressief', 'klikt zijn schoenen los', 'roept "AAN DE KANT!"'],
     talk: [
       { t: 'Vraag naar zijn wattage', v: 55, r: 'Hij praat vijf minuten over wattage. Je knikt op de juiste momenten.' },
@@ -89,27 +112,40 @@ const ENEMIES = {
     ],
     spare: 'Hij klikt zijn schoenen weer vast en verdwijnt richting de dijk.',
   },
-  henk: {
-    name: 'Henk de buurman', look: 'henk', hp: 70, atk: 8, def: 3, xp: 40, money: 15, boss: true,
-    moves: ['zwaait met een tuinschoffel', 'scheldt op je', 'dreigt de wijkagent te bellen', 'gooit een bloempot'],
+  winkeldief: {
+    name: 'Dropdief', look: 'dief', hp: 40, atk: 7, def: 2, xp: 22, money: 15, boss: true,
+    moves: ['gooit een zak drop naar je', 'rijdt met een winkelwagen tegen je aan', 'trekt zijn capuchon strak'],
     talk: [
-      { t: 'Excuses voor de tulpen', v: 20, r: '"Ze waren van de Keukenhof-veiling!" Henk wordt iets rustiger.' },
-      { t: 'Bied aan zijn heg te knippen', v: 25, r: '"…Ook de achterkant?" Hij denkt erover na.' },
-      { t: 'Prijs zijn gazon', v: 20, r: '"Elke zaterdag met de schaar," bromt hij trots.' },
-      { t: 'Zeg dat het de kat was', v: -1, r: '"De kat kan niet aanbellen om vier uur!" Henk ontploft.' },
+      { t: 'Vraag welke drop het lekkerst is', v: 30, r: '"Zoute muntjes, natuurlijk." Hij ontspant een beetje.' },
+      { t: 'Zeg dat je hem niet verraadt', v: 25, r: 'Hij kijkt je wantrouwig aan, maar laat zijn schouders zakken.' },
+      { t: 'Zeg dat Ineke hem zoekt', v: -1, r: '"Die caissière?! Nooit!" Hij wordt woest.' },
     ],
-    spare: 'Henk zucht. "Goed dan. Maar je knipt die heg."',
+    intim: 'Je blaast een rookkringetje en kijkt hem lang aan. Hij legt de drop één voor één terug.',
+    spare: 'De dief geeft alle drop terug en belooft voortaan gewoon te betalen.',
   },
-  rick: {
-    name: 'Rick', look: 'rick', hp: 120, atk: 10, def: 4, xp: 80, money: 30, boss: true,
-    moves: ['geeft een klaverjas-klap', 'gooit een bierviltje', 'roept "ROEM!"', 'doet een polonaise-tackle'],
+  keeper: {
+    name: 'Keeper Kevin', look: 'keeper', hp: 85, atk: 9, def: 4, xp: 45, money: 20, boss: true,
+    moves: ['duikt naar je enkels', 'brult "MIJN DOEL!"', 'trapt een bal tegen je hoofd', 'doet een schijnbeweging'],
     talk: [
-      { t: 'Excuses aanbieden', v: 15, r: '"Excuses? Je noemde me een valsspeler! Voor het hele dorp!"' },
-      { t: 'Daag hem uit voor klaverjassen', v: 30, r: 'Zijn ogen lichten op. "Eén potje. Nu meteen."' },
-      { t: 'Herinner hem aan de polonaise', v: 25, r: '"Dat was wel mooi, ja. Jij voorop, ik erachter." Hij grijnst even.' },
-      { t: 'Zeg dat hij vals speelde', v: -1, r: '"WAT ZEG JE?!" Dat was geen goed idee.' },
+      { t: 'Wijs naar de verkeerde hoek', v: 25, r: 'Kevin kijkt de verkeerde kant op. Hij voelt zich voor gek gezet, maar moet ook lachen.' },
+      { t: 'Prijs zijn reddingen', v: 20, r: '"Vorig seizoen drie clean sheets," zegt hij trots.' },
+      { t: 'Vraag om een handtekening', v: 20, r: 'Hij zet een krabbel op je arm. Met een stift die hij ergens vandaan tovert.' },
+      { t: 'Zeg dat hij te klein is voor keeper', v: -1, r: '"TE KLEIN?!" Kevin rekt zich uit tot twee meter. Bijna.' },
     ],
-    spare: 'Rick laat zijn schouders zakken. "Ach man. Laten we het gewoon vergeten."',
+    intim: 'Je trekt je mouwen op, steekt een sigaret achter je oor en kijkt naar de kruising. Kevin slikt.',
+    spare: 'Kevin laat de bal doorrollen. "Goed. Die zat. Ik zeg wel dat ik uitgleed."',
+  },
+  derkje: {
+    name: 'Derkje', look: 'derkje', hp: 999, atk: 3, def: 0, xp: 30, money: 0, boss: true, peaceful: true,
+    moves: ['gooit een cherrytomaatje naar je', 'maakt een heel hoog geluid', 'trekt aan je broekspijp'],
+    noises: [
+      { say: 'Mrrrp?', ans: 'Mrrrp!' },
+      { say: 'Iiiieeeee!', ans: 'Iiiiieee!' },
+      { say: 'Blubblub…', ans: 'Blub.' },
+      { say: 'Hrmpf. HRMPF.', ans: 'Hrmpf!' },
+      { say: 'Tsjiep tsjiep tsjiep?', ans: 'Tsjiep!' },
+    ],
+    spare: 'Derkje klapt in haar handjes, graait diep in haar broekzak en haalt er een heel motorblok uit.',
   },
 };
 const RANDOM_POOL = ['jogger', 'buurvrouw', 'scooter', 'enquete', 'fietser'];
@@ -156,7 +192,7 @@ const Battle = {
   paintFoe() {
     const f = this.foe;
     $('#benemy').innerHTML = `<div class="row"><b>${f.name}</b><span class="lbl">${f.boss ? 'BAAS' : ''}</span></div>
-      <div class="row"><span class="lbl">HP</span><span>${Math.max(0, f.curHp)}/${f.maxHp}</span></div><div class="bar hp"><i style="width:${Math.max(0, f.curHp) / f.maxHp * 100}%"></i></div>
+      ${f.peaceful ? '' : `<div class="row"><span class="lbl">HP</span><span>${Math.max(0, f.curHp)}/${f.maxHp}</span></div><div class="bar hp"><i style="width:${Math.max(0, f.curHp) / f.maxHp * 100}%"></i></div>`}
       <div class="row"><span class="lbl">Rust</span><span>${Math.min(100, f.calm)}%</span></div><div class="bar calm"><i style="width:${Math.min(100, f.calm)}%"></i></div>`;
   },
   paintStats() {
@@ -183,9 +219,24 @@ const Battle = {
 
   async playerTurn() {
     const P = this.P, f = this.foe;
+    if (f.noises) {
+      f.cur = f.noises[Math.floor(Math.random() * f.noises.length)];
+      await this.log(`${f.name}: "${f.cur.say}"`);
+    }
+    const peace = !!f.peaceful;
     for (;;) {
-      $('#blog').textContent = 'Wat doe je?';
-      const c = await UI.list('#bcmd', ['Aanvallen', 'Skills', 'Praten', 'Spullen', f.boss ? { label: 'Vluchten', off: true } : 'Vluchten'], { keep: true });
+      $('#blog').textContent = f.noises ? `${f.name}: "${f.cur.say}"` : 'Wat doe je?';
+      const c = await UI.list('#bcmd', [peace ? { label: 'Aanvallen', off: true } : 'Aanvallen', peace ? { label: 'Skills', off: true } : 'Skills', 'Praten', 'Spullen', f.boss ? { label: 'Vluchten', off: true } : 'Vluchten'], { keep: true });
+      if (c === 2 && f.noises) {
+        const ans = f.noises.map((n) => n.ans);
+        const k = await UI.list('#bsub', ans, { cancel: true, onMove: () => { $('#blog').textContent = `${f.name}: "${f.cur.say}"`; } });
+        if (k < 0) continue;
+        UI.show('#bcmd', false);
+        await this.log(`Je zegt: "${ans[k]}"`);
+        if (ans[k] === f.cur.ans) { f.calm += 34; SFX.heal(); this.paintFoe(); await this.log(`${f.name} kijkt je stralend aan en wiebelt heen en weer.`); }
+        else { SFX.no(); await this.log(`${f.name} fronst. Dat was duidelijk niet het goede geluid.`); }
+        return null;
+      }
       if (c === 0) {
         UI.show('#bcmd', false);
         await this.hitFoe(this.dmg(P.atk, f.def), 'Je haalt uit.');
@@ -215,10 +266,14 @@ const Battle = {
         return null;
       }
       if (c === 2) {
-        const k = await UI.list('#bsub', f.talk.map((t) => ({ label: t.t })), { cancel: true, onMove: () => { $('#blog').textContent = 'Wat zeg je?'; } });
+        const need = f.boss ? 4 : 2, stoer = P.stoer || 0;
+        const opts = f.talk.concat([{ t: 'Intimideren', v: f.boss ? 35 : 70, r: f.intim || `Je blaast rook in het gezicht van ${f.name.toLowerCase()} en kijkt heel stoer. Dat maakt indruk.`, stoer: need }]);
+        const k = await UI.list('#bsub', opts.map((t) => (t.stoer ? { label: stoer >= t.stoer ? t.t : `${t.t} (Stoerheid ${t.stoer})`, off: stoer < t.stoer } : { label: t.t })), {
+          cancel: true, onMove: (i) => { $('#blog').textContent = opts[i].stoer ? `Alleen voor echte stoere types. Jouw Stoerheid: ${stoer}.` : 'Wat zeg je?'; },
+        });
         if (k < 0) continue;
         UI.show('#bcmd', false);
-        const t = f.talk[k];
+        const t = opts[k];
         await this.log(`"${t.t}."`);
         const again = f.talked.has(t.t);
         if (t.v > 0) { f.calm += again ? Math.round(t.v / 2) : t.v; f.talked.add(t.t); SFX.heal(); }
@@ -254,6 +309,7 @@ const Battle = {
     if (f.weak > 0) f.weak -= 1;
     // als de vijand al aardig rustig is, slaat hij minder hard
     if (f.calm >= 50) n = Math.max(1, Math.round(n * 0.7));
+    if (f.peaceful) n = Math.min(n, 3);
     P.hp = Math.max(0, P.hp - n);
     this.shake = 10; this.flash = 6; SFX.hit();
     this.paintStats();
@@ -269,13 +325,11 @@ const Battle = {
       const xp = f.xp, money = result === 'spared' ? Math.ceil(f.money * 1.5) : f.money;
       await this.log(result === 'spared' ? f.spare : `${f.name} geeft het op!`);
       P.xp += xp; P.money += money;
-      await this.log(`+${xp} XP, +€${money}`);
+      await this.log(money ? `+${xp} XP, +€${money}` : `+${xp} XP`);
       while (P.xp >= P.next) {
-        P.xp -= P.next; P.lvl += 1; P.next = Math.round(P.next * 1.55);
-        P.maxHp += 9; P.maxEp += 3; P.atk += 2; P.def += 1;
-        P.hp = P.maxHp; P.ep = P.maxEp;
+        P.xp -= P.next;
+        const nieuw = levelUp(P);
         SFX.item(); this.paintStats();
-        const nieuw = SKILLS.find((s) => s.lvl === P.lvl);
         await this.log(`Level ${P.lvl}! Je voelt je bijna weer mens.${nieuw ? ` Nieuwe skill: ${nieuw.name}.` : ''}`);
       }
     } else if (result === 'lose') {

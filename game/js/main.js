@@ -9,7 +9,7 @@ const PLAYER_LOOK = { skin: '#f0c4a0', hair: '#6b4226', style: 'messy', shirt: '
 
 function freshState() {
   return {
-    P: { lvl: 1, xp: 0, next: 22, hp: 40, maxHp: 40, ep: 12, maxEp: 12, atk: 6, def: 3, money: 12, items: { frikandelbroodje: 1, sleutel: 1 } },
+    P: { lvl: 1, xp: 0, next: 22, hp: 40, maxHp: 40, ep: 12, maxEp: 12, atk: 6, def: 3, money: 12, stoer: 0, items: { krentenbol: 2, sleutel: 1, telefoon: 1 } },
     flags: {}, quests: {},
     pos: { map: 'schuur', x: 3, y: 5, dir: 'down' },
   };
@@ -75,16 +75,24 @@ const G = {
     await UI.fade(true);
     setTimeout(() => UI.fade(false), 50);
   },
-  async shop(items) {
+  async shop(items, who, korting = 0) {
+    const prijs = (id) => Math.max(1, Math.round(ITEMS[id].price * (1 - korting)));
     for (;;) {
-      const list = items.map((id) => ({ label: ITEMS[id].name, right: '€' + ITEMS[id].price, off: this.P.money < ITEMS[id].price }));
+      const list = items.map((id) => ({ label: ITEMS[id].name, right: '€' + prijs(id), off: this.P.money < prijs(id) }));
       list.push('Klaar');
-      const k = await UI.ask('Gerda', `Wat mag het zijn? Je hebt €${this.P.money}.`, list, true);
+      const k = await UI.ask(who, `Wat mag het zijn? Je hebt €${this.P.money}.`, list, true);
       if (k < 0 || k === items.length) return;
-      const id = items[k];
-      this.P.money -= ITEMS[id].price; this.give(id, 1, true); SFX.item();
-      UI.toast(`${ITEMS[id].name} gekocht`);
+      const id = items[k], it = ITEMS[id];
+      this.P.money -= prijs(id);
+      if (it.pack) this.give(it.pack[0], it.pack[1], true); else this.give(id, 1, true);
+      SFX.item();
+      UI.toast(`${it.name} gekocht`);
     }
+  },
+  async levelUpNow() {
+    const nieuw = levelUp(this.P);
+    SFX.item();
+    await UI.say('', `LEVEL UP! Je bent nu level ${this.P.lvl}. HP en EP zijn vol.${nieuw ? ` Nieuwe skill: ${nieuw.name}.` : ''}`);
   },
   async ending(text) {
     this.busy = true; this.mode = 'end';
@@ -265,7 +273,8 @@ const G = {
       ctx.save();
       if (B.foeHit > 0) { B.foeHit -= 1; if (B.foeHit % 4 < 2) ctx.globalAlpha = 0.3; }
       if (B.foeGone) { B.foeGone += 0.02; ctx.globalAlpha = Math.max(0, 1.5 - B.foeGone); }
-      ctx.drawImage(img, VW / 2 - 40 + sx, 72 + bob, 80, 80);
+      if (look.small) ctx.drawImage(img, VW / 2 - 25 + sx, 112 + bob, 50, 50);
+      else ctx.drawImage(img, VW / 2 - 40 + sx, 72 + bob, 80, 80);
       if (B.foe.id === 'scooter') { ctx.drawImage(getProp('fiets'), VW / 2 - 54 + sx, 120 + bob, 48, 48); }
       ctx.restore();
     }
@@ -321,6 +330,7 @@ const G = {
           <div class="row"><span class="lbl">Aanval</span><span>${P.atk}</span></div>
           <div class="row"><span class="lbl">Verdediging</span><span>${P.def}</span></div>
           <div class="row"><span class="lbl">XP</span><span>${P.xp} / ${P.next}</span></div>
+          <div class="row"><span class="lbl">Stoerheid</span><span>${P.stoer || 0}</span></div>
           <div class="row"><span class="lbl">Geld</span><span>€${P.money}</span></div>
           <div class="row"><span class="lbl">Toestand</span><span>Brak</span></div>`;
         panel.hidden = false; await waitKey(); panel.hidden = true;
@@ -369,7 +379,8 @@ function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
 function waitKey() { return new Promise((r) => { const prev = UI.focus; UI.focus = (k) => { if (k === 'ok' || k === 'cancel') { UI.focus = prev; r(); } }; }); }
 function drawPerson(look, dir, frame, x, y) {
   ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x + 3, y + 14, 10, 2);
-  ctx.drawImage(getChar(look, dir, frame), Math.round(x), Math.round(y) - 3);
+  if (look.small) ctx.drawImage(getChar(look, dir, frame), Math.round(x) + 3, Math.round(y) + 4, 10, 10);
+  else ctx.drawImage(getChar(look, dir, frame), Math.round(x), Math.round(y) - 3);
 }
 
 // ---------- invoer ----------
