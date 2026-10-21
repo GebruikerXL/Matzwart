@@ -126,7 +126,7 @@ async function onEdge() {
 
 function hint() {
   const f = F(), q = (id) => G.quest(id);
-  if (q('rekening') === 1 && G.P.money < REKENING) return `Je rekening is €${REKENING}. In het hoge gras kom je genoeg volk tegen om wat geld bij elkaar te vechten. Of te praten.`;
+  if (q('rekening') === 1 && G.P.money < REKENING) return `Je rekening is EUR ${REKENING}. In het hoge gras kom je genoeg volk tegen om wat geld bij elkaar te vechten. Of te praten.`;
   if (!q('onbetaald')) return 'Ineke van de EKA, in de A-framestraat, zocht je vanochtend. Iets met frikandellen.';
   if (!q('bal')) return 'Trainer Harm van het voetbalveld liep hier vanochtend te vloeken. Zuidelijk, over het bruggetje.';
   if (!q('motorblok')) return 'Thijs, uit de A-framestraat, staat al de hele ochtend naar zijn BMW te staren.';
@@ -146,7 +146,7 @@ async function intro() {
   await me('Je naam is…');
   await me('…');
   await me('Je weet je naam niet meer.');
-  await me('Je voelt in je zakken: €12, twee krentenbollen en een telefoon. Batterij 1%. Vergrendeld. De pincode weet je natuurlijk ook niet.');
+  await me('Je voelt in je zakken: EUR 12, twee krentenbollen en een telefoon. Batterij 1%. Vergrendeld. De pincode weet je natuurlijk ook niet.');
   await me('En een sleutel. Aan de sleutelhanger hangt een J… De rest van de letters is eraf gesleten. Of is het een G?');
   await me('Er zit maar één ding op. Uitzoeken wat er gisteravond is gebeurd.');
   F().intro = true;

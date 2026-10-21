@@ -79,17 +79,17 @@ const Casino = {
   msg(t) { $('#casino .msg').textContent = t; },
   close() { $('#casino').hidden = true; },
   async bet(who) {
-    const opts = [1, 5, 10, 25].map((b) => ({ label: `€${b}`, off: G.P.money < b }));
+    const opts = [1, 5, 10, 25].map((b) => ({ label: `EUR ${b}`, off: G.P.money < b }));
     opts.push('Stoppen');
-    const k = await UI.ask(who, `Hoeveel zet je in? Je hebt €${G.P.money}.`, opts, true);
+    const k = await UI.ask(who, `Hoeveel zet je in? Je hebt EUR ${G.P.money}.`, opts, true);
     return k < 0 || k === 4 ? 0 : [1, 5, 10, 25][k];
   },
   win(b, mult, text) {
     const n = b * mult;
     G.P.money += n; SFX.win();
-    this.msg(`${text} Je wint €${n}!`);
+    this.msg(`${text} Je wint EUR ${n}!`);
   },
-  lose(b, text) { SFX.no(); this.msg(`${text} €${b} kwijt.`); },
+  lose(b, text) { SFX.no(); this.msg(`${text} EUR ${b} kwijt.`); },
   // Aron-tip: true = je volgt hem (verlies), false = je doet het omgekeerde (winst), null = tip niet van toepassing
   tip(followIds, oppositeIds) {
     const t = F().aronTip;
@@ -177,7 +177,7 @@ async function playRoulette() {
     const stage = Casino.open('Roulette');
     stage.innerHTML = '<div class="wheel"><span></span></div>';
     const span = stage.querySelector('span'), wheel = stage.querySelector('.wheel');
-    Casino.msg(`Inzet: €${b} op ${opts[k].toLowerCase()}. Rien ne va plus…`);
+    Casino.msg(`Inzet: EUR ${b} op ${opts[k].toLowerCase()}. Rien ne va plus…`);
     await new Promise((done) => {
       let i = 0, delay = 40;
       const step = () => {
@@ -215,7 +215,7 @@ async function playHogerLager() {
     stage.innerHTML = `<div class="cards">${cardHtml(cur)}</div>`;
     let pot = b;
     for (;;) {
-      Casino.msg(`Pot: €${pot}. Is de volgende kaart hoger of lager?`);
+      Casino.msg(`Pot: EUR ${pot}. Is de volgende kaart hoger of lager?`);
       const k = await UI.ask('Dealer', 'Hoger of lager?', ['Hoger', 'Lager']);
       const g = k === 0 ? 'hoger' : 'lager';
       const t = Casino.tip([g], [g === 'hoger' ? 'lager' : 'hoger']);
@@ -231,9 +231,9 @@ async function playHogerLager() {
         break;
       }
       cur = next; pot *= 2; SFX.ok();
-      Casino.msg(`Goed! De pot is nu €${pot}.${t === false ? ' (Het omgekeerde van Arons advies.)' : ''}`);
-      const d = await UI.ask('Dealer', `Goed! Pot: €${pot}. Dubbel of niks?`, ['Dubbel of niks', `Stoppen (€${pot} pakken)`]);
-      if (d !== 0) { G.P.money += pot; SFX.win(); Casino.msg(`Je pakt €${pot}.`); break; }
+      Casino.msg(`Goed! De pot is nu EUR ${pot}.${t === false ? ' (Het omgekeerde van Arons advies.)' : ''}`);
+      const d = await UI.ask('Dealer', `Goed! Pot: EUR ${pot}. Dubbel of niks?`, ['Dubbel of niks', `Stoppen (EUR ${pot} pakken)`]);
+      if (d !== 0) { G.P.money += pot; SFX.win(); Casino.msg(`Je pakt EUR ${pot}.`); break; }
       if (stage.querySelectorAll('.card').length > 3) stage.querySelector('.card').remove();
     }
   }
@@ -284,7 +284,7 @@ NPCS.push(
         const inv = opts[Math.floor(Math.random() * opts.length)];
         f.aronLaatste = inv.id;
         await say(N, inv.t);
-        const k = await ask(N, `Ik heb nog een plekje vrij. €${inv.bedrag}. Doe je mee?`, [{ label: `Ik doe mee (€${inv.bedrag})`, off: G.P.money < inv.bedrag }, 'Nee, dank je']);
+        const k = await ask(N, `Ik heb nog een plekje vrij. EUR ${inv.bedrag}. Doe je mee?`, [{ label: `Ik doe mee (EUR ${inv.bedrag})`, off: G.P.money < inv.bedrag }, 'Nee, dank je']);
         if (k === 0) {
           G.P.money -= inv.bedrag; SFX.no();
           f.aronVerlies = (f.aronVerlies || 0) + inv.bedrag;
@@ -319,7 +319,7 @@ NPCS.push(
       await say('Vaste gast', pick([
         'Aron? Doe gewoon het tegenovergestelde van wat hij zegt. Dat doet het hele dorp.',
         'Ik heb ooit één tip van Aron opgevolgd. Ik fiets nu.',
-        f.aronVerlies ? `Hoeveel ben je al kwijt aan Aron? €${f.aronVerlies}? Dat valt nog mee.` : 'Die gokkast valt nooit. Behalve als je niet kijkt.',
+        f.aronVerlies ? `Hoeveel ben je al kwijt aan Aron? EUR ${f.aronVerlies}? Dat valt nog mee.` : 'Die gokkast valt nooit. Behalve als je niet kijkt.',
       ]));
     },
   },
@@ -329,5 +329,5 @@ Object.assign(PROPS, {
   gokkast: async () => { await playSlot(); },
   roulette: async () => { await playRoulette(); },
   hogerlager: async () => { await playHogerLager(); },
-  jackpotbord: () => me(`JACKPOT: drie zevens = 100× je inzet. Daaronder in kleine letters: "Gokken kost geld."${F().aronVerlies ? ` Iemand heeft er met pen bijgeschreven: "Aron-verlies: €${F().aronVerlies}".` : ''}`),
+  jackpotbord: () => me(`JACKPOT: drie zevens = 100× je inzet. Daaronder in kleine letters: "Gokken kost geld."${F().aronVerlies ? ` Iemand heeft er met pen bijgeschreven: "Aron-verlies: EUR ${F().aronVerlies}".` : ''}`),
 });

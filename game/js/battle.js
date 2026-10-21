@@ -410,7 +410,7 @@ const Battle = {
       const xp = f.xp, money = result === 'spared' ? Math.ceil(f.money * 1.5) : f.money;
       await this.log(result === 'spared' ? f.spare : `${f.name} geeft het op!`);
       P.xp += xp; P.money += money;
-      await this.log(money ? `+${xp} XP, +€${money}` : `+${xp} XP`);
+      await this.log(money ? `+${xp} XP, +EUR ${money}` : `+${xp} XP`);
       while (P.xp >= P.next) {
         P.xp -= P.next;
         const nieuw = levelUp(P);

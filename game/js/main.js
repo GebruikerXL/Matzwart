@@ -61,7 +61,7 @@ const G = {
       const lost = Math.floor(this.P.money / 2); this.P.money -= lost;
       this.loadMap('schuur', 3, 5, 'down');
       await UI.fade(false);
-      await UI.say('', `Je wordt wakker in de schuur. Alweer.${lost ? ` Je mist €${lost}.` : ''}`);
+      await UI.say('', `Je wordt wakker in de schuur. Alweer.${lost ? ` Je mist EUR ${lost}.` : ''}`);
     } else {
       if (r === 'lose') { this.P.hp = Math.max(1, Math.round(this.P.maxHp * 0.3)); }
       await UI.fade(false);
@@ -78,9 +78,9 @@ const G = {
   async shop(items, who, korting = 0) {
     const prijs = (id) => Math.max(1, Math.round(ITEMS[id].price * (1 - korting)));
     for (;;) {
-      const list = items.map((id) => ({ label: ITEMS[id].name, right: ITEMS[id].weapon && ownsWeapon(ITEMS[id].weapon) ? 'gekocht' : '€' + prijs(id), off: this.P.money < prijs(id) || (ITEMS[id].weapon && ownsWeapon(ITEMS[id].weapon)) }));
+      const list = items.map((id) => ({ label: ITEMS[id].name, right: ITEMS[id].weapon && ownsWeapon(ITEMS[id].weapon) ? 'gekocht' : 'EUR ' + prijs(id), off: this.P.money < prijs(id) || (ITEMS[id].weapon && ownsWeapon(ITEMS[id].weapon)) }));
       list.push('Klaar');
-      const k = await UI.ask(who, `Wat mag het zijn? Je hebt €${this.P.money}.`, list, true);
+      const k = await UI.ask(who, `Wat mag het zijn? Je hebt EUR ${this.P.money}.`, list, true);
       if (k < 0 || k === items.length) return;
       const id = items[k], it = ITEMS[id];
       this.P.money -= prijs(id);
@@ -349,7 +349,7 @@ const G = {
           <div class="row"><span class="lbl">Verdediging</span><span>${P.def}</span></div>
           <div class="row"><span class="lbl">XP</span><span>${P.xp} / ${P.next}</span></div>
           <div class="row"><span class="lbl">Stoerheid</span><span>${P.stoer || 0}</span></div>
-          <div class="row"><span class="lbl">Geld</span><span>€${P.money}</span></div>
+          <div class="row"><span class="lbl">Geld</span><span>EUR ${P.money}</span></div>
           <div class="row"><span class="lbl">Toestand</span><span>Brak</span></div>`;
         panel.hidden = false; await waitKey(); panel.hidden = true;
       } else if (k === 3) {

@@ -19,7 +19,7 @@ const QUESTS = {
   },
   rekening: {
     name: 'De rekening bij Lanting', done: 2,
-    steps: ['', () => `Je hebt nog €${REKENING} openstaan bij Gerda in café Lanting. Je hebt nu €${G.P.money}. Gevechten leveren geld op.`, 'Rekening betaald. Gerda vertelde hoe je avond begon.'],
+    steps: ['', () => `Je hebt nog EUR ${REKENING} openstaan bij Gerda in café Lanting. Je hebt nu EUR ${G.P.money}. Gevechten leveren geld op.`, 'Rekening betaald. Gerda vertelde hoe je avond begon.'],
   },
   onbetaald: {
     name: 'Onbetaalde frikandellen', done: 3,
@@ -170,7 +170,7 @@ const NPCS = [
         await say('Gerda', 'Nou nou. Kijk eens wie we daar hebben. De held van gisteravond.');
         const k = await ask('Gerda', 'Weet je eigenlijk nog hoe je heet?', ['Eh… nee.', 'Natuurlijk! …Nee.']);
         await bijna('Gerda', k === 0 ? 'Haha! Ik weet het wel, hoor. Jij bent…' : 'Dat dacht ik al. Nou, jij bent…', 'Achter de bar gaat de telefoon. "Café Lanting, met Gerda? … Nee, we gaan pas om twaalf open."');
-        await say('Gerda', 'Waar waren we? Oh ja. Je rekening. Die staat nog open: €47.');
+        await say('Gerda', 'Waar waren we? Oh ja. Je rekening. Die staat nog open: EUR 47.');
         await say('Gerda', 'Elf bier, drie bitterballen en één "rondje voor de zaak". Betaal eerst maar, schat. Dan vertel ik je wat je hier allemaal hebt uitgespookt.');
         G.quest('rekening', 1);
         return;
@@ -178,10 +178,10 @@ const NPCS = [
       for (;;) {
         const opts = ['Wat kopen'];
         const acts = [() => G.shop(['frikandelbroodje', 'bitterballen', 'koffie', 'w_darts'], 'Gerda')];
-        if (G.quest('rekening') === 1) { opts.push({ label: `Rekening betalen (€${REKENING})`, off: G.P.money < REKENING }); acts.push(payBill); }
+        if (G.quest('rekening') === 1) { opts.push({ label: `Rekening betalen (EUR ${REKENING})`, off: G.P.money < REKENING }); acts.push(payBill); }
         opts.push('Heb je een tip?', 'Doei');
         acts.push(async () => say('Gerda', hint()), null);
-        const k = await ask('Gerda', G.quest('rekening') === 1 ? `Zeg het maar, schat. Je hebt €${G.P.money}. Je rekening is €${REKENING}.` : 'Zeg het maar, schat.', opts, true);
+        const k = await ask('Gerda', G.quest('rekening') === 1 ? `Zeg het maar, schat. Je hebt EUR ${G.P.money}. Je rekening is EUR ${REKENING}.` : 'Zeg het maar, schat.', opts, true);
         if (k < 0 || !acts[k]) { await say('Gerda', 'Doei! En drink vandaag maar water.'); return; }
         await acts[k]();
         if (k !== 0) return;
@@ -252,7 +252,7 @@ const NPCS = [
         await say('Thijs', 'In de broekzak van Derkje? Van het kleine huisje? Hoe past dat erin?');
         await me('Thijs en jij tillen het motorblok terug. Het zit er een beetje scheef in, maar de BMW start.');
         await say('Thijs', 'Bedankt, man. Hier, voor de moeite.');
-        G.P.money += 15; SFX.item(); UI.toast('+€15');
+        G.P.money += 15; SFX.item(); UI.toast('+EUR 15');
         await say('Thijs', 'En hier. Een fotolijst van Mick. Mijn moeder heeft er tien laten maken: Mick en zijn strandbal.');
         await say('Thijs', 'Ik kan er niet meer naar kijken. Niemand kan dat. Misschien heb jij er iets aan.');
         await giveWeapon('mick');
@@ -344,7 +344,7 @@ const NPCS = [
         await say('Trainer Harm', 'Langs Kevin! Ongelooflijk. Die jongen houdt zelfs zijn eigen schaduw tegen.');
         await say('Trainer Harm', 'Na de penalty\'s vannacht ging je richting de A-framestraat. Je zei dat je "Thijs ging helpen met zijn auto".');
         await bijna('Trainer Harm', 'Je naam staat trouwens op een oud teamshirt in de kantine. Rugnummer 7. En de naam is…', '…eraf gewassen. Op 90 graden. "Sorry," zegt Harm. "Mijn vrouw doet de was."');
-        G.P.money += 10; SFX.item(); UI.toast('+€10');
+        G.P.money += 10; SFX.item(); UI.toast('+EUR 10');
         await say('Trainer Harm', 'En neem deze cornervlag maar mee. Die zat vannacht ook al in jouw hand.');
         await giveWeapon('cornervlag');
         G.quest('bal', 4);
