@@ -51,7 +51,7 @@ Ruilen werkt zoals in Old School RuneScape: ruilverzoek, ruilscherm waarin alleb
 
 ## 3D-versie
 
-`3d.html` is dezelfde game in 3D, in blokstijl zoals Minecraft, in eerste persoon. Klik in beeld om rond te kijken (muis), WASD om te lopen, Shift om te rennen, E om te praten en M voor het menu. Vapers staan zichtbaar in het hoge gras: loop je ertegenaan, dan start het turn-based gevecht (in de bekende 2D-gevechtsweergave). Het verhaal, de gevechten, kleding, het casino, ruilen en online delen dezelfde code als de 2D-versie (`js/`); alleen de wereld, poppetjes en besturing zitten in `js3d/`. Three.js komt van cdnjs.
+`3d.html` is dezelfde game in 3D, in blokstijl zoals Minecraft, in eerste persoon. Klik in beeld om rond te kijken (muis), WASD om te lopen, Shift om te rennen, E of rechtermuisknop om te praten en M voor het menu. Onderin staat een hotbar (1-9 of scrollwiel): met de linkermuisknop gebruik je wat je vasthoudt. Wapens zwaaien (een vaper eerst raken verrast hem), de vape geeft echte dampwolken, eten eet je op, de selfiestick flitst, het springtouw laat je springen en dartpijlen gooi je weg. De lucht heeft een dag-en-nachtritme met wolken, zonsondergang, sterren en noorderlicht; binnenruimtes hebben muren, een plafond, lampen en een deur. Vapers staan zichtbaar in het hoge gras: loop je ertegenaan, dan start het turn-based gevecht (in de bekende 2D-gevechtsweergave). Het verhaal, de gevechten, kleding, het casino, ruilen en online delen dezelfde code als de 2D-versie (`js/`); alleen de wereld, poppetjes en besturing zitten in `js3d/`. Three.js komt van cdnjs.
 
 ## Bestanden
 

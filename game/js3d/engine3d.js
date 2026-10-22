@@ -1,7 +1,7 @@
 // 3D-engine: vervangt het tekenen, lopen en de besturing van de 2D-engine. De spellogica (G, verhaal, gevechten) blijft gedeeld.
 const E3 = {
   pos: { x: 3.5, z: 5.5 }, yaw: Math.PI, pitch: 0, keys: new Set(), figs: {}, peers: {}, vapers: [], vaperTimer: 0,
-  t: 0, bob: 0, target: null, warnAt: -99, safe: null,
+  t: 0, bob: 0, target: null, warnAt: -99, safe: null, jy: 0, jv: 0, swingT: 0, puffs: [], things: [], lastPuff: 0, puffCount: 0, umbrella: false,
 
   init() {
     const cv = $('#view');
@@ -9,8 +9,9 @@ const E3 = {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(70, 4 / 3, 0.05, 200);
-    this.scene.add(new THREE.HemisphereLight(0xffffff, 0x556644, 0.85));
-    const sun = new THREE.DirectionalLight(0xfff2dd, 0.55); sun.position.set(-20, 40, 30); this.scene.add(sun);
+    this.hemi = new THREE.HemisphereLight(0xffffff, 0x556644, 0.85); this.scene.add(this.hemi);
+    this.sun = new THREE.DirectionalLight(0xfff2dd, 0.55); this.sun.position.set(-20, 40, 30); this.scene.add(this.sun);
+    SKY.build(this.scene);
     const resize = () => { const r = $('#game').getBoundingClientRect(); this.renderer.setSize(r.width, r.height, false); this.camera.aspect = r.width / r.height; this.camera.updateProjectionMatrix(); };
     addEventListener('resize', resize); resize();
     this.input();
@@ -26,8 +27,11 @@ const E3 = {
     const m = MAPS[id];
     this.world = buildWorld(m);
     this.scene.add(this.world);
-    this.scene.background = new THREE.Color(m.inside ? '#140f1c' : '#9cc8f0');
-    this.scene.fog = m.inside ? new THREE.Fog('#140f1c', 8, 20) : new THREE.Fog('#b8d4ee', 22, 60);
+    this.scene.background = m.inside ? new THREE.Color('#140f1c') : null;
+    this.scene.fog = m.inside ? new THREE.Fog('#2a2018', 10, 24) : new THREE.Fog('#b8d4ee', 28, 95);
+    if (m.inside) { this.hemi.intensity = 0.6; this.hemi.color.set('#fff0dd'); this.hemi.groundColor.set('#c8b090'); this.sun.intensity = 0.15; }
+    else this.hemi.groundColor.set('#556644');
+    this.eye = m.inside && ceilH(m) < 2.2 ? ceilH(m) - 0.35 : 1.55;
     for (const n of NPCS.filter((n) => n.map === id)) { const g = buildFigure(n.look); this.figs[n.id] = g; this.scene.add(g); }
     this.vaperTimer = 2;
   },
@@ -87,7 +91,75 @@ const E3 = {
     }
     G.updateNpcs(dt);
     this.updateVapers(dt);
+    this.updateFx(dt);
     this.findTarget();
+  },
+
+  // ---------- effecten: springen, zwaaien, dampwolkjes, gegooide dingen ----------
+  updateFx(dt) {
+    if (this.jy > 0 || this.jv > 0) { this.jv -= 12 * dt; this.jy = Math.max(0, this.jy + this.jv * dt); if (this.jy === 0) this.jv = 0; }
+    this.swingT = Math.max(0, this.swingT - dt);
+    for (const p of this.puffs) {
+      p.life += dt;
+      p.s.position.addScaledVector(p.v, dt); p.v.multiplyScalar(0.96); p.v.y += 0.25 * dt;
+      const k = p.life / p.max, sc = p.size * (1 + k * 2.5);
+      p.s.scale.set(sc, sc, 1); p.s.material.opacity = 0.75 * (1 - k);
+    }
+    for (const p of this.puffs.filter((p) => p.life >= p.max)) this.scene.remove(p.s);
+    this.puffs = this.puffs.filter((p) => p.life < p.max);
+    for (const t of this.things) {
+      t.life += dt; t.v.y -= 9.8 * t.g * dt;
+      t.s.position.addScaledVector(t.v, dt);
+      if (t.s.position.y < 0.15) { t.s.position.y = 0.15; t.v.y = Math.abs(t.v.y) * 0.45; t.v.x *= 0.7; t.v.z *= 0.7; }
+    }
+    for (const t of this.things.filter((t) => t.life > 1.6)) this.scene.remove(t.s);
+    this.things = this.things.filter((t) => t.life <= 1.6);
+  },
+  forward() { return new THREE.Vector3(-Math.sin(this.yaw) * Math.cos(this.pitch), Math.sin(this.pitch), -Math.cos(this.yaw) * Math.cos(this.pitch)); },
+  puff(color, n, from) {
+    const f = this.forward();
+    const o = from || new THREE.Vector3(this.pos.x, (this.eye || 1.55) + this.jy - 0.15, this.pos.z).addScaledVector(f, 0.35);
+    for (let i = 0; i < n; i++) {
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: W3.tex(PUFF_CANVAS), color, transparent: true, depthWrite: false }));
+      s.position.copy(o);
+      const v = (from ? new THREE.Vector3(0, 0.3, 0) : f.clone().multiplyScalar(1.2 + Math.random() * 0.8)).add(new THREE.Vector3((Math.random() - 0.5) * 0.5, Math.random() * 0.3, (Math.random() - 0.5) * 0.5));
+      this.scene.add(s);
+      this.puffs.push({ s, v, life: 0, max: 1.6 + Math.random() * 1.4, size: 0.18 + Math.random() * 0.15 });
+    }
+  },
+  vape() {
+    const cols = [0xffd9a0, 0xffc0e0, 0xc0d0ff, 0xc8f0e0, 0xffffff];
+    this.puff(cols[this.puffCount % cols.length], 14);
+    this.lastPuff = Date.now(); this.puffCount += 1;
+    SFX.tone(110, 0.5, 'sawtooth', 0.02, -40);
+    const hz = $('#haze'); hz.classList.remove('on'); void hz.offsetWidth; hz.classList.add('on');
+    if (Math.random() < 0.22) setTimeout(() => { UI.toast(pick(['*kuch* *kuch*', '*kuch* Lekker hoor. *kuch*', 'Je ogen tranen. Mango, denk je.']), 1600); SFX.no(); }, 500);
+    else if (this.puffCount % 5 === 0) UI.toast(pick(['Je voelt je heel even stoer.', 'Een wolk zo groot als de kerk.', 'Ergens in het gras knikt een tiener goedkeurend.']), 2000);
+  },
+  flash() { const f = $('#flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); SFX.tone(1400, 0.08, 'square', 0.04); },
+  jump() { if (this.jy === 0) { this.jv = 4.6; SFX.tone(300, 0.1, 'square', 0.03, 200); } },
+  throwThing(id, speed, g) {
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: W3.tex(heldIcon(id)), alphaTest: 0.5 }));
+    s.scale.set(0.4, 0.4, 1);
+    s.position.set(this.pos.x, (this.eye || 1.55) - 0.2, this.pos.z).addScaledVector(this.forward(), 0.4);
+    this.scene.add(s);
+    this.things.push({ s, v: this.forward().multiplyScalar(speed).add(new THREE.Vector3(0, 1.5, 0)), g, life: 0 });
+    SFX.tone(500, 0.1, 'triangle', 0.04, -200);
+  },
+  meleeTarget() {
+    const fx = -Math.sin(this.yaw), fz = -Math.cos(this.yaw);
+    let best = null;
+    const consider = (x, z, kind, obj) => {
+      const dx = x - this.pos.x, dz = z - this.pos.z, d = Math.hypot(dx, dz);
+      if (d > 2.2 || d < 0.05) return;
+      const ang = Math.acos(Math.max(-1, Math.min(1, (dx * fx + dz * fz) / d)));
+      if (ang > 0.7) return;
+      if (!best || d + ang < best.score) best = { kind, obj, score: d + ang };
+    };
+    for (const v of this.vapers) consider(v.x, v.z, 'vaper', v);
+    for (const n of G.npcsHere()) { const r = G.npcRt[n.id]; if (r) consider(r.px / TS + 0.5, r.py / TS + 0.5, 'npc', n); }
+    for (const p of Online.others()) if (p.presence.m === G.map.id) { const q = this.peerPos(p); consider(q.x, q.z, 'peer', p); }
+    return best;
   },
   dirName() {
     const a = ((this.yaw % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
@@ -192,10 +264,11 @@ const E3 = {
       cam.position.set(20 + Math.cos(a) * 16, 9, 15 + Math.sin(a) * 16);
       cam.lookAt(20, 1, 15);
     } else {
-      cam.position.set(this.pos.x, 1.55 + Math.abs(Math.sin(this.bob)) * 0.05, this.pos.z);
+      cam.position.set(this.pos.x, (this.eye || 1.55) + this.jy + Math.abs(Math.sin(this.bob)) * 0.05, this.pos.z);
       cam.rotation.order = 'YXZ';
       cam.rotation.set(this.pitch, this.yaw, 0);
     }
+    SKY.update(1 / 60, cam.position, this.hemi, this.sun, this.scene, !!(G.map && G.map.inside && G.mode !== 'title'));
     // NPC's
     for (const n of NPCS) {
       const g = this.figs[n.id]; if (!g) continue;
@@ -235,7 +308,8 @@ const E3 = {
       e.g.position.set(e.x, 0, e.z);
       e.g.rotation.y = (typeof s.r === 'number' ? s.r : 0) + Math.PI;
       animateFigure(e.g, this.t, mv > 0.02);
-      setHeld(e.g, WEAPONS[s.w] ? s.w : null);
+      setHeld(e.g, typeof s.h === 'string' && (WEAPONS[s.h] || ITEMS[s.h]) ? s.h : WEAPONS[s.w] ? s.w : null);
+      if (typeof s.vp === 'number' && s.vp !== e.vp) { if (e.vp !== undefined) this.puff(0xffe0c0, 10, new THREE.Vector3(e.x, 1.5, e.z)); e.vp = s.vp; }
       const near = Math.hypot(e.x - this.pos.x, e.z - this.pos.z) < 2.2;
       const text = `${String(s.n).slice(0, 16)}${s.b ? ' (vecht)' : ''}${near ? ` · EUR ${(Number(s.eur) || 0).toLocaleString('nl-NL')}` : ''}`;
       if (text !== e.tagText) { if (e.tag) e.g.remove(e.tag); e.tag = textSprite(text, near ? '#ffd25a' : '#f4f1ea'); e.tag.position.y = 2.25; e.g.add(e.tag); e.tagText = text; }
@@ -245,14 +319,16 @@ const E3 = {
 
   renderHand() {
     const el = $('#hand');
-    const id = G.S && G.mode === 'map' ? G.P.wpn : null;
+    const h = G.S && G.mode === 'map' ? Hotbar.hand() : null;
+    const id = h ? (h.id === 'paraplu' && this.umbrella ? 'paraplu_open' : h.id) : null;
     if (el.dataset.id !== String(id)) {
       el.dataset.id = String(id);
       const x = el.getContext('2d'); x.clearRect(0, 0, 12, 12);
-      if (id) x.drawImage(wicon(id), 0, 0);
+      if (id) x.drawImage(heldIcon(id), 0, 0);
     }
     el.hidden = !id;
-    if (id) el.style.transform = `translate(${Math.sin(this.bob) * 6}px, ${Math.abs(Math.cos(this.bob)) * 8}px) rotate(-8deg)`;
+    const sw = this.swingT > 0 ? Math.sin((1 - this.swingT / 0.35) * Math.PI) : 0;
+    if (id) el.style.transform = `translate(${Math.sin(this.bob) * 6 - sw * 90}px, ${Math.abs(Math.cos(this.bob)) * 8 - sw * 50}px) rotate(${-8 - sw * 55}deg)`;
   },
 
   // ---------- besturing ----------
@@ -277,8 +353,16 @@ const E3 = {
     const cv = $('#view');
     cv.addEventListener('click', () => {
       if (G.mode !== 'map' || UI.focus) return;
-      if (document.pointerLockElement === cv) { if (!G.busy) this.interact(); return; }
+      if (document.pointerLockElement === cv) { Hotbar.use(); return; }
       try { const r = cv.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) {}
+    });
+    cv.addEventListener('contextmenu', (e) => { e.preventDefault(); if (G.mode === 'map' && !G.busy && !UI.focus) this.interact(); });
+    addEventListener('wheel', (e) => { if (G.mode === 'map' && !UI.focus && !G.busy && document.pointerLockElement === cv) Hotbar.select(Hotbar.sel + (e.deltaY > 0 ? 1 : -1)); }, { passive: true });
+    addEventListener('keydown', (e) => {
+      if (UI.focus || G.mode !== 'map' || G.busy || (e.target && e.target.tagName === 'INPUT')) return;
+      const m = /^Digit([1-9])$/.exec(e.code);
+      if (m) Hotbar.select(+m[1] - 1);
+      if (e.code === 'KeyF' && !e.repeat) Hotbar.use();
     });
     addEventListener('mousemove', (e) => {
       if (document.pointerLockElement !== cv) return;
@@ -308,10 +392,12 @@ const E3 = {
   G.render = function () {
     const battle = this.mode === 'battle';
     $('#screen').hidden = !battle;
+    $('#hotwrap').hidden = !(this.S && this.mode === 'map');
+    if (!battle && this.S && this.mode === 'map') Hotbar.paint();
     if (battle) { this.drawBattle(); return; }
     E3.render();
   };
   G.interact = () => E3.interact();
-  G.presenceExtra = () => ({ px: Math.round(E3.pos.x * 100) / 100, pz: Math.round(E3.pos.z * 100) / 100, r: Math.round(E3.yaw * 100) / 100 });
+  G.presenceExtra = () => { const h = G.S && Hotbar.hand(); return { px: Math.round(E3.pos.x * 100) / 100, pz: Math.round(E3.pos.z * 100) / 100, r: Math.round(E3.yaw * 100) / 100, h: h ? h.id : '', vp: E3.lastPuff }; };
   E3.init();
 })();

@@ -109,6 +109,8 @@ const Battle = {
     const lvlBoost = E.boss ? 0 : Math.max(0, P.lvl - 1);
     this.foe = { ...E, id, maxHp: E.hp + lvlBoost * 6, atk: E.atk + lvlBoost, calm: 0, angry: 0, talked: new Set(), st: {} };
     this.foe.curHp = this.foe.maxHp;
+    // in 3D kun je een vaper verrassen door hem eerst te slaan
+    if (G.firstStrike) { this.foe.st.ongemak = 1; G.firstStrike = false; }
     this.P = P; this.me = {}; this.active = true; this.foeHit = 0; this.foeGone = 0; this.swing = null;
     SFX.battle();
     this.paintFoe(); this.paintStats();

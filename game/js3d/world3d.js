@@ -99,6 +99,48 @@ function buildingMesh(b) {
   return g;
 }
 
+// ---------- binnenruimtes: behang, plafond, deur ----------
+const WALLPAPER = { cafe: ['#d8c7a0', '#6e4a2c'], eka: ['#eceae4', '#9aa0aa'], casino: ['#4a1f5a', '#2a0f30'], kringloop: ['#a8b88a', '#5a4a2a'], schuur: ['#8a6a44', '#5a3a20'], dorpshuis: ['#c8d0d8', '#6a5a4a'], dwerg: ['#f0b0c8', '#a85a7a'] };
+const CEIL_H = { dwerg: 1.8 };
+const ceilH = (m) => CEIL_H[m.id] || 3;
+function wallCanvas(m) {
+  const [paper, wood] = WALLPAPER[m.id] || ['#d8c7a0', '#6e4a2c'];
+  return makeCanvas(16, 48, (x) => {
+    px(x, 0, 0, 16, 48, paper);
+    for (let i = 0; i < 4; i++) px(x, i * 4 + 1, 0, 1, 36, shade(paper, -14));
+    if (m.id === 'schuur') for (let i = 0; i < 12; i++) px(x, 0, i * 4 + 3, 16, 1, shade(paper, -25));
+    px(x, 0, 36, 16, 12, wood); px(x, 0, 36, 16, 1, shade(wood, 25)); px(x, 0, 47, 16, 1, shade(wood, -25));
+  });
+}
+function ceilingCanvas(m) {
+  const wood = m.id === 'schuur' || m.id === 'dwerg';
+  return makeCanvas(16, 16, (x) => {
+    px(x, 0, 0, 16, 16, wood ? '#7a5a34' : '#ece6d8');
+    if (wood) for (let i = 0; i < 4; i++) px(x, 0, i * 4 + 3, 16, 1, '#5a3a20');
+    else { px(x, 0, 0, 16, 2, '#8a6a44'); px(x, 0, 2, 16, 1, '#6e4a2c'); }
+  });
+}
+function interiorExtras(m, root) {
+  const H = ceilH(m);
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(m.w, m.h), new THREE.MeshLambertMaterial({ map: W3.tex(ceilingCanvas(m), [m.w, m.h]) }));
+  ceil.rotation.x = Math.PI / 2; ceil.position.set(m.w / 2, H, m.h / 2);
+  root.add(ceil);
+  // deur naar buiten in de onderste muur
+  for (const d of m.doors) {
+    const dh = Math.min(2.1, H - 0.05);
+    root.add(box(0.9, dh, 0.08, cmat('#6e4a2c'), d.x + 0.5, dh / 2, d.y + 0.98));
+    root.add(box(0.08, 0.08, 0.06, cmat('#f2c22e'), d.x + 0.82, dh * 0.5, d.y + 0.92));
+    root.add(box(0.9, 0.3, 0.06, cmat('#9ab4d0'), d.x + 0.5, dh * 0.8, d.y + 0.93));
+    if (H - dh > 0.05) root.add(box(1, H - dh, 1, W3.mat(wallCanvas(m)), d.x + 0.5, dh + (H - dh) / 2, d.y + 0.5));
+  }
+  // lampen aan het plafond
+  const lamps = m.w * m.h > 90 ? [[m.w * 0.3, m.h * 0.55], [m.w * 0.7, m.h * 0.55]] : [[m.w / 2, m.h / 2]];
+  for (const [x, z] of lamps) {
+    root.add(box(0.5, 0.08, 0.5, new THREE.MeshBasicMaterial({ color: '#fff2c8' }), x, H - 0.05, z));
+    const l = new THREE.PointLight(0xffd8a0, 0.9, 14, 1.4); l.position.set(x, H - 0.3, z); root.add(l);
+  }
+}
+
 // ---------- de hele kaart ----------
 function buildWorld(m) {
   const root = new THREE.Group();
@@ -129,8 +171,9 @@ function buildWorld(m) {
       const side = SIDE_CANVAS[t] ? W3.mat(SIDE_CANVAS[t]) : top;
       inst(new THREE.BoxGeometry(1, 1, 1), [side, side, top, side, side, side], list, (d, x, y) => d.position.set(x + 0.5, -0.5, y + 0.5));
     } else if (kind === 'block') {
-      const h = TILE_H[t];
-      const mat = t === 'dark' ? new THREE.MeshBasicMaterial({ color: '#0d0b12' }) : W3.mat(getTile(t, 0, 0));
+      const wallLike = m.inside && (t === 'wall' || t === 'dark');
+      const h = wallLike ? ceilH(m) : TILE_H[t];
+      const mat = wallLike ? W3.mat(wallCanvas(m)) : t === 'dark' ? new THREE.MeshBasicMaterial({ color: '#0d0b12' }) : W3.mat(getTile(t, 0, 0));
       inst(new THREE.BoxGeometry(1, h, 1), mat, list, (d, x, y) => d.position.set(x + 0.5, h / 2, y + 0.5));
     } else if (kind === 'plank') {
       inst(new THREE.BoxGeometry(1, 0.15, 1), W3.mat(getTile('plank', 0, 0)), list, (d, x, y) => d.position.set(x + 0.5, -0.08, y + 0.5));
@@ -163,6 +206,7 @@ function buildWorld(m) {
   }
   if (extras.chair.length) inst(new THREE.BoxGeometry(0.5, 0.45, 0.5), new THREE.MeshLambertMaterial({ color: '#7a4c2a' }), extras.chair, (d, x, y) => d.position.set(x + 0.5, 0.22, y + 0.5));
   for (const b of m.buildings) root.add(buildingMesh(b));
+  if (m.inside) interiorExtras(m, root);
   // decor als "papieren" sprites; op muren als bordje tegen de muur
   const props = [];
   for (const p of m.props) {
@@ -171,7 +215,7 @@ function buildWorld(m) {
     let obj;
     if (t === 'wall') {
       obj = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.9), new THREE.MeshLambertMaterial({ map: tex, transparent: true, alphaTest: 0.5 }));
-      obj.position.set(p.x + 0.5, 1.7, p.y + 1.02);
+      obj.position.set(p.x + 0.5, Math.min(1.7, ceilH(m) - 0.5), p.y + 1.02);
     } else {
       obj = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, alphaTest: 0.5 }));
       const base = t === 'counter' ? 1 : t === 'table' ? 0.8 : 0;

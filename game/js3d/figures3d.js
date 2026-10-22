@@ -115,8 +115,8 @@ function setHeld(g, id) {
   if (u.heldId === id) return;
   if (u.held) { u.rightHand.remove(u.held); u.held = null; }
   u.heldId = id;
-  if (!id || !WICON[id]) return;
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.5), new THREE.MeshLambertMaterial({ map: W3.tex(wicon(id)), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide }));
+  if (!id) return;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.5), new THREE.MeshLambertMaterial({ map: W3.tex(heldIcon(id)), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide }));
   m.position.set(0, -0.62, 0.22); m.rotation.y = Math.PI / 2;
   u.rightHand.add(m); u.held = m;
 }
