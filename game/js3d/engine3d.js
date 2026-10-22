@@ -228,7 +228,7 @@ const E3 = {
     if (this.world) for (const o of this.world.userData.props) {
       const p = o.userData.prop;
       if (Math.abs((o.userData.baseY || 0) - this.fy) > 2.2) continue;
-      if (p.id && PROPS[p.id] && !(PROP_HIDE[p.id] && PROP_HIDE[p.id]())) list.push([p.x + 0.5, p.y + 0.5, p.name === 'schip' || p.name === 'kraan' ? 5 : 3.0, 'prop', o, p.name === 'bank' ? 'Gaan zitten' : p.name === 'paashaas' || p.name === 'dakbuit' ? 'Oppakken' : 'Bekijken', 1.5]);
+      if (p.id && PROPS[p.id] && !(PROP_HIDE[p.id] && PROP_HIDE[p.id]())) list.push([p.x + 0.5, p.y + 0.5, p.name === 'schip' || p.name === 'kraan' ? 5 : 3.0, 'prop', o, p.name === 'bank' ? 'Gaan zitten' : p.name === 'paashaas' || p.name === 'dakbuit' ? 'Oppakken' : 'Bekijken', p.name === 'paashaas' || p.name === 'dakbuit' ? 0 : 1.5]);
     }
     for (const p of Online.others()) if (p.presence.m === G.map.id) { const q = this.peerPos(p); list.push([q.x, q.z, 3, 'peer', p, `${String(p.presence.n).slice(0, 16)}: ruilen of zwaaien`]); }
     this.target = this.aim(list, 0.65);
@@ -293,6 +293,7 @@ const E3 = {
       cam.position.copy(this.eyePos()); cam.position.y += Math.abs(Math.sin(this.bob)) * 0.05;
       cam.rotation.order = 'YXZ';
       cam.rotation.set(this.pitch, this.yaw, this.fallT > 0 ? 0.9 : 0);
+      if (this.sceneCam) this.sceneCam(cam);
     }
     SKY.update(1 / 60, cam.position, this.hemi, this.sun, this.scene, !!(G.map && G.map.inside && G.mode !== 'title'));
     this.updateLights(1 / 60);
@@ -346,10 +347,10 @@ const E3 = {
       if (e.bike) { e.bike.visible = !!s.mt; if (s.mt) { e.g.position.y += 0.35; for (const l of e.g.userData.legs || []) l.rotation.x = -0.9; } }
       setHeld(e.g, WEAPONS[s.w] ? s.w : null);
       if (typeof s.vp === 'number' && s.vp !== e.vp) { if (e.vp !== undefined) this.puff(0xffe0c0, 10, new THREE.Vector3(this.w(e.x), e.g.position.y + 1.5, this.w(e.z))); e.vp = s.vp; }
-      const near = this.w(Math.hypot(e.x - this.pos.x, e.z - this.pos.z)) < 3.5;
       const cl = s.ap && CLASSES[CLASS_KEYS[s.ap.cl]];
-      const text = `${String(s.n).slice(0, 16)}${s.lvl ? ` · ${s.lvl}` : ''}${cl ? ` ${cl.name}` : ''}${near ? ` · EUR ${(Number(s.eur) || 0).toLocaleString('nl-NL')}` : ''}`;
-      if (text !== e.tagText) { if (e.tag) e.g.remove(e.tag); e.tag = textSprite(text, near ? '#ffd25a' : '#f4f1ea'); e.tag.position.y = 2.25; e.g.add(e.tag); e.tagText = text; }
+      const line2 = `Lvl ${Number(s.lvl) || 1}${cl ? ` ${cl.name}` : ''} · EUR ${(Number(s.eur) || 0).toLocaleString('nl-NL')}`;
+      const text = `${String(s.n).slice(0, 16)}${s.b ? ' (vecht)' : ''}\n${line2}`;
+      if (text !== e.tagText) { if (e.tag) e.g.remove(e.tag); e.tag = textSprite2(String(s.n).slice(0, 16), line2, cl ? cl.col : '#c8d0e8'); e.tag.position.y = 2.4; e.g.add(e.tag); e.tagText = text; }
     }
     for (const k of Object.keys(this.peers)) if (!seen.has(k)) { this.scene.remove(this.peers[k].g); delete this.peers[k]; }
   },

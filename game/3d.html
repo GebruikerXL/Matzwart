@@ -81,6 +81,9 @@ body {
 .ubar.hp i { background: linear-gradient(#5ad04a, #2e9a2a); }
 #tframe .ubar.hp i { background: linear-gradient(#e85a4a, #b02a20); }
 .ubar.ed i { background: linear-gradient(#e8f04a, #a8c020); }
+.ubar.xp { height: 1.7cqw; }
+.ubar.xp i { background: linear-gradient(#c8a0ff, #7a3ac8); }
+.ubar.xp span { font-size: 1.35cqw; line-height: 1.5cqw; }
 .ubar span { position: absolute; inset: 0; text-align: center; font-size: 1.6cqw; line-height: 2cqw; color: #fff; text-shadow: 0.15cqw 0.15cqw 0 #000; }
 .ubar .lb { left: 0.6cqw; right: auto; text-align: left; color: #fff; opacity: .8; }
 .uframe .bf { min-height: 2cqw; font-size: 1.6cqw; color: var(--gold); margin-top: 0.3cqw; }
@@ -281,6 +284,11 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 #title .perma small { display: block; font-family: var(--font-ui); font-size: 1.9cqw; color: var(--ink); max-width: 70cqw; margin: 0.4cqw auto 0; }
 #pvp { left: 50%; top: 27%; transform: translateX(-50%); font-family: var(--font-title); font-size: 1.9cqw; color: #ff6a5a; background: rgba(20,4,4,.7); border: 0.25cqw solid #e8433a; border-radius: 0.6cqw; padding: 0.4cqw 1.4cqw; white-space: nowrap; pointer-events: none; text-shadow: 0.2cqw 0.2cqw 0 #000; }
 #ridehud { left: 50%; top: 3%; transform: translateX(-50%); font-size: 2.2cqw; padding: 0.6cqw 1.8cqw; white-space: nowrap; pointer-events: none; }
+#kotsflash { inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 70%, rgba(168,200,58,.85), rgba(120,150,30,.5)); }
+#kotsflash.on { animation: flash 1.4s ease-out; }
+#cine { inset: 0; pointer-events: none; }
+#cine i { position: absolute; left: 0; right: 0; height: 12%; background: #000; }
+#cine i:first-child { top: 0; } #cine i:last-child { bottom: 0; }
 </style>
 
 <div id="game">
@@ -292,7 +300,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
   <div id="haze" class="ui" aria-hidden="true"></div>
   <div id="flash" class="ui" aria-hidden="true"></div>
   <div id="hurt" class="ui" aria-hidden="true"></div>
-  <div id="pframe" class="ui win uframe" hidden><div class="top"><span class="nm"></span><span class="lv"></span></div><div class="ubar hp"><i></i><span></span></div><div class="ubar ed"><i></i><span></span></div><div class="bf"></div><div class="cash"></div></div>
+  <div id="pframe" class="ui win uframe" hidden><div class="top"><span class="nm"></span><span class="lv"></span></div><div class="ubar hp"><i></i><span></span></div><div class="ubar ed"><i></i><span></span></div><div class="ubar xp"><i></i><span></span></div><div class="bf"></div><div class="cash"></div></div>
   <div id="tframe" class="ui win uframe" hidden><div class="top"><span class="nm"></span><span class="lv"></span></div><div class="ubar hp"><i></i><span></span></div><div class="bf"></div></div>
   <div id="xpbar" class="ui" hidden><i></i></div>
   <div id="atip" class="ui win" hidden></div>
@@ -300,6 +308,8 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
   <div id="loot" class="ui win" hidden></div>
   <div id="pvp" class="ui" hidden>☠ WILDERNIS · spelers kunnen je aanvallen ☠</div>
   <div id="ridehud" class="ui win" hidden></div>
+  <div id="kotsflash" class="ui" aria-hidden="true"></div>
+  <div id="cine" class="ui" aria-hidden="true" hidden><i></i><i></i></div>
   <div id="hotwrap" class="ui"><div id="hotname"></div><div id="hotbar" hidden></div></div>
   <div id="hud" class="ui win" hidden></div>
   <div id="toast" class="ui win" hidden></div>
@@ -361,6 +371,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js/story3.js"></script>
 <script src="js/hardcore.js"></script>
 <script src="js/houses.js"></script>
+<script src="js/josje.js"></script>
 <script src="js/trade.js"></script>
 <script src="js/online.js"></script>
 <script src="js/main.js"></script>
@@ -374,3 +385,4 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js3d/engine3d.js"></script>
 <script src="js3d/ride3d.js"></script>
 <script src="js3d/puzzles3d.js"></script>
+<script src="js3d/scenes3d.js"></script>

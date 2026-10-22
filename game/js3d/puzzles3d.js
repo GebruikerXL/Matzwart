@@ -31,23 +31,23 @@ DAKEN.push('paashaas');
 
 // de EKA: achter de supermarkt staan pallets bierkratten
 dakPuzzle('oost', [[3, 13, 1.0], [4, 13, 1.9], [5, 13, 2.8], [6, 13, 3.7]], 'stapel',
-  { key: 'eka', at: [8, 16], eur: 250, text: 'Op het dak van de EKA: een verloren boodschappentas. Er zit EUR 250 in. En een komkommer.' }, { flat: ['eka'], stepId: 'dak_kratten' });
+  { key: 'eka', at: [8, 16], eur: 250, text: 'Op het dak van de EKA: een verloren boodschappentas. Er zit EUR 250 in. En een komkommer.' }, { flat: ['eka'], stepId: 'stapel_kratten' });
 // de kleedkamers: hooibalen van de terreinknecht
 dakPuzzle('zuid', [[37, 1, 1.0], [38, 1, 2.0], [39, 1, 3.0], [40, 1, 3.8]], 'hooi',
-  { key: 'kleedkamer', at: [41, 5], eur: 100, items: [['clubshirt', 1]], text: 'Op het dak van de kleedkamers ligt een opgevouwen clubshirt. Van de Kapo zelf. En EUR 100 in een sok.' }, { flat: ['kleedkamer'], stepId: 'dak_hooi' });
+  { key: 'kleedkamer', at: [41, 5], eur: 100, items: [['clubshirt', 1]], text: 'Op het dak van de kleedkamers ligt een opgevouwen clubshirt. Van de Kapo zelf. En EUR 100 in een sok.' }, { flat: ['kleedkamer'], stepId: 'stapel_hooi' });
 // Delfzijl: een toren van containers op de kade
 dakPuzzle('delfzijl', [[42, 14, 0.9], [42, 15, 1.8], [42, 16, 2.7], [42, 17, 3.6], [42, 18, 4.5], [42, 19, 5.4]], 'cstapel',
-  { key: 'containers', at: [42, 19], items: [['gouden_vape', 2]], text: 'Bovenop de hoogste container: twee gouden vapes, met tape vastgeplakt. Iemand verstopt hier zijn spaargeld.' }, { stepId: 'dak_containers' });
+  { key: 'containers', at: [42, 19], items: [['gouden_vape', 2]], text: 'Bovenop de hoogste container: twee gouden vapes, met tape vastgeplakt. Iemand verstopt hier zijn spaargeld.' }, { stepId: 'stapel_containers' });
 // Delfzicht: hooibalen in het hoge gras achter het ziekenhuis
 dakPuzzle('delfzijl', [[35, 39, 1.0], [36, 39, 2.0], [37, 39, 3.0], [38, 39, 3.9]], 'hooi',
-  { key: 'delfzicht', at: [38, 42], eur: 150, items: [['paracetamol', 4]], text: 'Op het dak van Delfzicht staat een vergeten EHBO-koffer. Paracetamol en EUR 150. De zuster zal het niet missen.' }, { flat: ['delfzicht'], stepId: 'dak_hooi' });
+  { key: 'delfzicht', at: [38, 42], eur: 150, items: [['paracetamol', 4]], text: 'Op het dak van Delfzicht staat een vergeten EHBO-koffer. Paracetamol en EUR 150. De zuster zal het niet missen.' }, { flat: ['delfzicht'], stepId: 'stapel_hooi' });
 // Zwolle: de Sassenpoort, in de wildernis
 dakPuzzle('zwolle', [[34, 21, 1.0], [35, 21, 2.0], [36, 21, 3.0]], 'stapel',
-  { key: 'sassenpoort', at: [35, 24], eur: 1000, text: 'Boven op de Sassenpoort: de stadskas van Zwolle. EUR 1000. Nu snel naar beneden, voordat iemand je ziet.' }, { flat: ['sassenpoort'], roofH: 3.85, stepId: 'dak_kratten' });
+  { key: 'sassenpoort', at: [35, 24], eur: 1000, text: 'Boven op de Sassenpoort: de stadskas van Zwolle. EUR 1000. Nu snel naar beneden, voordat iemand je ziet.' }, { flat: ['sassenpoort'], roofH: 3.85, stepId: 'stapel_kratten' });
 
-PROPS.dak_kratten = () => me('Een stapel kratten. Hij staat verdacht handig, als een trap.');
-PROPS.dak_hooi = () => me('Hooibalen, opgestapeld als een trap. Iemand wilde hier ooit naar boven.');
-PROPS.dak_containers = () => me('Containers, scheef op elkaar gestapeld. Met een beetje springen kom je bovenop.');
+PROPS.stapel_kratten = () => me('Een stapel kratten. Hij staat verdacht handig, als een trap.');
+PROPS.stapel_hooi = () => me('Hooibalen, opgestapeld als een trap. Iemand wilde hier ooit naar boven.');
+PROPS.stapel_containers = () => me('Containers, scheef op elkaar gestapeld. Met een beetje springen kom je bovenop.');
 
 QUESTS.daken = {
   name: 'Op het dak', done: 2,

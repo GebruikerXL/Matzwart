@@ -138,6 +138,23 @@ function textSprite(text, col = '#f4f1ea') {
   return s;
 }
 
+// naamkaartje met twee regels: naam, en daaronder level, class en geld
+function textSprite2(top, bottom, col2) {
+  const c = document.createElement('canvas'), x = c.getContext('2d');
+  x.font = '16px Silkscreen, monospace'; const w1 = x.measureText(top).width;
+  x.font = '13px Silkscreen, monospace'; const w2 = x.measureText(bottom).width;
+  const w = Math.ceil(Math.max(w1, w2)) + 14;
+  c.width = w; c.height = 40;
+  x.fillStyle = 'rgba(10,8,20,.78)'; x.fillRect(0, 0, w, 40);
+  x.textBaseline = 'top'; x.textAlign = 'center';
+  x.font = '16px Silkscreen, monospace'; x.fillStyle = '#f4f1ea'; x.fillText(top, w / 2, 3);
+  x.font = '13px Silkscreen, monospace'; x.fillStyle = col2 || '#ffd25a'; x.fillText(bottom, w / 2, 22);
+  const t = new THREE.CanvasTexture(c); t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearFilter;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false }));
+  s.scale.set(w / 70, 40 / 70, 1); s.renderOrder = 10;
+  return s;
+}
+
 // dampwolk rond een vaper (k = hoe dik; in Delfzijl zijn ze veel dikker)
 function vapeCloud(col, k = 1) {
   const g = new THREE.Group();

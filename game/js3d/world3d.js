@@ -13,7 +13,7 @@ const W3 = {
   mat(canvas, extra) { return new THREE.MeshLambertMaterial({ map: this.tex(canvas), ...(extra || {}) }); },
 };
 const mapScale = (m) => (!m.inside ? 2 : m.id === 'dwerg' ? 1 : m.palace ? 1.6 : 1.4);
-const CEIL_H = { dwerg: 1.8, paleis: 6.5, kerk_binnen: 5.5, centrumkerk_binnen: 5, molen_binnen: 4 };
+const CEIL_H = { dwerg: 1.8, paleis: 6.5, kerk_binnen: 5.5, centrumkerk_binnen: 5, molen_binnen: 4, josje: 3.6 };
 const ceilH = (m) => CEIL_H[m.id] || 3.2;
 // blokken die boven de grond uitsteken, en verhoogde grond (de wierde en de zeedijk)
 const BLOCK_H = { counter: 1.05, hay: 1.0, schap: 2.0, kast: 2.0, hedge: 1.2 };
@@ -173,7 +173,7 @@ function buildingMesh(b, S, anim) {
 const WALLPAPER = { cafe: ['#d8c7a0', '#6e4a2c'], eka: ['#eceae4', '#9aa0aa'], casino: ['#4a1f5a', '#2a0f30'], kringloop: ['#a8b88a', '#5a4a2a'], schuur: ['#8a6a44', '#5a3a20'], dorpshuis: ['#c8d0d8', '#6a5a4a'], dwerg: ['#f0b0c8', '#a85a7a'],
   paleis: ['#f4ead0', '#c8a030'], kerk_binnen: ['#e8e4dc', '#8a8a90'], centrumkerk_binnen: ['#e8e4dc', '#8a8a90'], huis_henk: ['#b8c890', '#5a4a2a'], huis_bakker: ['#f0d0d8', '#8a5a6a'], huis_boer: ['#e8dcc0', '#5a3a20'],
   snackbar_binnen: ['#f4e0b0', '#c23b2e'], muzee_binnen: ['#2a4a6a', '#1b2a3a'], molen_binnen: ['#8a6a44', '#5a3a20'], school_binnen: ['#e8e0c8', '#6a8a5a'], kantine_binnen: ['#e8e6e0', '#2a4a9a'],
-  aframe_0: ['#e0d8c8', '#6e4a2c'], aframe_1: ['#3a3a44', '#1b1b20'], aframe_3: ['#e8d8b8', '#7a5a34'] };
+  josje: ['#5a2a3a', '#2a1418'], aframe_0: ['#e0d8c8', '#6e4a2c'], aframe_1: ['#3a3a44', '#1b1b20'], aframe_3: ['#e8d8b8', '#7a5a34'] };
 function wallCanvas(m) {
   const [paper, wood] = WALLPAPER[m.id] || ['#d8c7a0', '#6e4a2c'];
   return makeCanvas(16, 48, (x) => {
@@ -376,7 +376,7 @@ function buildWorld(m) {
         if (p.name === 'goal') obj.rotation.y = p.x < m.w / 2 ? Math.PI : 0;
         if (p.name === 'gamestoel') obj.rotation.y = Math.PI;
         if (p.name === 'kraan') obj.rotation.y = Math.PI / 2;
-        if (p.name === 'bmwL' || p.name === 'autoL') { obj.rotation.y = Math.PI / 2; obj.position.x = (p.x + 1) * S + 0.9; }
+        if (p.name === 'bmwL' || p.name === 'autoL' || p.name === 'opelL') { obj.rotation.y = Math.PI / 2; obj.position.x = (p.x + 1) * S + 0.9; }
         const u = obj.userData;
         if (u.bob) { const o = obj, ph = p.x + p.y; anim.push((tt) => { o.position.y = Math.sin(tt * 0.8 + ph) * 0.12 - 0.3; o.rotation.z = Math.sin(tt * 0.6 + ph) * 0.02; }); }
         if (u.spin) { const s = u.spin; anim.push((tt) => { s.rotation.y = tt * 1.5; }); }

@@ -97,7 +97,13 @@ Buiten hangt zoveel vapedamp dat je maar zo'n 20 meter ver kijkt (in Delfzijl no
 - **Spullen in huizen**: koelkasten, laatjes, kluizen en sporttassen in bijna elk huis. Na tien minuten ligt er weer iets nieuws.
 - **Huizen met vijanden**: de krakpanden in Delfzijl (de deuren die eerst op slot zaten), twee huizen in Zwolle en het klaslokaal (vapende tieners). Na drie minuten zijn ze terug.
 - **Taken**: rechtsboven staan al je openstaande taken met de volgende stap. Je geld, schuld en online-status staan nu in je eigen frame linksboven.
+- **Ervaringspunten**: onder je Energydrink staat een XP-balk tot het volgende level. Je krijgt de helft van de XP van vroeger, dus je levelt half zo snel.
+- **Andere spelers**: boven hun hoofd staat hun naam, en daaronder hun level, class en geld.
 - **Vechttempo**: gevechten duren langer. Een gewone vaper kost zo'n 8 tot 10 seconden, en vijanden raken je minder hard en minder vaak. Tussen abilities zit 1,5 seconde, net als in WoW.
+
+## Café Josje
+
+In Delfzijl staan Kjell en Jornt stomdronken bij hun roestige Opel, naast een plas kots. Ze vragen of je meegaat naar Café Josje. Zeg je ja, dan rijd jij: een cutscene over de N33 waarin je steeds meer biertjes drinkt, alles wazig wordt en je af en toe kotst. Je wordt wakker in Café Josje met nog 20% HP: een enorme, compleet gesloopte kroeg met een bar, een zaal met een discobal, wc's, een achterhok en een gang naar de uitgang. Bij de uitgang staat de bruine meneer, een enorme meneer in een bruin pak. Je moet drie miljoen euro betalen voor 200.000 biertjes. Dat kan niet. In slow motion word je doodgeslagen (permadeath).
 
 ## Ranglijst
 
@@ -122,11 +128,13 @@ Menu → Ranglijst toont alle spelers op volgorde van level (bij gelijk level: w
 - `js/story3.js`: personages, vijanden, buit en de opdracht in Delfzijl, Daniël en zijn butler
 - `js/hardcore.js`: permadeath, Delfzicht, Zwolle, Koen, de fatbike, de kleedkamer en de hooligans
 - `js/houses.js`: spullen in huizen, krakpanden en huizen met vijanden
+- `js/josje.js`: Kjell, Jornt, Café Josje en de bruine meneer
 - `js/main.js`: engine (lopen, camera, menu, automatisch opslaan)
 - `js3d/world3d.js`: bouwt de 3D-wereld uit een kaart (gebouwen, molen, paleis)
 - `js3d/props3d.js`: 3D-modellen voor al het decor
 - `js3d/pvp3d.js`: spullen op de grond, PvP in Zwolle en de fatbike (via presence)
 - `js3d/ride3d.js`: de rit met Koen over de A28
 - `js3d/puzzles3d.js`: de jump puzzles naar de daken
+- `js3d/scenes3d.js`: de slow-motion-scène bij de uitgang van Café Josje
 - `js3d/combat3d.js`: realtime vechten: classes, abilities, doelwit, buit, speler- en doelwitframe
 - `js3d/figures3d.js`, `sky3d.js`, `hotbar3d.js`, `engine3d.js`: poppetjes, lucht, icoontjes en de 3D-engine (lopen, springen, licht)

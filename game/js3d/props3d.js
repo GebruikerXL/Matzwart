@@ -145,6 +145,23 @@ const PROP3D = {
     for (const x of [-0.5, 0.5]) { const u = M3.cyl(g, 0.08, 0.08, 0.3, '#666', x, 0.3, -3.05, 8); u.rotation.x = Math.PI / 2; }
   },
   autoR() {},
+  // de roestige Opel Kadett van Kjell en Jornt
+  opelL(g) {
+    M3.b(g, 1.7, 0.6, 4.0, '#c8783a', 0, 0.5, -0.9); M3.b(g, 1.55, 0.55, 2.0, M3.glass(), 0, 1.07, -1.1); M3.b(g, 1.55, 0.06, 2.0, '#a8602a', 0, 1.37, -1.1);
+    M3.b(g, 0.6, 0.3, 0.02, '#7a4a2a', 0.86, 0.55, -0.4); M3.b(g, 0.4, 0.25, 0.02, '#6a3a1a', -0.86, 0.6, -1.6);
+    for (const [x, z] of [[-0.8, 0.3], [0.8, 0.3], [-0.8, -2.0], [0.8, -2.0]]) { const w = M3.cyl(g, 0.3, 0.3, 0.22, '#111', x, 0.3, z, 12); w.rotation.z = Math.PI / 2; }
+    for (const x of [-0.55, 0.55]) M3.b(g, 0.28, 0.12, 0.04, M3.glow('#fff2c8'), x, 0.55, 1.11);
+    for (let i = 0; i < 6; i++) M3.cyl(g, 0.04, 0.04, 0.12, ['#c8ccd4', '#2e7a3a', '#c23b2e'][i % 3], -0.5 + i * 0.2, 0.86, -2.2 + (i % 2) * 0.3, 8);
+  },
+  opelR() {},
+  // Café Josje: alles kapot
+  kots(g) { M3.b(g, 1.1, 0.03, 0.8, '#a8b83a', 0, 0.015, 0); M3.b(g, 0.6, 0.04, 0.5, '#c8c84a', 0.2, 0.02, 0.1); M3.b(g, 0.08, 0.05, 0.08, '#e8833a', -0.2, 0.03, 0.1); M3.b(g, 0.06, 0.05, 0.06, '#e8833a', 0.3, 0.03, -0.2); },
+  plas(g) { M3.b(g, 1.3, 0.02, 0.9, new THREE.MeshLambertMaterial({ color: '#d8a83a', transparent: true, opacity: 0.7 }), 0, 0.01, 0); M3.b(g, 0.3, 0.025, 0.2, '#f4f1ea', -0.3, 0.015, 0.1); },
+  scherven(g) { for (let i = 0; i < 9; i++) M3.b(g, 0.08 + (i % 3) * 0.04, 0.02, 0.05 + (i % 2) * 0.05, new THREE.MeshLambertMaterial({ color: '#c8e0f0', transparent: true, opacity: 0.8 }), Math.sin(i * 2.3) * 0.5, 0.01, Math.cos(i * 1.7) * 0.4, (m) => { m.rotation.y = i; }); M3.cyl(g, 0.05, 0.05, 0.15, '#2e7a3a', 0.2, 0.05, 0.2, 8).rotation.z = Math.PI / 2; },
+  kapottafel(g) { const top = M3.b(g, 1.0, 0.08, 1.0, '#8c5a32', 0, 0.35, 0); top.rotation.z = 0.6; M3.b(g, 0.1, 0.7, 0.1, '#4a2c18', -0.35, 0.35, 0.3, (m) => { m.rotation.z = 0.6; }); M3.b(g, 0.1, 0.35, 0.1, '#4a2c18', 0.4, 0.08, -0.3, (m) => { m.rotation.x = Math.PI / 2; }); },
+  kapotstoel(g) { M3.b(g, 0.5, 0.06, 0.5, '#7a4c2a', 0, 0.25, 0, (m) => { m.rotation.x = Math.PI / 2; }); M3.b(g, 0.5, 0.5, 0.06, '#6a3c1a', 0, 0.03, -0.25); M3.b(g, 0.06, 0.4, 0.06, '#5a3c1a', 0.2, 0.2, 0.25, (m) => { m.rotation.z = 1.2; }); },
+  box(g) { M3.b(g, 0.8, 1.6, 0.7, '#1b1b20', 0, 0.8, 0); for (const [y, r] of [[1.25, 0.2], [0.6, 0.3]]) { const c = M3.cyl(g, r, r, 0.04, '#3a3a44', 0, y, 0.36, 14); c.rotation.x = Math.PI / 2; } },
+  discobal(g) { M3.cyl(g, 0.01, 0.01, 1.2, '#888', 0, 3.0, 0, 6); const s = new THREE.Mesh(new THREE.SphereGeometry(0.35, 10, 8), new THREE.MeshLambertMaterial({ color: '#c8ccd4', emissive: '#556070', flatShading: true })); s.position.y = 2.3; g.add(s); g.userData.spin = s; },
   // spullen in huizen
   koelkast(g) { M3.b(g, 0.75, 1.85, 0.7, '#e8e6e0', 0, 0.92, 0); M3.b(g, 0.76, 0.02, 0.71, '#b8b6b0', 0, 1.25, 0); M3.b(g, 0.04, 0.3, 0.04, '#888', 0.3, 1.5, 0.37); M3.b(g, 0.04, 0.4, 0.04, '#888', 0.3, 0.9, 0.37); M3.b(g, 0.14, 0.1, 0.01, '#e8433a', -0.15, 1.0, 0.36); },
   dressoir(g) { M3.b(g, 1.3, 0.85, 0.5, '#8c5a32', 0, 0.42, 0); for (const y of [0.25, 0.6]) { M3.b(g, 1.2, 0.3, 0.02, '#6e4424', 0, y, 0.26); M3.b(g, 0.12, 0.04, 0.03, '#f2c22e', 0, y, 0.28); } M3.cyl(g, 0.1, 0.08, 0.2, '#e8e6e0', -0.4, 0.95, 0); M3.b(g, 0.25, 0.25, 0.25, '#3a8a3a', -0.4, 1.15, 0); },

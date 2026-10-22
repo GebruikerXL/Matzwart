@@ -65,8 +65,8 @@ const Online = {
         drawHeld(ctx, w, dir, x, y, fr, true);
         drawPerson(look, dir, fr, x, y);
         drawHeld(ctx, w, dir, x, y, fr, false);
-        nameTag(String(s.n).slice(0, 16) + (s.b ? ' (vecht)' : ''), x + 8, y - 6, '#f4f1ea');
-        if (near) nameTag(`EUR ${Number(s.eur) || 0}`, x + 8, y - 16, '#ffd25a');
+        nameTag(String(s.n).slice(0, 16) + (s.b ? ' (vecht)' : ''), x + 8, y - 16, '#f4f1ea');
+        nameTag(`Lvl ${Number(s.lvl) || 1} · EUR ${(Number(s.eur) || 0).toLocaleString('nl-NL')}`, x + 8, y - 6, near ? '#ffd25a' : '#c8d0e8');
       } });
     }
   },

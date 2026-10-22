@@ -99,6 +99,9 @@ const ENEMIES = {
   },
 };
 const RANDOM_POOL = [];
+// HARDCORE levelt langzaam: je krijgt de helft van de XP
+const XP_RATE = 0.5;
+const xpFor = (n) => Math.max(1, Math.round(n * XP_RATE));
 
 // ---------- Gevecht ----------
 const Battle = {
@@ -359,7 +362,7 @@ const Battle = {
     if (result === 'win' || result === 'spared') {
       this.foeGone = 1;
       SFX.win();
-      const xp = f.xp, money = result === 'spared' ? Math.ceil(f.money * 1.5) : f.money;
+      const xp = xpFor(f.xp), money = result === 'spared' ? Math.ceil(f.money * 1.5) : f.money;
       await this.log(result === 'spared' ? f.spare : `${f.name} geeft het op!`);
       P.xp += xp; P.money += money;
       await this.log(money ? `+${xp} XP, +EUR ${money}` : `+${xp} XP`);

@@ -289,8 +289,9 @@ const CB = {
     SFX.tone(330, 0.3, 'triangle', 0.05, -200);
     const P = G.P, E = v.E;
     // XP meteen, de rest ligt op het lijk
-    P.xp += E.xp;
-    this.floatText(`+${E.xp} XP`, new THREE.Vector3(E3.w(v.x), 2.4, E3.w(v.z)), '#c8a0ff', 1.1);
+    const xp = xpFor(E.xp);
+    P.xp += xp;
+    this.floatText(`+${xp} XP`, new THREE.Vector3(E3.w(v.x), 2.4, E3.w(v.z)), '#c8a0ff', 1.1);
     this.checkLevel();
     v.loot = this.rollLoot(v);
     // verhaaltegenstanders blijven niet liggen: hun buit krijg je meteen
@@ -770,8 +771,9 @@ function buildCombatUI() {
 }
 let _abarKey = '';
 function paintFrames() {
-  const on = !!(G.S && G.mode === 'map');
-  for (const s of ['#pframe', '#abar', '#xpbar']) $(s).hidden = !on;
+  const on = !!(G.S && G.mode === 'map' && !E3.sceneCam);
+  for (const s of ['#pframe', '#abar']) $(s).hidden = !on;
+  $('#xpbar').hidden = true;
   if (!on) { $('#tframe').hidden = true; $('#atip').hidden = true; return; }
   const P = G.P, c = CB.cls();
   // spelerframe
@@ -787,7 +789,8 @@ function paintFrames() {
   const bf = pf.querySelector('.bf'); if (bf.textContent !== buffs) bf.textContent = buffs;
   const cash = `EUR ${P.money.toLocaleString('nl-NL')} · schuld: ${debtText()}`, ol = onlineText();
   const ce = pf.querySelector('.cash'); if (ce.dataset.t !== cash + ol) { ce.dataset.t = cash + ol; ce.innerHTML = `<b>${cash}</b><small>${ol}</small>`; }
-  $('#xpbar i').style.width = `${100 * P.xp / P.next}%`;
+  pf.querySelector('.xp i').style.width = `${Math.min(100, 100 * P.xp / P.next)}%`;
+  pf.querySelector('.xp span').textContent = `XP ${P.xp} / ${P.next} (tot level ${P.lvl + 1})`;
   paintTargetFrame();
   // actiebalk
   const ak = `${c && c.name}|${P.lvl}`;
@@ -834,7 +837,7 @@ async function chooseClass(afterDeath) {
 // ---------- rechtsboven: al je openstaande taken ----------
 // (vervangt het geld-en-schuldvenster; geld en online staan nu in het spelerframe)
 updateHud = function () {
-  const show = G.S && G.mode === 'map' && $('#menu').hidden && $('#panel').hidden && $('#casino').hidden && $('#loot').hidden;
+  const show = G.S && G.mode === 'map' && !E3.sceneCam && $('#menu').hidden && $('#panel').hidden && $('#casino').hidden && $('#loot').hidden;
   const el = $('#hud');
   if (!show) { if (!el.hidden) el.hidden = true; return; }
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
