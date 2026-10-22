@@ -119,7 +119,7 @@ function updateHud() {
   const show = G.S && G.mode === 'map' && $('#menu').hidden && $('#panel').hidden && $('#casino').hidden;
   const el = $('#hud');
   if (!show) { if (!el.hidden) el.hidden = true; return; }
-  const html = `<div class="row"><span class="lbl">Geld</span><b>EUR ${G.P.money}</b></div><div class="row"><span class="lbl">Schuld</span><span>${debtText()}</span></div><div class="online">${onlineText()}</div>`;
+  const html = `<div class="row"><span class="lbl">Geld</span><b>EUR ${G.P.money.toLocaleString('nl-NL')}</b></div><div class="row"><span class="lbl">Schuld</span><span>${debtText()}</span></div><div class="online">${onlineText()}</div>`;
   if (html !== hudLast) { el.innerHTML = html; hudLast = html; }
   if (el.hidden) el.hidden = false;
 }
@@ -182,7 +182,11 @@ const Logbook = {
       const u = await window.claude?.use?.('user');
       if (u) { this.uid = await u.id(); this.owner = await u.isOwner(); }
     } catch (e) { this.db = null; }
-    if (this.db) setInterval(() => this.tick(), 5000);
+    if (this.db) {
+      setInterval(() => this.tick(), 5000);
+      // cadeaus van de eigenaar (of Claude) aan een spelersnaam
+      this.db.collection('giften').onSnapshot((snap) => { this.gifts = snap.docs.filter((d) => d.exists); this.claimGifts(); }, () => {});
+    }
   },
   row(s, bron) {
     return { naam: String(s.n || '').slice(0, 16), plek: placeName(s.m), geld: Number(s.eur) || 0, level: Number(s.lvl) || null, laatstGezien: new Date().toISOString(), bron };
@@ -195,7 +199,26 @@ const Logbook = {
     this.last[key] = { t: Date.now(), kaart };
     this.db.doc('spelers/' + key).set(data).catch((e) => { if (e && e.code === 'invalid_argument') this.last[key] = false; });
   },
+  claimGifts() {
+    if (!G.S || !this.gifts || G.mode !== 'map') return;
+    let seen = [];
+    try { seen = JSON.parse(localStorage.getItem('brak-giften') || '[]'); } catch (e) {}
+    G.S.giften = G.S.giften || [];
+    for (const d of this.gifts) {
+      const g = d.data() || {};
+      if (String(g.aan || '').toLowerCase() !== String(G.S.name || '').toLowerCase()) continue;
+      if (G.S.giften.includes(d.id) || seen.includes(d.id)) continue;
+      G.S.giften.push(d.id); seen.push(d.id);
+      const eur = Math.max(0, Math.min(1e12, Math.floor(Number(g.geld) || 0)));
+      G.P.money += eur;
+      SFX.win();
+      UI.toast(`Cadeau ontvangen: EUR ${eur.toLocaleString('nl-NL')}!${g.bericht ? ' ' + String(g.bericht).slice(0, 80) : ''}`, 6000);
+      G.save();
+    }
+    try { localStorage.setItem('brak-giften', JSON.stringify(seen.slice(-200))); } catch (e) {}
+  },
   tick() {
+    this.claimGifts();
     if (!G.S || !this.db) return;
     if (this.uid) this.write(this.uid, this.row({ n: G.S.name, m: G.map.id, eur: G.P.money, lvl: G.P.lvl }, 'zelf'), G.map.id);
     if (this.owner) for (const p of Online.others()) if (p.by && p.by !== this.uid) this.write(p.by, this.row(p.presence, 'gezien door de eigenaar'), p.presence.m);

@@ -202,7 +202,7 @@ function cleanOffer(o) {
     if (!e || typeof e !== 'object') continue;
     const n = Math.floor(Number(e.n));
     if (!(n > 0)) continue;
-    if (e.k === 'eur') out.push({ k: 'eur', id: 'eur', n: Math.min(n, 100000) });
+    if (e.k === 'eur') out.push({ k: 'eur', id: 'eur', n: Math.min(n, 1e12) });
     else if (e.k === 'wpn' && WEAPONS[e.id]) out.push({ k: 'wpn', id: e.id, n: 1 });
     else if (e.k === 'item' && ITEMS[e.id] && tradeable(e.id)) out.push({ k: 'item', id: e.id, n: Math.min(n, 999) });
   }
