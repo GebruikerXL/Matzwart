@@ -326,11 +326,12 @@ const G = {
     this.busy = true; SFX.ok();
     let start = 0;
     for (;;) {
-      const k0 = await UI.list('#menu', ['Spullen', 'Wapens', 'Kleding', 'Opdrachten', 'Status', 'Opslaan', SFX.on ? 'Geluid: aan' : 'Geluid: uit', 'Terug'], { cancel: true, keep: true, start });
+      const k0 = await UI.list('#menu', ['Spullen', 'Wapens', 'Kleding', `Spelers (${Online.count()})`, 'Opdrachten', 'Status', 'Opslaan', SFX.on ? 'Geluid: aan' : 'Geluid: uit', 'Terug'], { cancel: true, keep: true, start });
       start = Math.max(0, k0);
       if (k0 === 1) { await this.weaponMenu(); continue; }
       if (k0 === 2) { await clothesMenu(); continue; }
-      const k = k0 > 2 ? k0 - 2 : k0;
+      if (k0 === 3) { if (await playersMenu()) break; continue; }
+      const k = k0 > 3 ? k0 - 3 : k0;
       const panel = $('#panel');
       if (k === 0) {
         const own = Object.keys(this.P.items).filter((id) => this.P.items[id] > 0 && !ITEMS[id].slot);

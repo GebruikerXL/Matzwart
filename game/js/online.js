@@ -140,3 +140,34 @@ function askName(current) {
     };
   });
 }
+
+// ---------- menu: wie is er online, en er meteen naartoe ----------
+async function playersMenu() {
+  const panel = $('#panel');
+  const o = Online.others();
+  panel.innerHTML = `<h3>Spelers online</h3><div id="plist" class="list"></div><p id="pdesc" class="lbl"></p>`;
+  panel.hidden = false;
+  if (!o.length) {
+    $('#pdesc').textContent = Online.status === 'online' ? 'Er is nu niemand anders in de lobby. Laat je vrienden het spel openen.' : onlineText();
+    await waitKey(); panel.hidden = true; return false;
+  }
+  const k = await UI.list('#plist', o.map((p) => ({ label: String(p.presence.n).slice(0, 16), right: placeName(p.presence.m) })), {
+    cancel: true, keep: true, onMove: (i) => { $('#pdesc').textContent = `EUR ${Number(o[i].presence.eur) || 0}. Kies om ernaartoe te gaan.`; },
+  });
+  panel.hidden = true;
+  if (k < 0) return false;
+  const s = o[k].presence, m = MAPS[s.m];
+  if (!m) return false;
+  // een vrij vakje naast de ander zoeken
+  for (const [dx, dy, dir] of [[0, 1, 'up'], [-1, 0, 'right'], [1, 0, 'left'], [0, -1, 'down']]) {
+    const x = s.x + dx, y = s.y + dy, t = tileAt(m, x, y);
+    if (!(TILE_DEF[t] || {}).walk || m.doors.some((d) => d.x === x && d.y === y)) continue;
+    if (m.props.some((p) => p.solid && p.x === x && p.y === y)) continue;
+    $('#menu').hidden = true;
+    await G.warp(s.m, x, y, dir);
+    UI.toast(`Je staat bij ${String(s.n).slice(0, 16)}.`);
+    return true;
+  }
+  UI.toast('Er is geen plekje vrij naast die speler. Probeer het zo nog eens.');
+  return false;
+}
