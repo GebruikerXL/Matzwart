@@ -49,6 +49,10 @@ Bij het starten kies je een spelersnaam en je uiterlijk: huidskleur, haarstijl, 
 
 Ruilen werkt zoals in Old School RuneScape: ruilverzoek, ruilscherm waarin allebei spullen, wapens, kleding en geld zetten, allebei accepteren, dan een bevestigscherm waar je nog een keer allebei accepteert. Verandert iemand iets, dan vervalt het akkoord.
 
+## 3D-versie
+
+`3d.html` is dezelfde game in 3D, in blokstijl zoals Minecraft, in eerste persoon. Klik in beeld om rond te kijken (muis), WASD om te lopen, Shift om te rennen, E om te praten en M voor het menu. Vapers staan zichtbaar in het hoge gras: loop je ertegenaan, dan start het turn-based gevecht (in de bekende 2D-gevechtsweergave). Het verhaal, de gevechten, kleding, het casino, ruilen en online delen dezelfde code als de 2D-versie (`js/`); alleen de wereld, poppetjes en besturing zitten in `js3d/`. Three.js komt van cdnjs.
+
 ## Bestanden
 
 - `js/sprites.js`: alle pixel-art, in code getekend

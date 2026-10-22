@@ -36,7 +36,7 @@ const Online = {
   sync() {
     if (!this.room || !G.S || (G.mode !== 'map' && G.mode !== 'battle')) return;
     const P = G.P;
-    const state = { n: G.S.name || 'Naamloos', m: G.map.id, x: G.pl.x, y: G.pl.y, d: G.pl.dir, eur: P.money, lvl: P.lvl, w: P.wpn || '', wp: (P.weapons || []).slice(0, 20), ap: G.S.ap || null, wr: P.wear || {}, b: G.mode === 'battle' ? 1 : 0 };
+    const state = { n: G.S.name || 'Naamloos', m: G.map.id, x: G.pl.x, y: G.pl.y, d: G.pl.dir, eur: P.money, lvl: P.lvl, w: P.wpn || '', wp: (P.weapons || []).slice(0, 20), ap: G.S.ap || null, wr: P.wear || {}, b: G.mode === 'battle' ? 1 : 0, ...(G.presenceExtra ? G.presenceExtra() : {}) };
     const s = JSON.stringify(state);
     if (s === this.lastSent) return;
     this.lastSent = s;

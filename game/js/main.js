@@ -150,7 +150,7 @@ const G = {
     if (door && DOORS[door.id]) { this.busy = true; await DOORS[door.id](); this.busy = false; return; }
     if (m.edges && m.edges.some((e) => e.x === pl.x && e.y === pl.y)) { this.busy = true; await onEdge(); this.stepBack(); this.busy = false; return; }
     if (STEP_EVENTS[m.id]) { const ev = STEP_EVENTS[m.id](pl.x, pl.y); if (ev) { this.busy = true; await ev(); this.busy = false; return; } }
-    if (m.encounters && tileAt(m, pl.x, pl.y) === 'tall' && this.flags.intro) {
+    if (m.encounters && !this.noRandom && tileAt(m, pl.x, pl.y) === 'tall' && this.flags.intro) {
       this.steps += 1;
       if (this.steps > 4 && Math.random() < 0.11) {
         this.steps = 0;
@@ -192,7 +192,10 @@ const G = {
       const d = this.held[this.held.length - 1];
       if (d) this.tryMove(d);
     }
-    // NPC's die rondscharrelen
+    this.updateNpcs(dt);
+  },
+
+  updateNpcs(dt) {
     for (const n of this.npcsHere()) {
       const r = this.npcRt[n.id]; if (!r) continue;
       if (r.moving) {
@@ -453,6 +456,8 @@ function holdDir(k, down) {
   if (down && i < 0) G.held.push(k);
   if (!down && i >= 0) G.held.splice(i, 1);
 }
+// De 3D-versie (window.MODE3D) heeft eigen besturing.
+if (!window.MODE3D) {
 addEventListener('keydown', (e) => {
   if (e.target && e.target.tagName === 'INPUT') return;
   const k = KEYMAP[e.code]; if (!k) return;
@@ -468,6 +473,7 @@ document.querySelectorAll('#pad .pbtn').forEach((b) => {
   const off = (e) => { e.preventDefault(); b.classList.remove('down'); if (DIRS[k]) holdDir(k, false); };
   b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off);
 });
+}
 
 // ---------- lus ----------
 let last = performance.now();
