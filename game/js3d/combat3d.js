@@ -109,7 +109,7 @@ const CB = {
   makeMob(id, x, z, opts = {}) {
     const E = ENEMIES[id], P = G.P;
     const boost = E.boss ? 0 : Math.max(0, P.lvl - 1);
-    const maxHp = Math.round((E.hp + boost * 6) * (opts.story ? 1.3 : 1.15));
+    const maxHp = Math.round((E.hp + boost * 6) * (opts.story ? 3.2 : 3.0));
     const g = E3.enemyFigure(id);
     E3.scene.add(g);
     const mob = {
@@ -208,8 +208,8 @@ const CB = {
         v.lostT = (d > reach + 0.5 && (!mv || above)) || this.dist({ x: v.sx, z: v.sz }) > 40 ? v.lostT + dt : 0;
         if (v.lostT > (v.story ? 99 : 6)) { v.state = 'return'; this.paintPlate(v); }
         v.atkT -= dt; v.blowT -= dt;
-        if (d <= reach + 0.4 && v.atkT <= 0 && !above) { v.atkT = v.E.dz ? 1.7 : 2.0; this.mobHit(v); }
-        else if (v.E.vaper && v.blowT <= 0 && d < 8) { v.blowT = 7 + Math.random() * 4; this.mobBlow(v); }
+        if (d <= reach + 0.4 && v.atkT <= 0 && !above) { v.atkT = (v.E.dz ? 2.3 : 2.7) * (0.9 + Math.random() * 0.2); this.mobHit(v); }
+        else if (v.E.vaper && v.blowT <= 0 && d < 8) { v.blowT = 10 + Math.random() * 5; this.mobBlow(v); }
       } else if (v.state === 'return') {
         const dx = v.sx - v.x, dz = v.sz - v.z, l = Math.hypot(dx, dz);
         v.hp = Math.min(v.maxHp, v.hp + v.maxHp * dt * 0.3);
@@ -256,7 +256,7 @@ const CB = {
   // ---------- jij raakt hen ----------
   power(k) {
     const P = G.P;
-    let n = (this.atk() * 1.6 + 4 + P.lvl * 1.5) * k * (0.9 + Math.random() * 0.2);
+    let n = (this.atk() * 1.0 + 3 + P.lvl * 1.2) * k * (0.9 + Math.random() * 0.2);
     if (this.buffs.moed > 0) n *= 1.4;
     if (this.buffs.dampBonus) { n *= 1.5; this.buffs.dampBonus = false; }
     const crit = Math.random() < 0.1 + stoerNow(P) * 0.01;
@@ -351,7 +351,8 @@ const CB = {
     PV.dismount();
     const cls = this.clsKey();
     const red = cls === 'havenwerker' ? 0.75 : cls === 'voetballer' ? 0.85 : 1;
-    const dmg = Math.max(1, Math.round((n - this.def() * 0.5) * red));
+    // tempo: alles wat jou raakt doet ruim de helft van wat het vroeger deed
+    const dmg = Math.max(1, Math.round((n - this.def() * 0.5) * red * 0.55));
     const P = G.P;
     P.hp = Math.max(0, P.hp - dmg);
     this.combatT = 0;
@@ -407,7 +408,7 @@ const CB = {
     if (E3.seat) E3.standUp();
     PV.dismount();
     G.P.ep -= a.cost;
-    this.gcd = 1.0;
+    this.gcd = 1.5;
     if (a.cd) this.cds[a.id] = a.cd;
     if (this.buffs.damp > 0) { this.buffs.damp = 0; this.buffs.dampBonus = true; }
     this.autoOn = true;
@@ -624,6 +625,7 @@ const CB = {
     for (const k of Object.keys(this.cds)) this.cds[k] = Math.max(0, this.cds[k] - dt);
     for (const k of Object.keys(this.buffs)) if (typeof this.buffs[k] === 'number') this.buffs[k] = Math.max(0, this.buffs[k] - dt);
     PV.update();
+    this.guardLoot();
     this.spawnVapers(dt);
     this.updateMobs(dt);
     this.updateBrawl();
@@ -658,7 +660,7 @@ const CB = {
     G.busy = true;
     this.paintLoot();
     $('#loot').hidden = false;
-    UI.focus = (k) => {
+    UI.focus = this.lootFocus = (k) => {
       const L = this.loot && this.loot.mob.loot; if (!L) return;
       if (k === 'up') { this.loot.sel = (this.loot.sel + L.length) % (L.length + 1); this.paintLoot(); }
       else if (k === 'down') { this.loot.sel = (this.loot.sel + 1) % (L.length + 1); this.paintLoot(); }
@@ -666,18 +668,20 @@ const CB = {
       else if (k === 'cancel') this.closeLoot();
     };
   },
+  // valt de besturing van het buitvenster ooit weg, pak hem dan terug (anders blijft het venster hangen)
+  guardLoot() { if (this.loot && $('#loot').hidden === false && !UI.focus) UI.focus = this.lootFocus; if (!this.loot && !$('#loot').hidden) $('#loot').hidden = true; },
   lootName(l) { return l.kind === 'geld' ? `EUR ${l.n}` : l.kind === 'wapen' ? `${WEAPONS[l.id].name} (wapen)` : `${ITEMS[l.id].name}${l.n > 1 ? ' ×' + l.n : ''}`; },
   paintLoot() {
     const v = this.loot.mob, L = v.loot, el = $('#loot');
-    el.innerHTML = `<h3>${v.name}</h3><div class="lrows">${L.map((l, i) => `<div class="lrow${i === this.loot.sel ? ' sel' : ''}${l.rare || l.kind === 'wapen' || l.id === 'gouden_vape' ? ' rare' : ''}" data-i="${i}"><canvas width="12" height="12"></canvas><span>${this.lootName(l)}</span></div>`).join('')}<div class="lrow all${this.loot.sel >= L.length ? ' sel' : ''}" data-i="all"><span>Alles pakken</span></div></div><p class="lhint">${v.foreign ? 'Je raapt alles in één keer op (als niemand je voor is)' : 'Klik of Spatie om te pakken'} · Esc om te sluiten</p>`;
+    el.innerHTML = `<h3>${v.name}</h3><div class="lrows">${L.map((l, i) => `<div class="lrow${i === this.loot.sel ? ' sel' : ''}${l.rare || l.kind === 'wapen' || l.id === 'gouden_vape' ? ' rare' : ''}" data-i="${i}"><canvas width="12" height="12"></canvas><span>${this.lootName(l)}</span></div>`).join('')}<div class="lrow all${this.loot.sel >= L.length ? ' sel' : ''}" data-i="all"><span>Alles pakken</span></div><div class="lrow close" data-i="close"><span>Sluiten</span></div></div><p class="lhint">${v.foreign ? 'Je raapt alles in één keer op (als niemand je voor is)' : 'Klik of Spatie om te pakken'} · Esc om te sluiten</p>`;
     el.querySelectorAll('.lrow canvas').forEach((c, i) => { const l = L[i]; const x = c.getContext('2d'); try { x.drawImage(l.kind === 'geld' ? aicon('zakken') : heldIcon(l.id), 0, 0, 12, 12); } catch (e) {} });
-    el.onclick = (e) => { const r = e.target.closest('.lrow'); if (!r) return; if (r.dataset.i === 'all') this.takeAll(); else this.take(+r.dataset.i); };
+    el.onclick = (e) => { const r = e.target.closest('.lrow'); if (!r) return; if (r.dataset.i === 'close') this.closeLoot(); else if (r.dataset.i === 'all') this.takeAll(); else this.take(+r.dataset.i); };
   },
   take(i) {
     const v = this.loot.mob, l = v.loot[i]; if (!l) return;
     if (v.foreign) { PV.claim(v.foreign); this.closeLoot(); return; }
     if (l.kind === 'geld') { G.P.money += l.n; SFX.tick(); UI.toast(`+EUR ${l.n}`, 1200); }
-    else if (l.kind === 'wapen') giveWeapon(l.id);
+    else if (l.kind === 'wapen') { giveWeapon(l.id, true); UI.toast(`Wapen: ${WEAPONS[l.id].name}. Kies het via Menu → Wapens.`, 2400); }
     else G.give(l.id, l.n);
     v.loot.splice(i, 1);
     if (!v.loot.length) { this.closeLoot(); return; }
@@ -686,6 +690,20 @@ const CB = {
   },
   takeAll() { const v = this.loot.mob; if (v.foreign) { this.take(0); return; } while (v.loot && v.loot.length && this.loot) this.take(0); },
   closeLoot() { if (!this.loot) return; this.loot = null; $('#loot').hidden = true; UI.focus = null; G.busy = false; },
+
+  // ---------- huizen met vijanden: ze staan al binnen ----------
+  spawnIndoor(m) {
+    const f = F(); f.foeT = f.foeT || {}; f.foeT[m.id] = Date.now();
+    const spots = [];
+    for (let y = 2; y < m.h - 1; y++) for (let x = 1; x < m.w - 1; x++) {
+      if (!(TILE_DEF[tileAt(m, x, y)] || {}).walk || m.props.some((p) => p.x === x && p.y === y) || m.doors.some((d) => d.x === x && d.y === y) || G.npcAt(x, y)) continue;
+      const d = Math.hypot(x + 0.5 - E3.pos.x, y + 0.5 - E3.pos.z);
+      if (d > 3) spots.push([x, y, d]);
+    }
+    spots.sort((a, b) => b[2] - a[2]);
+    m.foes.forEach((id, i) => { const sp = spots[(i * 3) % Math.max(1, spots.length)]; if (sp) { const v = this.makeMob(id, sp[0] + 0.5, sp[1] + 0.5); v.indoor = true; } });
+    if (m.foesText) setTimeout(() => UI.toast(m.foesText, 3200), 300);
+  },
 
   // ---------- de kleedkamer: golven hooligans ----------
   brawl(waves) {
@@ -767,6 +785,8 @@ function paintFrames() {
   const B = CB.buffs;
   const buffs = [B.damp > 0 && 'Onzichtbaar', B.immune > 0 && 'Onkwetsbaar', B.speed > 0 && 'Scooter', B.moed > 0 && 'Dronken moed', B.misselijk > 0 && 'Misselijk', CB.neven.length && 'Neven', E3.mounted && 'Op de fatbike'].filter(Boolean).join(' · ');
   const bf = pf.querySelector('.bf'); if (bf.textContent !== buffs) bf.textContent = buffs;
+  const cash = `EUR ${P.money.toLocaleString('nl-NL')} · schuld: ${debtText()}`, ol = onlineText();
+  const ce = pf.querySelector('.cash'); if (ce.dataset.t !== cash + ol) { ce.dataset.t = cash + ol; ce.innerHTML = `<b>${cash}</b><small>${ol}</small>`; }
   $('#xpbar i').style.width = `${100 * P.xp / P.next}%`;
   paintTargetFrame();
   // actiebalk
@@ -778,7 +798,7 @@ function paintFrames() {
   }
   if (c) c.abil.forEach((a, i) => {
     const cd = Math.max(CB.cds[a.id] || 0, CB.gcd);
-    const tot = (CB.cds[a.id] || 0) > CB.gcd ? a.cd : 1.0;
+    const tot = (CB.cds[a.id] || 0) > CB.gcd ? a.cd : 1.5;
     const s = slots[i];
     s.style.setProperty('--cd', cd > 0 ? `${(cd / tot) * 360}deg` : '0deg');
     s.classList.toggle('poor', P.ep < a.cost && P.lvl >= a.lvl);
@@ -810,3 +830,18 @@ async function chooseClass(afterDeath) {
   await me(`Je bent een ${CLASSES[CLASS_KEYS[k]].name}. Gebruik je abilities met 1 tot en met 5. Klik op een vijand of druk Tab om hem te kiezen.`);
   G.busy = false;
 }
+
+// ---------- rechtsboven: al je openstaande taken ----------
+// (vervangt het geld-en-schuldvenster; geld en online staan nu in het spelerframe)
+updateHud = function () {
+  const show = G.S && G.mode === 'map' && $('#menu').hidden && $('#panel').hidden && $('#casino').hidden && $('#loot').hidden;
+  const el = $('#hud');
+  if (!show) { if (!el.hidden) el.hidden = true; return; }
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const open = Object.keys(QUESTS).filter((id) => { const st = G.S.quests[id]; return st && st < QUESTS[id].done; });
+  const html = `<div class="th">Taken${open.length ? ` (${open.length})` : ''}</div>` + (open.length
+    ? open.slice(0, 6).map((id) => `<div class="tq"><b>${esc(QUESTS[id].name)}</b><small>${esc(stepText(QUESTS[id], G.S.quests[id]))}</small></div>`).join('')
+    : '<div class="tq"><small>Geen openstaande taken. Praat eens met iemand.</small></div>');
+  if (html !== el.dataset.h) { el.dataset.h = html; el.innerHTML = html; }
+  if (el.hidden) el.hidden = false;
+};

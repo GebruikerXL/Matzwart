@@ -49,6 +49,8 @@ const E3 = {
     for (const n of NPCS.filter((n) => n.map === id)) { const g = buildFigure(n.look); this.figs[n.id] = g; this.scene.add(g); }
     for (const l of this.lights) l.intensity = 0;
     this.lightT = 0;
+    // huizen met vijanden
+    if (m.foes && foesReady(id)) CB.spawnIndoor(m);
     this.vaperTimer = 2;
   },
   w(v) { return v * this.S; },
@@ -58,10 +60,11 @@ const E3 = {
   // hoe hoog is de bovenkant van deze tegel? Infinity = muur
   standH(tx, ty) {
     const m = G.map;
-    if (roofAt(m, tx, ty)) return FLAT_H;
+    const rb = roofAt(m, tx, ty);
+    if (rb) return roofTop(rb);
     const t = tileAt(m, tx, ty);
     let solid = false, climb = null;
-    for (const p of m.props) if (p.x === tx && p.y === ty) { if (CLIMB_H[p.name] != null) climb = CLIMB_H[p.name]; else if (p.solid) solid = true; }
+    for (const p of m.props) if (p.x === tx && p.y === ty) { const h = climbH(p); if (h != null) climb = h; else if (p.solid) solid = true; }
     if (climb != null) return groundH(m, tx, ty) + climb;
     if (t === 'hedge' && !m.inside) return 1.2;
     if (!(TILE_DEF[t] || {}).walk || solid || G.npcAt(tx, ty)) return Infinity;
@@ -225,7 +228,7 @@ const E3 = {
     if (this.world) for (const o of this.world.userData.props) {
       const p = o.userData.prop;
       if (Math.abs((o.userData.baseY || 0) - this.fy) > 2.2) continue;
-      if (p.id && PROPS[p.id] && !(PROP_HIDE[p.id] && PROP_HIDE[p.id]())) list.push([p.x + 0.5, p.y + 0.5, p.name === 'schip' || p.name === 'kraan' ? 5 : 3.0, 'prop', o, p.name === 'bank' ? 'Gaan zitten' : p.name === 'paashaas' ? 'Oppakken' : 'Bekijken', 1.5]);
+      if (p.id && PROPS[p.id] && !(PROP_HIDE[p.id] && PROP_HIDE[p.id]())) list.push([p.x + 0.5, p.y + 0.5, p.name === 'schip' || p.name === 'kraan' ? 5 : 3.0, 'prop', o, p.name === 'bank' ? 'Gaan zitten' : p.name === 'paashaas' || p.name === 'dakbuit' ? 'Oppakken' : 'Bekijken', 1.5]);
     }
     for (const p of Online.others()) if (p.presence.m === G.map.id) { const q = this.peerPos(p); list.push([q.x, q.z, 3, 'peer', p, `${String(p.presence.n).slice(0, 16)}: ruilen of zwaaien`]); }
     this.target = this.aim(list, 0.65);

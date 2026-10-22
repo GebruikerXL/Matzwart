@@ -23,6 +23,10 @@ const groundH = (m, tx, ty) => GROUND_H[tileAt(m, tx, ty)] || 0;
 const CLIMB_H = { kliko: 1.03, kratten: 1.8, kist: 2.6, steiger: 3.4, container: 1.34, hay: 0.9, biervat: 0.9, emmer: 0.35, doos: 0.5, sokkel: 0.25 };
 const FLAT_H = 3.85;
 const roofAt = (m, tx, ty) => m.buildings.find((b) => b.flat && tx >= b.x && tx < b.x + b.w && ty >= b.y && ty < b.y + b.h);
+// hoogte van een plat dak: winkels zijn hoger dan het dorpshuis
+const roofTop = (b) => b.roofH || (b.kind === 'shop' || b.kind === 'casino' ? 4.55 : FLAT_H);
+// klimhoogte van decor: vaste waarde per soort, of eigen hoogte (klimstapels)
+const climbH = (p) => (p.h != null ? p.h : CLIMB_H[p.name]);
 
 // ramen die 's avonds gloeien: dezelfde tekening, maar alleen het glas
 const GLASS = new Set(['154,180,208', '94,127,166', '247,220,138']);
@@ -354,7 +358,9 @@ function buildWorld(m) {
         obj.position.set(c(p.x), Math.min(1.8, ceilH(m) - 0.6), (p.y + 1) * S + 0.03);
       }
     } else {
-      const base = roofAt(m, p.x, p.y) ? FLAT_H : groundH(m, p.x, p.y);
+      const rb = roofAt(m, p.x, p.y);
+      const under = m.props.find((q) => q !== p && q.x === p.x && q.y === p.y && climbH(q) != null && climbH(p) == null);
+      const base = rb ? roofTop(rb) : groundH(m, p.x, p.y) + (under ? climbH(under) : 0);
       obj = propModel(p);
       if (obj && p.name === 'lamp' && !m.inside) {
         // 's avonds: gloed om de lamp en een lichtkring op de straat

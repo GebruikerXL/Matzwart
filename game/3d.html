@@ -268,7 +268,14 @@ body {
 .ab .a { background: #6a2b14; border-color: #a4462a; }
 button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { #dialog .more { animation: none; } #fade { transition: none; } }
-#game #hud { left: auto; right: 2%; min-width: 22%; }
+#game #hud { left: auto; right: 2%; min-width: 0; width: 32%; max-width: 32%; font-size: 1.9cqw; padding: 0.8cqw 1.4cqw; }
+#hud .th { font-family: var(--font-title); color: var(--gold); font-size: 1.9cqw; margin-bottom: 0.4cqw; }
+#hud .tq { margin-bottom: 0.6cqw; }
+#hud .tq b { display: block; font-weight: 600; font-size: 1.8cqw; }
+#hud .tq small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--muted); font-size: 1.55cqw; line-height: 1.25; }
+.uframe .cash b { display: block; color: var(--gold); font-weight: 600; font-size: 1.7cqw; margin-top: 0.3cqw; }
+.uframe .cash small { display: block; color: var(--muted); font-size: 1.4cqw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#loot .lrow.close span { color: var(--muted); }
 #title h1 .hc { display: block; color: #e8433a; font-size: 0.55em; letter-spacing: 0.25em; text-shadow: 0.3cqw 0.3cqw 0 #000, 0 0 2cqw rgba(232,67,58,.6); }
 #title .perma { margin-top: 1.2cqw; color: #ff6a5a; font-family: var(--font-title); font-size: 2.6cqw; text-align: center; text-shadow: 0.25cqw 0.25cqw 0 #000; }
 #title .perma small { display: block; font-family: var(--font-ui); font-size: 1.9cqw; color: var(--ink); max-width: 70cqw; margin: 0.4cqw auto 0; }
@@ -285,7 +292,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
   <div id="haze" class="ui" aria-hidden="true"></div>
   <div id="flash" class="ui" aria-hidden="true"></div>
   <div id="hurt" class="ui" aria-hidden="true"></div>
-  <div id="pframe" class="ui win uframe" hidden><div class="top"><span class="nm"></span><span class="lv"></span></div><div class="ubar hp"><i></i><span></span></div><div class="ubar ed"><i></i><span></span></div><div class="bf"></div></div>
+  <div id="pframe" class="ui win uframe" hidden><div class="top"><span class="nm"></span><span class="lv"></span></div><div class="ubar hp"><i></i><span></span></div><div class="ubar ed"><i></i><span></span></div><div class="bf"></div><div class="cash"></div></div>
   <div id="tframe" class="ui win uframe" hidden><div class="top"><span class="nm"></span><span class="lv"></span></div><div class="ubar hp"><i></i><span></span></div><div class="bf"></div></div>
   <div id="xpbar" class="ui" hidden><i></i></div>
   <div id="atip" class="ui win" hidden></div>
@@ -353,6 +360,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js/delfzijl.js"></script>
 <script src="js/story3.js"></script>
 <script src="js/hardcore.js"></script>
+<script src="js/houses.js"></script>
 <script src="js/trade.js"></script>
 <script src="js/online.js"></script>
 <script src="js/main.js"></script>
@@ -365,3 +373,4 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js3d/pvp3d.js"></script>
 <script src="js3d/engine3d.js"></script>
 <script src="js3d/ride3d.js"></script>
+<script src="js3d/puzzles3d.js"></script>

@@ -145,6 +145,19 @@ const PROP3D = {
     for (const x of [-0.5, 0.5]) { const u = M3.cyl(g, 0.08, 0.08, 0.3, '#666', x, 0.3, -3.05, 8); u.rotation.x = Math.PI / 2; }
   },
   autoR() {},
+  // spullen in huizen
+  koelkast(g) { M3.b(g, 0.75, 1.85, 0.7, '#e8e6e0', 0, 0.92, 0); M3.b(g, 0.76, 0.02, 0.71, '#b8b6b0', 0, 1.25, 0); M3.b(g, 0.04, 0.3, 0.04, '#888', 0.3, 1.5, 0.37); M3.b(g, 0.04, 0.4, 0.04, '#888', 0.3, 0.9, 0.37); M3.b(g, 0.14, 0.1, 0.01, '#e8433a', -0.15, 1.0, 0.36); },
+  dressoir(g) { M3.b(g, 1.3, 0.85, 0.5, '#8c5a32', 0, 0.42, 0); for (const y of [0.25, 0.6]) { M3.b(g, 1.2, 0.3, 0.02, '#6e4424', 0, y, 0.26); M3.b(g, 0.12, 0.04, 0.03, '#f2c22e', 0, y, 0.28); } M3.cyl(g, 0.1, 0.08, 0.2, '#e8e6e0', -0.4, 0.95, 0); M3.b(g, 0.25, 0.25, 0.25, '#3a8a3a', -0.4, 1.15, 0); },
+  kluis(g) { M3.b(g, 0.7, 0.8, 0.6, '#5a5a62', 0, 0.4, 0); M3.b(g, 0.6, 0.7, 0.02, '#6e6e78', 0, 0.4, 0.31); const d = M3.cyl(g, 0.1, 0.1, 0.04, '#3a3a44', 0, 0.45, 0.33, 12); d.rotation.x = Math.PI / 2; M3.b(g, 0.08, 0.06, 0.01, '#f2c22e', 0.15, 0.6, 0.33); },
+  tas(g) { M3.b(g, 0.8, 0.35, 0.4, '#2a4a9a', 0, 0.18, 0); M3.b(g, 0.82, 0.05, 0.41, '#f4f1ea', 0, 0.22, 0); M3.b(g, 0.3, 0.06, 0.06, '#1b1b1b', 0, 0.42, 0); },
+  // klimstapels voor de jump puzzles: hoogte uit het decor zelf (p.h)
+  stapel(g, p) { const h = p.h || 1; let y = 0, i = 0; while (y < h - 0.01) { const s = Math.min(0.45, h - y); M3.b(g, 1.5 - (i % 2) * 0.1, s, 1.5 - (i % 2) * 0.1, i % 2 ? '#a8784a' : '#8c5a32', (i % 3 - 1) * 0.08, y + s / 2, 0); M3.b(g, 1.52, 0.04, 1.52, '#5a3720', 0, y + s - 0.02, 0); y += s; i++; } },
+  cstapel(g, p) { const h = p.h || 1; const cols = ['#c23b2e', '#2e6aa6', '#2e8a5a', '#e0b030', '#e8833a']; let y = 0, i = 0; while (y < h - 0.01) { const s = Math.min(0.9, h - y); M3.b(g, 1.9, s, 1.9, cols[(i + Math.round(h * 3)) % cols.length], 0, y + s / 2, 0); for (const x of [-0.6, 0, 0.6]) M3.b(g, 0.06, s * 0.9, 1.92, '#1b1b20', x, y + s / 2, 0); y += s; i++; } },
+  hooi(g, p) { const h = p.h || 1; let y = 0, i = 0; while (y < h - 0.01) { const s = Math.min(0.5, h - y); M3.b(g, 1.6, s, 1.2, i % 2 ? '#d9b24e' : '#c8a040', 0, y + s / 2, (i % 2) * 0.1); y += s; i++; } },
+  dakbuit(g) {
+    M3.b(g, 0.7, 0.45, 0.5, '#8c5a32', 0, 0.22, 0); M3.b(g, 0.72, 0.08, 0.52, '#f2c22e', 0, 0.42, 0); M3.b(g, 0.1, 0.12, 0.04, '#f2c22e', 0, 0.3, 0.26);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: W3.tex(PUFF_CANVAS), color: 0xfff0a0, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); s.scale.set(1.6, 1.6, 1); s.position.y = 0.4; g.add(s);
+  },
   // de jump puzzle achter het dorpshuis
   kratten(g) { for (let i = 0; i < 6; i++) { const y = 0.15 + i * 0.3; M3.b(g, 1.3, 0.3, 1.3, i % 2 ? '#e8b030' : '#d89a20', (i % 2) * 0.06, y, 0); M3.b(g, 1.32, 0.06, 1.32, '#a86a10', (i % 2) * 0.06, y + 0.1, 0); } },
   kist(g) { M3.b(g, 1.6, 1.3, 1.5, '#8c5a32', 0, 0.65, 0); M3.b(g, 1.4, 1.3, 1.3, '#a8784a', 0.05, 1.95, 0.05); for (const y of [0.3, 1.0, 1.6, 2.3]) M3.b(g, 1.62, 0.08, 1.52, '#5a3720', 0, y, 0); },

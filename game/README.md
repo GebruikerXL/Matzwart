@@ -91,6 +91,14 @@ Buiten hangt zoveel vapedamp dat je maar zo'n 20 meter ver kijkt (in Delfzijl no
 - **De kleedkamers** naast het voetbalveld (het sportpark is naar het oosten groter geworden) zitten vol hooligans: drie golven, met als laatste de Kapo. Win je, dan krijg je EUR 150. Na drie minuten zijn ze terug.
 - Vijanden in het hoge gras komen vanzelf terug, buiten je zicht.
 
+## Daken, huizen en taken
+
+- **Jump puzzles**: zes daken met iets erop. Het dorpshuis (Paashaasoren), de EKA (bierkratten achter de supermarkt), de kleedkamers (hooibalen), een containertoren op de kade in Delfzijl, Delfzicht (hooibalen in het hoge gras) en de Sassenpoort in Zwolle (EUR 1000, maar wel in de wildernis). De voortgang staat bij je taken onder "Op het dak".
+- **Spullen in huizen**: koelkasten, laatjes, kluizen en sporttassen in bijna elk huis. Na tien minuten ligt er weer iets nieuws.
+- **Huizen met vijanden**: de krakpanden in Delfzijl (de deuren die eerst op slot zaten), twee huizen in Zwolle en het klaslokaal (vapende tieners). Na drie minuten zijn ze terug.
+- **Taken**: rechtsboven staan al je openstaande taken met de volgende stap. Je geld, schuld en online-status staan nu in je eigen frame linksboven.
+- **Vechttempo**: gevechten duren langer. Een gewone vaper kost zo'n 8 tot 10 seconden, en vijanden raken je minder hard en minder vaak. Tussen abilities zit 1,5 seconde, net als in WoW.
+
 ## Ranglijst
 
 Menu → Ranglijst toont alle spelers op volgorde van level (bij gelijk level: wie de meeste XP heeft). De lijst komt uit het logboek van het spel; de 2D- en de 3D-versie hebben elk hun eigen ranglijst.
@@ -113,10 +121,12 @@ Menu → Ranglijst toont alle spelers op volgorde van level (bij gelijk level: w
 - `js/delfzijl.js`: de kaart van Delfzijl en de binnenruimtes daar
 - `js/story3.js`: personages, vijanden, buit en de opdracht in Delfzijl, Daniël en zijn butler
 - `js/hardcore.js`: permadeath, Delfzicht, Zwolle, Koen, de fatbike, de kleedkamer en de hooligans
+- `js/houses.js`: spullen in huizen, krakpanden en huizen met vijanden
 - `js/main.js`: engine (lopen, camera, menu, automatisch opslaan)
 - `js3d/world3d.js`: bouwt de 3D-wereld uit een kaart (gebouwen, molen, paleis)
 - `js3d/props3d.js`: 3D-modellen voor al het decor
 - `js3d/pvp3d.js`: spullen op de grond, PvP in Zwolle en de fatbike (via presence)
 - `js3d/ride3d.js`: de rit met Koen over de A28
+- `js3d/puzzles3d.js`: de jump puzzles naar de daken
 - `js3d/combat3d.js`: realtime vechten: classes, abilities, doelwit, buit, speler- en doelwitframe
 - `js3d/figures3d.js`, `sky3d.js`, `hotbar3d.js`, `engine3d.js`: poppetjes, lucht, icoontjes en de 3D-engine (lopen, springen, licht)
