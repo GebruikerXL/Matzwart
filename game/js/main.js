@@ -57,11 +57,8 @@ const G = {
     await UI.fade(true);
     this.mode = 'map';
     if (r === 'lose' && !opts.noWake) {
-      this.P.hp = this.P.maxHp; this.P.ep = this.P.maxEp;
-      const lost = Math.floor(this.P.money / 2); this.P.money -= lost;
-      this.loadMap('schuur', 3, 5, 'down');
-      await UI.fade(false);
-      await UI.say('', `Je wordt wakker in de schuur. Alweer.${lost ? ` Je mist EUR ${lost}.` : ''}`);
+      // HARDCORE: permadeath
+      await hardcoreDeath(`${ENEMIES[id].name} heeft je verslagen. Alles wordt zwart.`);
     } else {
       if (r === 'lose') { this.P.hp = Math.max(1, Math.round(this.P.maxHp * 0.3)); }
       await UI.fade(false);
@@ -133,13 +130,6 @@ const G = {
     const [dx, dy] = DIRS[dir];
     const nx = pl.x + dx, ny = pl.y + dy;
     if (!this.free(nx, ny)) return;
-    // waarschuwing vlak voordat je het hoge gras in stapt
-    if (this.map.encounters && this.flags.intro && tileAt(this.map, nx, ny) === 'tall' && tileAt(this.map, pl.x, pl.y) !== 'tall' && this.time - (this.vapeWarn || -99) > 45) {
-      this.vapeWarn = this.time;
-      this.busy = true;
-      UI.say('', 'Je ruikt een sterke vape-lucht. Kijk uit, er kunnen vapende tieners in het gras zitten!').then(() => { this.busy = false; });
-      return;
-    }
     pl.fx = pl.x; pl.fy = pl.y; pl.x = nx; pl.y = ny; pl.moving = true; pl.t = 0;
     pl.anim = (pl.anim + 1) % 2;
   },
@@ -372,7 +362,7 @@ const G = {
           <div class="row"><span class="lbl">Toestand</span><span>Brak</span></div>`;
         panel.hidden = false; await waitKey(); panel.hidden = true;
       } else if (k === 3) {
-        UI.toast(this.save() ? 'Opgeslagen' : 'Opslaan lukt niet in deze browser');
+        UI.toast(this.save() ? 'Opgeslagen. Dat gaat ook vanzelf, elke 15 seconden.' : 'Opslaan lukt niet in deze browser');
       } else if (k === 4) {
         SFX.on = !SFX.on;
       } else break;
@@ -478,10 +468,12 @@ document.querySelectorAll('#pad .pbtn').forEach((b) => {
 }
 
 // ---------- lus ----------
-let last = performance.now();
+let last = performance.now(), lastSave = performance.now();
 function loop(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   if (G.mode === 'map') { G.update(dt); Online.tick(); } else G.time += dt;
+  // automatisch opslaan: de speler hoeft nooit zelf op te slaan
+  if (G.S && G.mode === 'map' && now - lastSave > 15000) { lastSave = now; G.save(); }
   G.render();
   Online.sync();
   updateHud();
@@ -490,6 +482,9 @@ function loop(now) {
 
 function start(data) {
   requestAnimationFrame(loop);
+  const saveNow = () => { if (G.S && (G.mode === 'map' || G.mode === 'battle')) G.save(); };
+  addEventListener('pagehide', saveNow);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) saveNow(); });
   Online.init();
   Logbook.init();
   if (data && data.S) { G.begin(data.S, false); return; }

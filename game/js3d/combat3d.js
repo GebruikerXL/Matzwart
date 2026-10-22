@@ -125,6 +125,7 @@ const CB = {
     return mob;
   },
   paintPlate(mob) {
+    if (!mob.plate) return;
     const tex = mob.plate.material.map, c = tex.image, x = c.getContext('2d');
     x.clearRect(0, 0, 128, 28);
     x.font = '12px Silkscreen, monospace'; x.textAlign = 'center'; x.textBaseline = 'top';
@@ -140,10 +141,12 @@ const CB = {
     const m = G.map;
     if (!m.encounters || !G.flags.intro) return;
     const pool = m.pool || RANDOM_POOL;
-    const want = m.id === 'delfzijl' ? 6 : m.id === 'dorp' ? 4 : 3;
+    const want = m.id === 'delfzijl' || m.pvp ? 7 : m.id === 'dorp' ? 5 : 4;
     E3.vaperTimer -= dt;
-    if (this.mobs.filter((v) => !v.story && v.state !== 'dead').length < want && E3.vaperTimer <= 0) {
-      E3.vaperTimer = m.id === 'delfzijl' ? 15 : 25;
+    // vijanden komen vanzelf terug in het gras, buiten je zicht
+    const alive = this.mobs.filter((v) => !v.story && !v.brawl && v.state !== 'dead').length;
+    if (alive < want && E3.vaperTimer <= 0) {
+      E3.vaperTimer = alive < want - 2 ? 1 : m.id === 'delfzijl' || m.pvp ? 4 : 6;
       const tall = [];
       for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) if (m.tiles[y][x] === 'tall' && E3.w(Math.hypot(x + 0.5 - E3.pos.x, y + 0.5 - E3.pos.z)) > 24) tall.push([x, y]);
       if (tall.length) {
@@ -159,6 +162,7 @@ const CB = {
     for (const n of this.neven) E3.scene.remove(n.g);
     this.mobs = []; this.shots = []; this.fx = []; this.neven = []; this.setTarget(null);
     if (this.story) { const s = this.story; this.story = null; s.resolve('fled'); }
+    if (this.brawlP) { const b = this.brawlP; this.brawlP = null; b.resolve('fled'); }
     this.closeLoot();
   },
   mobFree(x, z) { const t = tileAt(G.map, Math.floor(x), Math.floor(z)); return (TILE_DEF[t] || {}).walk && !(G.propAt(Math.floor(x), Math.floor(z)) || {}).solid; },
@@ -258,8 +262,17 @@ const CB = {
     const crit = Math.random() < 0.1 + stoerNow(P) * 0.01;
     return { n: crit ? n * 1.6 : n, crit };
   },
+  // vijanden: rondlopers, en in de wildernis ook andere spelers
+  foes() { return this.mobs.concat(PV.targets()); },
   hurtMob(v, n, o = {}) {
     if (v.state === 'dead') return;
+    if (v.isPeer) {
+      const dmg = Math.max(1, Math.round(n));
+      PV.sendHit(v.peer, dmg);
+      this.floatText(o.crit ? `${dmg}!` : String(dmg), new THREE.Vector3(E3.w(v.x), 2.0, E3.w(v.z)), o.crit ? '#ffd25a' : '#ff8a7a', o.crit ? 1.5 : 1);
+      SFX.hit();
+      return;
+    }
     const dmg = Math.max(1, Math.round(n - (o.quiet ? 0 : v.def * 0.6)));
     v.hp -= dmg;
     this.floatText(o.crit ? `${dmg}!` : String(dmg), new THREE.Vector3(E3.w(v.x), (o.quiet ? 1.6 : 2.0) + Math.random() * 0.3, E3.w(v.z)), o.col || (o.crit ? '#ffd25a' : '#f4f1ea'), o.crit ? 1.5 : 1);
@@ -318,7 +331,7 @@ const CB = {
     const t = pick(v.E.moves || ['slaat je']);
     const knife = v.E.knife;
     v.g.userData.arms && (v.swingT = 0.3);
-    this.hurtMe(v.atk * (0.85 + Math.random() * 0.3), knife ? '#ff4a3a' : '#ff8a6a');
+    this.hurtMe(v.atk * (0.85 + Math.random() * 0.3), knife ? '#ff4a3a' : '#ff8a6a', `${v.name} heeft je ${knife ? 'neergestoken' : 'neergeslagen'}.`);
     if (v.E.inflict && Math.random() < v.E.inflict.ch * 0.5) { this.buffs.misselijk = 5; UI.toast(v.E.inflict.t, 2000); }
     if (Math.random() < 0.15) UI.toast(`${v.name} ${t}.`, 1800);
   },
@@ -328,13 +341,14 @@ const CB = {
     const k = v.E.cloudScale || 1;
     for (let i = 0; i < 3; i++) E3.puff(new THREE.Color(v.E.cloud || '#ffffff').getHex(), 4, from.clone(), { size: 0.5 * k, up: 0.3, life: 2.5, grow: 3 });
     if (this.dist(v) < 6) {
-      this.hurtMe(v.atk * 0.4, '#b8f070');
+      this.hurtMe(v.atk * 0.4, '#b8f070', `${v.name} heeft je weggeblazen.`);
       this.buffs.misselijk = Math.max(this.buffs.misselijk || 0, 3);
       const hz = $('#haze'); hz.classList.remove('on'); void hz.offsetWidth; hz.classList.add('on');
     }
   },
-  hurtMe(n, col) {
-    if (this.buffs.immune > 0 || G.mode !== 'map') return;
+  hurtMe(n, col, cause) {
+    if (this.buffs.immune > 0 || G.mode !== 'map' || this.dying) return;
+    PV.dismount();
     const cls = this.clsKey();
     const red = cls === 'havenwerker' ? 0.75 : cls === 'voetballer' ? 0.85 : 1;
     const dmg = Math.max(1, Math.round((n - this.def() * 0.5) * red));
@@ -343,34 +357,29 @@ const CB = {
     this.combatT = 0;
     E3.hurtT = 0.35;
     this.floatText(`-${dmg}`, E3.eyePos().add(E3.forward().multiplyScalar(2.6)).add(new THREE.Vector3(0, -0.7, 0)), col || '#ff6a5a', 0.6);
-    if (P.hp <= 0) this.die();
+    if (P.hp <= 0) this.die(cause, !!cause && G.map.pvp);
   },
-  async die() {
+  // HARDCORE: doodgaan is permadeath. Je spullen blijven liggen, je wordt wakker in Delfzicht op level 1.
+  async die(cause, byPlayer) {
     if (this.dying) return;
     this.dying = true;
     SFX.lose();
     for (const v of this.mobs) if (v.state === 'chase') { v.state = 'return'; this.paintPlate(v); }
     this.setTarget(null);
+    PV.dismount();
+    if (byPlayer && this.lastAttacker) PV.killedBy = { to: this.lastAttacker, s: Date.now() };
+    const story = this.story; this.story = null;
+    const brawl = this.brawlP; this.brawlP = null;
+    if (story) { for (const v of this.mobs.filter((m) => m.story)) E3.scene.remove(v.g); this.mobs = this.mobs.filter((m) => !m.story); E3.hideNpc = null; }
+    this.closeLoot();
     G.busy = true;
-    await UI.fade(true);
-    if (this.story) {
-      // een verhaalgevecht verloren: dat handelt G.fight af
-      const s = this.story; this.story = null;
-      for (const v of this.mobs.filter((m) => m.story)) E3.scene.remove(v.g);
-      this.mobs = this.mobs.filter((m) => !m.story);
-      E3.hideNpc = null;
-      this.dying = false;
-      s.resolve('lose');
-      return;
-    }
-    const P = G.P;
-    P.hp = P.maxHp; P.ep = P.maxEp;
-    const lost = Math.floor(P.money / 2); P.money -= lost;
-    G.loadMap('schuur', 3, 5, 'down');
-    await UI.fade(false);
-    await UI.say('', `Alles wordt zwart… Je wordt wakker in de schuur. Alweer.${lost ? ` Je mist EUR ${lost}.` : ''}`);
-    G.busy = false;
+    await hardcoreDeath(cause || 'Je gaat neer. Alles wordt zwart.');
+    this.buffs = {}; this.cds = {};
     this.dying = false;
+    if (story) story.resolve('lose');
+    if (brawl) brawl.resolve('lose');
+    _abarKey = '';
+    await chooseClass(true);
   },
 
   // ---------- abilities gebruiken ----------
@@ -396,6 +405,7 @@ const CB = {
       if (this.facing(t) > 1.6) { this.err('Je moet je doelwit aankijken'); return; }
     }
     if (E3.seat) E3.standUp();
+    PV.dismount();
     G.P.ep -= a.cost;
     this.gcd = 1.0;
     if (a.cd) this.cds[a.id] = a.cd;
@@ -413,13 +423,13 @@ const CB = {
   },
   autoTarget(range) {
     let best = null;
-    for (const v of this.mobs) if (v.state !== 'dead' && this.dist(v) <= range && this.facing(v) < 0.8) { const s = this.dist(v) + this.facing(v) * 8; if (!best || s < best.s) best = { v, s }; }
+    for (const v of this.foes()) if (v.state !== 'dead' && this.dist(v) <= range && this.facing(v) < 0.8) { const s = this.dist(v) + this.facing(v) * 8; if (!best || s < best.s) best = { v, s }; }
     if (best) this.setTarget(best.v);
     return best && best.v;
   },
   hitT(t, a, extra = 1) { const p = this.power(a.k * extra); this.hurtMob(t, p.n, { crit: p.crit }); return p; },
-  around(cx, cz, r) { return this.mobs.filter((v) => v.state !== 'dead' && E3.w(Math.hypot(v.x - cx, v.z - cz)) <= r); },
-  inCone(range) { return this.mobs.filter((v) => v.state !== 'dead' && this.dist(v) <= range && this.facing(v) < 0.6); },
+  around(cx, cz, r) { return this.foes().filter((v) => v.state !== 'dead' && E3.w(Math.hypot(v.x - cx, v.z - cz)) <= r); },
+  inCone(range) { return this.foes().filter((v) => v.state !== 'dead' && this.dist(v) <= range && this.facing(v) < 0.6); },
   effect(a, t) {
     const me = E3.eyePos(), P = G.P;
     const hand = me.clone().add(E3.forward().multiplyScalar(0.5)).add(new THREE.Vector3(0, -0.35, 0));
@@ -457,7 +467,7 @@ const CB = {
       case 'storm': { for (const v of this.inCone(a.aoe)) { this.hitT(v, a); if (v.state !== 'dead') this.knock(v, 3); } this.wave(); break; }
     }
   },
-  facingMob(v) { const fx = Math.sin(v.g.rotation.y), fz = Math.cos(v.g.rotation.y), dx = E3.pos.x - v.x, dz = E3.pos.z - v.z, d = Math.hypot(dx, dz) || 1; return Math.acos(Math.max(-1, Math.min(1, (dx * fx + dz * fz) / d))); },
+  facingMob(v) { if (!v.g) return 0; const fx = Math.sin(v.g.rotation.y), fz = Math.cos(v.g.rotation.y), dx = E3.pos.x - v.x, dz = E3.pos.z - v.z, d = Math.hypot(dx, dz) || 1; return Math.acos(Math.max(-1, Math.min(1, (dx * fx + dz * fz) / d))); },
   slide(t, a) {
     // naar het doelwit glijden, tot net ervoor
     const dx = t.x - E3.pos.x, dz = t.z - E3.pos.z, d = Math.hypot(dx, dz), stop = 1.4 / E3.S;
@@ -578,7 +588,7 @@ const CB = {
       this.ring = new THREE.Mesh(new THREE.RingGeometry(0.55, 0.7, 28), new THREE.MeshBasicMaterial({ color: '#ff3a2a', transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false }));
       this.ring.rotation.x = -Math.PI / 2;
     }
-    if (v) { v.g.add(this.ring); this.ring.position.set(0, 0.05, 0); this.paintPlate(v); }
+    if (v && v.g) { v.g.add(this.ring); this.ring.position.set(0, 0.05, 0); this.paintPlate(v); }
     else if (this.ring.parent) this.ring.parent.remove(this.ring);
     if (!v) this.autoOn = false;
     paintTargetFrame();
@@ -586,7 +596,7 @@ const CB = {
   // klik: wat ligt er onder het kruisje?
   pick() {
     let best = null;
-    for (const v of this.mobs) {
+    for (const v of this.foes()) {
       if (v.state === 'dead') continue;
       const d = this.dist(v); if (d > 40) continue;
       const head = new THREE.Vector3(E3.w(v.x), E3.ground(v.x, v.z) + 1.1, E3.w(v.z)).sub(E3.eyePos());
@@ -598,7 +608,7 @@ const CB = {
     return false;
   },
   tab() {
-    const list = this.mobs.filter((v) => v.state !== 'dead' && this.dist(v) < 30 && this.facing(v) < 1.3).sort((a, b) => this.dist(a) - this.dist(b));
+    const list = this.foes().filter((v) => v.state !== 'dead' && this.dist(v) < 30 && this.facing(v) < 1.3).sort((a, b) => this.dist(a) - this.dist(b));
     if (!list.length) { this.setTarget(null); return; }
     const i = list.indexOf(this.target);
     this.setTarget(list[(i + 1) % list.length]);
@@ -613,18 +623,21 @@ const CB = {
     this.gcd = Math.max(0, this.gcd - dt);
     for (const k of Object.keys(this.cds)) this.cds[k] = Math.max(0, this.cds[k] - dt);
     for (const k of Object.keys(this.buffs)) if (typeof this.buffs[k] === 'number') this.buffs[k] = Math.max(0, this.buffs[k] - dt);
+    PV.update();
     this.spawnVapers(dt);
     this.updateMobs(dt);
+    this.updateBrawl();
     this.updateNeven(dt);
     this.updateShots(dt);
     this.updateFx(dt);
+    if (this.target && this.target.isPeer && !PV.targets().includes(this.target)) this.setTarget(null);
     const fighting = this.inCombat();
     this.combatT = fighting ? 0 : this.combatT + dt;
     if (G.mode === 'map' && !this.dying) {
       // Energydrink en HP herstellen
       P.ep = Math.min(P.maxEp, P.ep + dt * (fighting ? 3 : 10));
       if (this.combatT > 5 && P.hp > 0) P.hp = Math.min(P.maxHp, P.hp + P.maxHp * 0.03 * dt);
-      if (this.buffs.misselijk > 0) { this.mTick = (this.mTick || 0) + dt; if (this.mTick > 1) { this.mTick = 0; this.hurtMe(2 + G.P.lvl * 0.5, '#b8f070'); } }
+      if (this.buffs.misselijk > 0) { this.mTick = (this.mTick || 0) + dt; if (this.mTick > 1) { this.mTick = 0; this.hurtMe(2 + G.P.lvl * 0.5, '#b8f070', 'Je was te misselijk. Je gaat neer.'); } }
       // vanzelf slaan als je dichtbij staat
       const t = this.target;
       this.swing = Math.max(0, this.swing - dt);
@@ -656,12 +669,13 @@ const CB = {
   lootName(l) { return l.kind === 'geld' ? `EUR ${l.n}` : l.kind === 'wapen' ? `${WEAPONS[l.id].name} (wapen)` : `${ITEMS[l.id].name}${l.n > 1 ? ' ×' + l.n : ''}`; },
   paintLoot() {
     const v = this.loot.mob, L = v.loot, el = $('#loot');
-    el.innerHTML = `<h3>${v.name}</h3><div class="lrows">${L.map((l, i) => `<div class="lrow${i === this.loot.sel ? ' sel' : ''}${l.rare || l.kind === 'wapen' || l.id === 'gouden_vape' ? ' rare' : ''}" data-i="${i}"><canvas width="12" height="12"></canvas><span>${this.lootName(l)}</span></div>`).join('')}<div class="lrow all${this.loot.sel >= L.length ? ' sel' : ''}" data-i="all"><span>Alles pakken</span></div></div><p class="lhint">Klik of Spatie om te pakken · Esc om te sluiten</p>`;
+    el.innerHTML = `<h3>${v.name}</h3><div class="lrows">${L.map((l, i) => `<div class="lrow${i === this.loot.sel ? ' sel' : ''}${l.rare || l.kind === 'wapen' || l.id === 'gouden_vape' ? ' rare' : ''}" data-i="${i}"><canvas width="12" height="12"></canvas><span>${this.lootName(l)}</span></div>`).join('')}<div class="lrow all${this.loot.sel >= L.length ? ' sel' : ''}" data-i="all"><span>Alles pakken</span></div></div><p class="lhint">${v.foreign ? 'Je raapt alles in één keer op (als niemand je voor is)' : 'Klik of Spatie om te pakken'} · Esc om te sluiten</p>`;
     el.querySelectorAll('.lrow canvas').forEach((c, i) => { const l = L[i]; const x = c.getContext('2d'); try { x.drawImage(l.kind === 'geld' ? aicon('zakken') : heldIcon(l.id), 0, 0, 12, 12); } catch (e) {} });
     el.onclick = (e) => { const r = e.target.closest('.lrow'); if (!r) return; if (r.dataset.i === 'all') this.takeAll(); else this.take(+r.dataset.i); };
   },
   take(i) {
     const v = this.loot.mob, l = v.loot[i]; if (!l) return;
+    if (v.foreign) { PV.claim(v.foreign); this.closeLoot(); return; }
     if (l.kind === 'geld') { G.P.money += l.n; SFX.tick(); UI.toast(`+EUR ${l.n}`, 1200); }
     else if (l.kind === 'wapen') giveWeapon(l.id);
     else G.give(l.id, l.n);
@@ -670,8 +684,29 @@ const CB = {
     this.loot.sel = Math.min(this.loot.sel, v.loot.length);
     this.paintLoot();
   },
-  takeAll() { const v = this.loot.mob; while (v.loot && v.loot.length && this.loot) this.take(0); },
+  takeAll() { const v = this.loot.mob; if (v.foreign) { this.take(0); return; } while (v.loot && v.loot.length && this.loot) this.take(0); },
   closeLoot() { if (!this.loot) return; this.loot = null; $('#loot').hidden = true; UI.focus = null; G.busy = false; },
+
+  // ---------- de kleedkamer: golven hooligans ----------
+  brawl(waves) {
+    G.busy = false; UI.focus = null;
+    SFX.battle();
+    return new Promise((resolve) => { this.brawlP = { waves: waves.slice(), mobs: [], resolve, n: 0 }; this.nextWave(); });
+  },
+  nextWave() {
+    const b = this.brawlP, ids = b.waves.shift();
+    const spots = [[5, 4], [13, 4], [9, 3], [3, 6], [15, 6], [7, 5], [11, 5]];
+    b.n += 1;
+    b.mobs = ids.map((id, i) => { const [x, z] = spots[(i + b.n * 2) % spots.length]; const v = this.makeMob(id, x + 0.5, z + 0.5); v.brawl = true; v.sx = x + 0.5; v.sz = z + 0.5; return v; });
+    for (const v of b.mobs) this.aggro(v);
+    UI.toast(b.waves.length ? `Golf ${b.n}: ${ids.length} hooligans!` : `De Kapo zelf komt eraan!`, 2000);
+  },
+  updateBrawl() {
+    const b = this.brawlP; if (!b) return;
+    if (!b.mobs.every((v) => v.state === 'dead')) { for (const v of b.mobs) if (v.state === 'return' || v.state === 'idle') this.aggro(v); return; }
+    if (b.waves.length) { this.nextWave(); return; }
+    this.brawlP = null; b.resolve('win');
+  },
 
   // ---------- verhaalgevechten (Puutje, de keeper, de Koning) ----------
   storyFight(id) {
@@ -730,7 +765,7 @@ function paintFrames() {
   pf.querySelector('.ed i').style.width = `${100 * P.ep / P.maxEp}%`;
   pf.querySelector('.ed span').textContent = `Energydrink ${Math.floor(P.ep)} / ${P.maxEp}`;
   const B = CB.buffs;
-  const buffs = [B.damp > 0 && 'Onzichtbaar', B.immune > 0 && 'Onkwetsbaar', B.speed > 0 && 'Scooter', B.moed > 0 && 'Dronken moed', B.misselijk > 0 && 'Misselijk', CB.neven.length && 'Neven'].filter(Boolean).join(' · ');
+  const buffs = [B.damp > 0 && 'Onzichtbaar', B.immune > 0 && 'Onkwetsbaar', B.speed > 0 && 'Scooter', B.moed > 0 && 'Dronken moed', B.misselijk > 0 && 'Misselijk', CB.neven.length && 'Neven', E3.mounted && 'Op de fatbike'].filter(Boolean).join(' · ');
   const bf = pf.querySelector('.bf'); if (bf.textContent !== buffs) bf.textContent = buffs;
   $('#xpbar i').style.width = `${100 * P.xp / P.next}%`;
   paintTargetFrame();
@@ -765,9 +800,9 @@ function paintTargetFrame() {
 function flashSlot(i) { const s = $('#abar').children[i]; if (!s) return; s.classList.remove('hit'); void s.offsetWidth; s.classList.add('hit'); }
 
 // ---------- class kiezen voor een bestaand personage ----------
-async function chooseClass() {
+async function chooseClass(afterDeath) {
   G.busy = true;
-  await me('Je hoofd bonkt. Maar wacht… je weet ineens weer wat voor type je bent.');
+  await me(afterDeath ? 'Je begint opnieuw. Misschien ben je dit keer wel een ander type.' : 'Je hoofd bonkt. Maar wacht… je weet ineens weer wat voor type je bent.');
   const k = await ask('', 'Wat voor type ben jij?', CLASS_KEYS.map((key) => `${CLASSES[key].name}: ${CLASSES[key].desc}`));
   G.S.ap.cl = k;
   G.P.ep = G.P.maxEp;

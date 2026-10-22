@@ -1,4 +1,4 @@
-# Brak in Meedhuizen
+# HARDCORE Brak in Meedhuizen
 
 Een klein RPG in RPG Maker-stijl dat in de browser draait. Je wordt na een avond stappen wakker in de schuur van boer Jansen in Meedhuizen en weet je eigen naam niet meer.
 
@@ -11,7 +11,11 @@ Open `index.html` in een browser. Er is geen server of build-stap nodig.
 - Menu / terug: Esc of X
 - Op een telefoon verschijnt een D-pad met A/B-knoppen.
 
-Opslaan kan via het menu of op het bankje aan de Dorpsstraat (dat vult ook je HP en EP aan).
+Het spel slaat automatisch op (elke 15 seconden, en meteen als je doodgaat of het tabblad sluit). Op een bankje gaan zitten vult je HP en EP aan.
+
+## HARDCORE: permadeath
+
+Ga je dood, dan ben je je geld, spullen, kleren en wapens kwijt (alleen spullen die je voor het verhaal nodig hebt houd je). Je wordt wakker in Delfzicht, het ziekenhuis van Delfzijl, op level 1. In 3D kies je dan opnieuw een class, en blijft alles wat je bij je had liggen op de plek waar je viel: jij of iemand anders kan het oprapen (15 minuten lang, zolang jij online bent). Terugladen kan niet: het spel is dan al opgeslagen.
 
 ## Opdrachten
 
@@ -34,7 +38,7 @@ Op elk bankje kun je gaan zitten: dat vult je HP en EP en je kunt opslaan.
 
 ## Gevechten
 
-Turn-based: Aanvallen, Skills (kosten EP), Praten, Spullen en Vluchten. Sigaretten uit de EKA kosten HP maar geven Stoerheid, waarmee je bij Praten kunt intimideren. Met Praten vul je de Rust-meter van je tegenstander. Bij 100% laat hij je gaan, en dan krijg je extra geld. In het hoge gras zitten vapende tieners (je wordt gewaarschuwd voordat je erin stapt). Versla je er een, dan volgt een quick time event: druk 3 keer op het goede moment en je jat zijn vape plus EUR 18. Aron van der Wal koopt vapes voor EUR 100.
+Turn-based: Aanvallen, Skills (kosten EP), Praten, Spullen en Vluchten. Sigaretten uit de EKA kosten HP maar geven Stoerheid, waarmee je bij Praten kunt intimideren. Met Praten vul je de Rust-meter van je tegenstander. Bij 100% laat hij je gaan, en dan krijg je extra geld. In het hoge gras zitten vapende tieners. Versla je er een, dan volgt een quick time event: druk 3 keer op het goede moment en je jat zijn vape plus EUR 18. Aron van der Wal koopt vapes voor EUR 100.
 
 ## Wapens
 
@@ -80,6 +84,13 @@ Met Spatie spring je. Achter het dorpshuis kun je via een kliko, bierkratten, ee
 
 Buiten hangt zoveel vapedamp dat je maar zo'n 20 meter ver kijkt (in Delfzijl nog minder). 's Avonds gaan de lantaarnpalen aan: lichtkringen op straat, en de ramen van de huizen gloeien.
 
+## Zwolle, de fatbike en de kleedkamer
+
+- **Koen** staat op de parkeerplaats van de EKA naast zijn felgroene auto. Hij rijdt je naar Zwolle, maar waarschuwt eerst: Zwolle is wildernis. In 3D is de rit een cutscene van 15 seconden over de A28: Koen rijdt 200, slingert tussen de auto's door, en je pakt een handpistool uit het dashboardkastje om op andere auto's te schieten (EUR 15 per geraakte auto). In Zwolle (Stadsgracht, Peperbus, Grote Kerk, Sassenpoort) mogen spelers elkaar aanvallen: kies een andere speler met Tab of klikken. Wie doodgaat, laat alles vallen. Koen rijdt je ook weer terug.
+- **Otto** in het dorpshuis verkoopt vanaf level 10 een fatbike voor EUR 10.000. In 3D stap je op en af met R: je gaat 100% sneller. Een ability gebruiken of geraakt worden laat je afstappen.
+- **De kleedkamers** naast het voetbalveld (het sportpark is naar het oosten groter geworden) zitten vol hooligans: drie golven, met als laatste de Kapo. Win je, dan krijg je EUR 150. Na drie minuten zijn ze terug.
+- Vijanden in het hoge gras komen vanzelf terug, buiten je zicht.
+
 ## Ranglijst
 
 Menu → Ranglijst toont alle spelers op volgorde van level (bij gelijk level: wie de meeste XP heeft). De lijst komt uit het logboek van het spel; de 2D- en de 3D-versie hebben elk hun eigen ranglijst.
@@ -101,8 +112,11 @@ Menu → Ranglijst toont alle spelers op volgorde van level (bij gelijk level: w
 - `js/world2.js`: het uitgebreide Meedhuizen, alle huizen van binnen en het paleis van Daniël
 - `js/delfzijl.js`: de kaart van Delfzijl en de binnenruimtes daar
 - `js/story3.js`: personages, vijanden, buit en de opdracht in Delfzijl, Daniël en zijn butler
-- `js/main.js`: engine (lopen, camera, menu, opslaan)
+- `js/hardcore.js`: permadeath, Delfzicht, Zwolle, Koen, de fatbike, de kleedkamer en de hooligans
+- `js/main.js`: engine (lopen, camera, menu, automatisch opslaan)
 - `js3d/world3d.js`: bouwt de 3D-wereld uit een kaart (gebouwen, molen, paleis)
 - `js3d/props3d.js`: 3D-modellen voor al het decor
+- `js3d/pvp3d.js`: spullen op de grond, PvP in Zwolle en de fatbike (via presence)
+- `js3d/ride3d.js`: de rit met Koen over de A28
 - `js3d/combat3d.js`: realtime vechten: classes, abilities, doelwit, buit, speler- en doelwitframe
 - `js3d/figures3d.js`, `sky3d.js`, `hotbar3d.js`, `engine3d.js`: poppetjes, lucht, icoontjes en de 3D-engine (lopen, springen, licht)

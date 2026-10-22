@@ -370,7 +370,7 @@ function buildWorld(m) {
         if (p.name === 'goal') obj.rotation.y = p.x < m.w / 2 ? Math.PI : 0;
         if (p.name === 'gamestoel') obj.rotation.y = Math.PI;
         if (p.name === 'kraan') obj.rotation.y = Math.PI / 2;
-        if (p.name === 'bmwL') { obj.rotation.y = Math.PI / 2; obj.position.x = (p.x + 1) * S + 0.9; }
+        if (p.name === 'bmwL' || p.name === 'autoL') { obj.rotation.y = Math.PI / 2; obj.position.x = (p.x + 1) * S + 0.9; }
         const u = obj.userData;
         if (u.bob) { const o = obj, ph = p.x + p.y; anim.push((tt) => { o.position.y = Math.sin(tt * 0.8 + ph) * 0.12 - 0.3; o.rotation.z = Math.sin(tt * 0.6 + ph) * 0.02; }); }
         if (u.spin) { const s = u.spin; anim.push((tt) => { s.rotation.y = tt * 1.5; }); }

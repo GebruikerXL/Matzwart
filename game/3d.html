@@ -1,4 +1,4 @@
-<title>Brak in Meedhuizen 3D</title>
+<title>HARDCORE Brak in Meedhuizen 3D</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Silkscreen:wght@400;700&display=swap">
@@ -269,6 +269,11 @@ body {
 button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { #dialog .more { animation: none; } #fade { transition: none; } }
 #game #hud { left: auto; right: 2%; min-width: 22%; }
+#title h1 .hc { display: block; color: #e8433a; font-size: 0.55em; letter-spacing: 0.25em; text-shadow: 0.3cqw 0.3cqw 0 #000, 0 0 2cqw rgba(232,67,58,.6); }
+#title .perma { margin-top: 1.2cqw; color: #ff6a5a; font-family: var(--font-title); font-size: 2.6cqw; text-align: center; text-shadow: 0.25cqw 0.25cqw 0 #000; }
+#title .perma small { display: block; font-family: var(--font-ui); font-size: 1.9cqw; color: var(--ink); max-width: 70cqw; margin: 0.4cqw auto 0; }
+#pvp { left: 50%; top: 27%; transform: translateX(-50%); font-family: var(--font-title); font-size: 1.9cqw; color: #ff6a5a; background: rgba(20,4,4,.7); border: 0.25cqw solid #e8433a; border-radius: 0.6cqw; padding: 0.4cqw 1.4cqw; white-space: nowrap; pointer-events: none; text-shadow: 0.2cqw 0.2cqw 0 #000; }
+#ridehud { left: 50%; top: 3%; transform: translateX(-50%); font-size: 2.2cqw; padding: 0.6cqw 1.8cqw; white-space: nowrap; pointer-events: none; }
 </style>
 
 <div id="game">
@@ -286,6 +291,8 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
   <div id="atip" class="ui win" hidden></div>
   <div id="abar" class="ui" hidden></div>
   <div id="loot" class="ui win" hidden></div>
+  <div id="pvp" class="ui" hidden>☠ WILDERNIS · spelers kunnen je aanvallen ☠</div>
+  <div id="ridehud" class="ui win" hidden></div>
   <div id="hotwrap" class="ui"><div id="hotname"></div><div id="hotbar" hidden></div></div>
   <div id="hud" class="ui win" hidden></div>
   <div id="toast" class="ui win" hidden></div>
@@ -311,14 +318,15 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
   <div id="choices" class="ui win list" hidden></div>
 
   <div id="title" class="ui">
-    <h1>BRAK IN<br>MEEDHUIZEN</h1>
+    <h1><span class="hc">HARDCORE</span>BRAK IN<br>MEEDHUIZEN</h1>
     <div class="sub">Je wordt wakker in een schuur. Je hoofd bonkt. Je weet niet meer hoe je heet.</div>
+    <div class="perma">☠ PERMADEATH ☠<br><small>Ga je dood, dan ben je je geld, spullen, kleren en wapens kwijt en begin je opnieuw op level 1. Het spel slaat automatisch op: terugladen kan niet.</small></div>
     <div class="list win" id="titlemenu"></div>
     <form id="nameform" class="win" hidden>
       <label for="pname">Kies je spelersnaam. Andere spelers zien deze naam boven je hoofd. Je personage weet zijn eigen naam nog steeds niet.</label>
       <div class="namerow"><input id="pname" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Spelersnaam"><button type="submit">Oké</button></div>
     </form>
-    <div class="hint">Klik in beeld · WASD lopen · muis kijken · links: gebruiken · E of rechts: praten · 1-9: hotbar · M menu</div>
+    <div class="hint">Klik in beeld · WASD lopen · Spatie springen · klik/Tab doelwit · 1-5 abilities · E praten/looten · R fatbike · M menu</div>
   </div>
   <div id="ending" class="ui" hidden>
     <h1>EINDE</h1>
@@ -344,6 +352,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js/world2.js"></script>
 <script src="js/delfzijl.js"></script>
 <script src="js/story3.js"></script>
+<script src="js/hardcore.js"></script>
 <script src="js/trade.js"></script>
 <script src="js/online.js"></script>
 <script src="js/main.js"></script>
@@ -353,4 +362,6 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js3d/sky3d.js"></script>
 <script src="js3d/hotbar3d.js"></script>
 <script src="js3d/combat3d.js"></script>
+<script src="js3d/pvp3d.js"></script>
 <script src="js3d/engine3d.js"></script>
+<script src="js3d/ride3d.js"></script>

@@ -1,4 +1,4 @@
-<title>Brak in Meedhuizen</title>
+<title>HARDCORE Brak in Meedhuizen</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Silkscreen:wght@400;700&display=swap">
@@ -206,6 +206,9 @@ body {
 .ab .a { background: #6a2b14; border-color: #a4462a; }
 button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { #dialog .more { animation: none; } #fade { transition: none; } }
+#title h1 .hc { display: block; color: #e8433a; font-size: 0.55em; letter-spacing: 0.25em; text-shadow: 0.3cqw 0.3cqw 0 #000, 0 0 2cqw rgba(232,67,58,.6); }
+#title .perma { margin-top: 1.2cqw; color: #ff6a5a; font-family: var(--font-title); font-size: 2.6cqw; text-align: center; text-shadow: 0.25cqw 0.25cqw 0 #000; }
+#title .perma small { display: block; font-family: var(--font-ui); font-size: 1.9cqw; color: var(--ink); max-width: 70cqw; margin: 0.4cqw auto 0; }
 </style>
 
 <div id="game">
@@ -234,8 +237,9 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
   <div id="choices" class="ui win list" hidden></div>
 
   <div id="title" class="ui">
-    <h1>BRAK IN<br>MEEDHUIZEN</h1>
+    <h1><span class="hc">HARDCORE</span>BRAK IN<br>MEEDHUIZEN</h1>
     <div class="sub">Je wordt wakker in een schuur. Je hoofd bonkt. Je weet niet meer hoe je heet.</div>
+    <div class="perma">☠ PERMADEATH ☠<br><small>Ga je dood, dan ben je je geld, spullen, kleren en wapens kwijt en begin je opnieuw op level 1. Het spel slaat automatisch op: terugladen kan niet.</small></div>
     <div class="list win" id="titlemenu"></div>
     <form id="nameform" class="win" hidden>
       <label for="pname">Kies je spelersnaam. Andere spelers zien deze naam boven je hoofd. Je personage weet zijn eigen naam nog steeds niet.</label>
@@ -275,6 +279,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js/world2.js"></script>
 <script src="js/delfzijl.js"></script>
 <script src="js/story3.js"></script>
+<script src="js/hardcore.js"></script>
 <script src="js/trade.js"></script>
 <script src="js/online.js"></script>
 <script src="js/main.js"></script>

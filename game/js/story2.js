@@ -31,8 +31,7 @@ const PROPS = {
   bank: async () => {
     G.P.hp = G.P.maxHp; G.P.ep = G.P.maxEp; SFX.heal();
     await me('Je gaat even op het bankje zitten. Je voelt je een stuk beter. (HP en EP vol)');
-    const k = await ask('', 'Wil je opslaan?', ['Opslaan', 'Nee']);
-    if (k === 0) UI.toast(G.save() ? 'Opgeslagen' : 'Opslaan lukt niet in deze browser');
+    G.save();
   },
   // Lanting en dorpshuis
   bonnenbak: () => me('Bovenop ligt een bonnetje: "11 bier, 3 bitterballen, 1 rondje voor de zaak (??)". Op naam van: HIJ-DAAR.'),
@@ -152,7 +151,7 @@ async function intro() {
   await me('En een sleutel. Aan de sleutelhanger hangt een J… De rest van de letters is eraf gesleten. Of is het een G?');
   await me('Er zit maar één ding op. Uitzoeken wat er gisteravond is gebeurd.');
   F().intro = true;
-  UI.toast('Pijltjes of WASD om te lopen, Spatie om te praten', 3500);
+  UI.toast(window.MODE3D ? 'WASD lopen · Spatie springen · E praten · 1-5 abilities · M menu' : 'Pijltjes of WASD om te lopen, Spatie om te praten', 3500);
 }
 
 // ---------- finale ----------

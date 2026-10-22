@@ -32,6 +32,8 @@ const E3 = {
     for (const p of this.puffs) this.scene.remove(p.s);
     CB.clear();
     this.figs = {}; this.peers = {}; this.puffs = []; this.seat = null; this.hideNpc = null;
+    for (const k of Object.keys(PV.models)) { this.scene.remove(PV.models[k]); delete PV.models[k]; }
+    if (MAPS[id].inside) this.mounted = false;
     const m = MAPS[id];
     this.world = buildWorld(m);
     this.S = this.world.userData.S;
@@ -87,7 +89,7 @@ const E3 = {
       if ((f || s) && this.seat) this.standUp();
       else if ((f || s) && this.fallT <= 0) {
         const run = k.has('ShiftLeft') || k.has('ShiftRight') ? 7.5 : 4.2;
-        const sp = run * (CB.buffs.speed > 0 ? 2 : 1) * (f < 0 && !s ? 0.6 : 1) / this.S * dt / Math.hypot(f, s);
+        const sp = run * (this.mounted || CB.buffs.speed > 0 ? 2 : 1) * (f < 0 && !s ? 0.6 : 1) / this.S * dt / Math.hypot(f, s);
         const sin = Math.sin(this.yaw), cos = Math.cos(this.yaw);
         const dx = (-sin * f + cos * s) * sp, dz = (-cos * f - sin * s) * sp;
         const nx = this.pos.x + dx, nz = this.pos.z + dz;
@@ -111,14 +113,9 @@ const E3 = {
     const low = this.fy - this.ground(this.pos.x, this.pos.z) < 0.3;
     if (!this.seat && low && (tx !== pl.x || ty !== pl.y)) {
       const prev = { x: pl.x + 0.5, z: pl.y + 0.5 };
-      const wasTall = tileAt(G.map, pl.x, pl.y) === 'tall';
       pl.x = tx; pl.y = ty; pl.px = tx * TS; pl.py = ty * TS;
       if (!m_tile_door(G.map, prev.x - 0.5, prev.z - 0.5)) this.safe = prev;
-      if (G.map.encounters && G.flags.intro && tileAt(G.map, tx, ty) === 'tall' && !wasTall && this.t - this.warnAt > 45) {
-        this.warnAt = this.t;
-        G.busy = true;
-        UI.say('', G.map.warn || 'Je ruikt een sterke vape-lucht. Kijk uit, er kunnen vapende tieners in het gras zitten!').then(() => { G.busy = false; });
-      } else if (!G.busy) G.arrive();
+      if (!G.busy) G.arrive();
     }
     G.updateNpcs(dt);
     CB.update(dt);
@@ -171,7 +168,7 @@ const E3 = {
   },
   forward() { return new THREE.Vector3(-Math.sin(this.yaw) * Math.cos(this.pitch), Math.sin(this.pitch), -Math.cos(this.yaw) * Math.cos(this.pitch)); },
   eyePos() {
-    const eye = this.seat ? 1.2 : this.fallT > 0 ? 0.45 : this.slideT > 0 ? 0.8 : this.eye || 1.6;
+    const eye = this.seat ? 1.2 : this.fallT > 0 ? 0.45 : this.slideT > 0 ? 0.8 : (this.eye || 1.6) + (this.mounted ? 0.35 : 0);
     return new THREE.Vector3(this.w(this.pos.x), this.fy + eye, this.w(this.pos.z));
   },
   puff(color, n, from, o = {}) {
@@ -223,6 +220,7 @@ const E3 = {
     const list = [];
     if (this.fy - this.ground(this.pos.x, this.pos.z) < 0.6) for (const n of G.npcsHere()) { if (n.id === this.hideNpc) continue; const q = this.npcXZ(n); if (q) list.push([q[0], q[1], 3.4, 'npc', n, 'Praten']); }
     for (const v of CB.lootable()) list.push([v.x, v.z, 3.4, 'loot', v, `Looten: ${v.name}`, -0.5]);
+    for (const p of PV.visible()) list.push([p.x, p.z, 3.4, 'pile', p, p.own ? 'Je eigen spullen oprapen' : `Spullen van ${p.n} oprapen`, -0.6]);
     // personages gaan voor decor (zoals in 2D: eerst wie er staat, dan wat er ligt)
     if (this.world) for (const o of this.world.userData.props) {
       const p = o.userData.prop;
@@ -243,6 +241,7 @@ const E3 = {
     const t = this.target; if (!t) return;
     if (t.kind === 'stand') { this.standUp(); return; }
     if (t.kind === 'loot') { CB.openLoot(t.obj); return; }
+    if (t.kind === 'pile') { PV.open(t.obj); return; }
     G.busy = true;
     try {
       if (t.kind === 'npc') {
@@ -308,6 +307,7 @@ const E3 = {
     // decor dat soms verdwijnt
     if (this.world) for (const o of this.world.userData.props) { const p = o.userData.prop; o.visible = !(p.id && PROP_HIDE[p.id] && PROP_HIDE[p.id]()); }
     this.renderPeers();
+    PV.render();
     this.renderHand();
     const hurt = $('#hurt'), op = String(Math.min(0.85, this.hurtT * 2.4)); if (hurt.style.opacity !== op) hurt.style.opacity = op;
     if (document.pointerLockElement && this.menuOpen()) document.exitPointerLock();
@@ -338,6 +338,9 @@ const E3 = {
       e.g.rotation.y = (typeof s.r === 'number' ? s.r : 0) + Math.PI;
       animateFigure(e.g, this.t, mv > 0.01);
       if (sitting) for (const l of e.g.userData.legs || []) l.rotation.x = -Math.PI / 2;
+      // op de fatbike
+      if (s.mt && !e.bike) { e.bike = PV.bikeModel(); e.bike.rotation.y = Math.PI; e.bike.position.y = -0.35; e.g.add(e.bike); }
+      if (e.bike) { e.bike.visible = !!s.mt; if (s.mt) { e.g.position.y += 0.35; for (const l of e.g.userData.legs || []) l.rotation.x = -0.9; } }
       setHeld(e.g, WEAPONS[s.w] ? s.w : null);
       if (typeof s.vp === 'number' && s.vp !== e.vp) { if (e.vp !== undefined) this.puff(0xffe0c0, 10, new THREE.Vector3(this.w(e.x), e.g.position.y + 1.5, this.w(e.z))); e.vp = s.vp; }
       const near = this.w(Math.hypot(e.x - this.pos.x, e.z - this.pos.z)) < 3.5;
@@ -381,6 +384,7 @@ const E3 = {
       const dg = /^Digit([1-5])$/.exec(e.code);
       if (dg) { CB.use(+dg[1] - 1); return; }
       if (e.code === 'Tab') { CB.tab(); return; }
+      if (e.code === 'KeyR') { PV.toggleMount(); return; }
       if (e.code === 'KeyE' || e.code === 'Enter') this.interact();
       else if (e.code === 'Escape' && CB.target) CB.setTarget(null);
       else if (['KeyM', 'KeyQ', 'Escape'].includes(e.code)) { this.keys.clear(); G.menu(); }
@@ -488,13 +492,8 @@ window.CreatorPreview = function (cv, L, t) {
     UI.toast(`${ENEMIES[id].name} valt aan! Gebruik 1-5.`, 2200);
     const r = await CB.storyFight(id);
     E3.hideNpc = null;
-    if (r === 'lose') {
-      const P = this.P;
-      P.hp = Math.max(1, Math.round(P.maxHp * 0.3));
-      await UI.fade(false);
-      await UI.say('', 'Je ligt op de grond. Dat ging niet goed. Probeer het later nog eens.');
-    }
-    this.busy = wasBusy;
+    // verloren = permadeath, dat is in CB.die al afgehandeld
+    this.busy = r === 'lose' ? true : wasBusy;
     return r;
   };
   G.begin = function (st, fresh) {
@@ -503,6 +502,6 @@ window.CreatorPreview = function (cv, L, t) {
     if (G.S.ap && G.S.ap.cl == null) setTimeout(() => chooseClass(), 600);
     return r;
   };
-  G.presenceExtra = () => ({ px: Math.round(E3.pos.x * 100) / 100, pz: Math.round(E3.pos.z * 100) / 100, fy: Math.round(E3.fy * 100) / 100, r: Math.round(E3.yaw * 100) / 100, vp: E3.lastPuff, st: E3.seat ? 1 : 0 });
+  G.presenceExtra = () => ({ ...PV.presence(), px: Math.round(E3.pos.x * 100) / 100, pz: Math.round(E3.pos.z * 100) / 100, fy: Math.round(E3.fy * 100) / 100, r: Math.round(E3.yaw * 100) / 100, vp: E3.lastPuff, st: E3.seat ? 1 : 0 });
   E3.init();
 })();
