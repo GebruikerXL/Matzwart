@@ -50,7 +50,11 @@ const Online = {
     if (!this.room || !G.S || (G.mode !== 'map' && G.mode !== 'battle')) return;
     const P = G.P;
     const state = { n: G.S.name || 'Naamloos', m: G.map.id, x: G.pl.x, y: G.pl.y, d: G.pl.dir, eur: P.money, lvl: P.lvl, w: P.wpn || '', wp: (P.weapons || []).slice(0, 20), ap: G.S.ap || null, wr: P.wear || {}, b: G.mode === 'battle' ? 1 : 0, ...(G.presenceExtra ? G.presenceExtra() : {}) };
-    const s = JSON.stringify(state);
+    // presence mag hooguit 4 KiB zijn: is het te veel, dan laten we eerst het minst belangrijke weg
+    let s = JSON.stringify(state);
+    if (s.length > 3500) { state.wp = []; s = JSON.stringify(state); }
+    if (s.length > 3500 && Array.isArray(state.dr)) { state.dr = state.dr.slice(-2).map((p) => ({ ...p, l: p.l.slice(0, 10) })); s = JSON.stringify(state); }
+    if (s.length > 3500 && Array.isArray(state.mb)) { state.mb = state.mb.slice(0, 6); s = JSON.stringify(state); }
     if (s === this.lastSent) return;
     this.lastSent = s;
     this.room.presence(state).then(() => { this.err = null; }, (e) => { this.lastSent = ''; this.err = e && e.code; });
@@ -221,10 +225,11 @@ const Logbook = {
     G.S.giften = G.S.giften || [];
     for (const d of this.gifts) {
       const g = d.data() || {};
-      if (String(g.aan || '').toLowerCase() !== String(G.S.name || '').toLowerCase()) continue;
+      const norm = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+      if (norm(g.aan) !== norm(G.S.name)) continue;
       if (G.S.giften.includes(d.id) || seen.includes(d.id)) continue;
       G.S.giften.push(d.id); seen.push(d.id);
-      const eur = Math.max(0, Math.min(1e12, Math.floor(Number(g.geld) || 0)));
+      const eur = Math.max(0, Math.min(1e21, Math.floor(Number(g.geld) || 0)));
       G.P.money += eur;
       SFX.win();
       UI.toast(`Cadeau ontvangen: EUR ${eur.toLocaleString('nl-NL')}!${g.bericht ? ' ' + String(g.bericht).slice(0, 80) : ''}`, 6000);

@@ -30,6 +30,11 @@ Object.assign(PROP_DRAW, {
     px(x, 4, 4, 8, 5, '#f4f1ea'); px(x, 5, 5, 2, 3, '#c23b2e'); px(x, 7, 5, 2, 3, '#f2c22e'); px(x, 9, 5, 2, 3, '#c23b2e');
     px(x, 4, 11, 8, 2, '#3a1f1a'); px(x, 14, 3, 1, 6, '#888'); px(x, 13, 2, 3, 2, '#e8433a');
   },
+  gokkast2(x) {
+    px(x, 2, 0, 12, 16, '#1b1420'); px(x, 3, 1, 10, 14, '#d8a01e'); px(x, 3, 1, 10, 2, '#fff6c0');
+    px(x, 4, 4, 8, 5, '#f4f1ea'); px(x, 5, 5, 2, 3, '#c23b2e'); px(x, 7, 5, 2, 3, '#c23b2e'); px(x, 9, 5, 2, 3, '#c23b2e');
+    px(x, 4, 11, 8, 2, '#5a3a10'); px(x, 14, 3, 1, 6, '#888'); px(x, 13, 2, 3, 2, '#e8433a');
+  },
   roulL(x) {
     px(x, 0, 3, 16, 11, '#1b1420'); px(x, 1, 4, 15, 9, '#1f6a3a');
     px(x, 3, 4, 10, 9, '#5a3720'); px(x, 4, 5, 8, 7, '#1b1420');
@@ -62,6 +67,8 @@ Object.assign(PROP_DRAW, {
   prop(c, 9, 7, 'kaarttafel', true, 'hogerlager');
   prop(c, 8, 1, 'jackpot', true, 'jackpotbord');
   prop(c, 12, 8, 'biervat', true);
+  // de gouden gokkast staat los in de zaal: je kunt erachter komen
+  prop(c, 6, 4, 'gokkast2', true, 'gokkast2');
   MAPS.casino = c;
 })();
 
@@ -69,6 +76,7 @@ DOORS.casino = () => G.warp('casino', 6, 8, 'up');
 DOORS.uit_casino = () => G.warp('oost', 27, 19, 'down');
 
 // ---------- scherm voor de spelletjes ----------
+const eur = (n) => Math.floor(n).toLocaleString('nl-NL');
 const Casino = {
   open(title) {
     const el = $('#casino');
@@ -79,17 +87,22 @@ const Casino = {
   msg(t) { $('#casino .msg').textContent = t; },
   close() { $('#casino').hidden = true; },
   async bet(who) {
-    const opts = [1, 5, 10, 25].map((b) => ({ label: `EUR ${b}`, off: G.P.money < b }));
+    // vaste bedragen, en altijd ook alles in één keer
+    const bets = [1, 10, 100, 1000, 10000].filter((b) => b < G.P.money);
+    const opts = bets.map((b) => ({ label: `EUR ${eur(b)}` }));
+    opts.push({ label: `ALL-IN (EUR ${eur(G.P.money)})`, off: G.P.money < 1 });
     opts.push('Stoppen');
-    const k = await UI.ask(who, `Hoeveel zet je in? Je hebt EUR ${G.P.money}.`, opts, true);
-    return k < 0 || k === 4 ? 0 : [1, 5, 10, 25][k];
+    const k = await UI.ask(who, `Hoeveel zet je in? Je hebt EUR ${eur(G.P.money)}.`, opts, true);
+    if (k < 0 || k > bets.length) return 0;
+    if (k === bets.length) { if (G.P.money >= 1) UI.toast('ALL-IN!', 1200); return Math.floor(G.P.money); }
+    return bets[k];
   },
   win(b, mult, text) {
     const n = b * mult;
     G.P.money += n; SFX.win();
-    this.msg(`${text} Je wint EUR ${n}!`);
+    this.msg(`${text} Je wint EUR ${eur(n)}!`);
   },
-  lose(b, text) { SFX.no(); this.msg(`${text} EUR ${b} kwijt.`); },
+  lose(b, text) { SFX.no(); this.msg(`${text} EUR ${eur(b)} kwijt.`); },
   // Aron-tip: true = je volgt hem (verlies), false = je doet het omgekeerde (winst), null = tip niet van toepassing
   tip(followIds, oppositeIds) {
     const t = F().aronTip;
@@ -125,17 +138,34 @@ function drawSlot(cv, id) {
   SLOT_ICON[id](x);
 }
 
-async function playSlot() {
+// de gouden gokkast: op de achterkant zit een piepklein knopje. Staat het aan, dan valt hij iets vaker.
+async function goudenGokkast() {
+  const behind = (window.MODE3D ? E3.pos.z : G.pl.y + 0.5) < 4.35;
+  if (behind) {
+    const f = F();
+    await me(f.valsKnop ? 'Op de achterkant van de gouden gokkast zit dat piepkleine knopje. Het staat ingedrukt.' : 'Op de achterkant van de gouden gokkast zit een piepklein knopje. Er staat niks bij. Er zit een beetje stof omheen, behalve op het knopje zelf.');
+    const k = await ask('', 'Het knopje indrukken?', [f.valsKnop ? 'Weer uitzetten' : 'Indrukken', 'Laat maar']);
+    if (k !== 0) return;
+    f.valsKnop = !f.valsKnop;
+    SFX.tick();
+    await me(f.valsKnop ? '*klik* De gouden gokkast zoemt heel even. Verder lijkt er niks te gebeuren.' : '*klik* Het zoemen stopt.');
+    return;
+  }
+  await playSlot('Gouden gokkast', F().valsKnop);
+}
+async function playSlot(title = 'Gokkast', vals = false) {
   for (;;) {
-    const b = await Casino.bet('Gokkast');
+    const b = await Casino.bet(title);
     if (!b) break;
     G.P.money -= b;
-    const stage = Casino.open('Gokkast');
+    const stage = Casino.open(title);
     stage.innerHTML = '<div class="reels"><canvas width="16" height="16"></canvas><canvas width="16" height="16"></canvas><canvas width="16" height="16"></canvas></div>';
     const cvs = [...stage.querySelectorAll('canvas')];
     const t = Casino.tip(['kast'], []);
     let res = [slotPick(), slotPick(), slotPick()];
     if (t === true) res = ['zeven', 'zeven', 'kers'];
+    // het knopje: verlies je, dan draait hij stiekem nog een keer (wint ongeveer de helft vaker)
+    else if (vals) { const wint = (r) => (r[0] === r[1] && r[1] === r[2]) || r.filter((x) => x === 'kers').length === 2; if (!wint(res)) res = [slotPick(), slotPick(), slotPick()]; }
     Casino.msg('Rrrrrrr…');
     await new Promise((done) => {
       let n = 0;
@@ -177,7 +207,7 @@ async function playRoulette() {
     const stage = Casino.open('Roulette');
     stage.innerHTML = '<div class="wheel"><span></span></div>';
     const span = stage.querySelector('span'), wheel = stage.querySelector('.wheel');
-    Casino.msg(`Inzet: EUR ${b} op ${opts[k].toLowerCase()}. Rien ne va plus…`);
+    Casino.msg(`Inzet: EUR ${eur(b)} op ${opts[k].toLowerCase()}. Rien ne va plus…`);
     await new Promise((done) => {
       let i = 0, delay = 40;
       const step = () => {
@@ -215,7 +245,7 @@ async function playHogerLager() {
     stage.innerHTML = `<div class="cards">${cardHtml(cur)}</div>`;
     let pot = b;
     for (;;) {
-      Casino.msg(`Pot: EUR ${pot}. Is de volgende kaart hoger of lager?`);
+      Casino.msg(`Pot: EUR ${eur(pot)}. Is de volgende kaart hoger of lager?`);
       const k = await UI.ask('Dealer', 'Hoger of lager?', ['Hoger', 'Lager']);
       const g = k === 0 ? 'hoger' : 'lager';
       const t = Casino.tip([g], [g === 'hoger' ? 'lager' : 'hoger']);
@@ -231,9 +261,9 @@ async function playHogerLager() {
         break;
       }
       cur = next; pot *= 2; SFX.ok();
-      Casino.msg(`Goed! De pot is nu EUR ${pot}.${t === false ? ' (Het omgekeerde van Arons advies.)' : ''}`);
-      const d = await UI.ask('Dealer', `Goed! Pot: EUR ${pot}. Dubbel of niks?`, ['Dubbel of niks', `Stoppen (EUR ${pot} pakken)`]);
-      if (d !== 0) { G.P.money += pot; SFX.win(); Casino.msg(`Je pakt EUR ${pot}.`); break; }
+      Casino.msg(`Goed! De pot is nu EUR ${eur(pot)}.${t === false ? ' (Het omgekeerde van Arons advies.)' : ''}`);
+      const d = await UI.ask('Dealer', `Goed! Pot: EUR ${eur(pot)}. Dubbel of niks?`, ['Dubbel of niks', `Stoppen (EUR ${eur(pot)} pakken)`]);
+      if (d !== 0) { G.P.money += pot; SFX.win(); Casino.msg(`Je pakt EUR ${eur(pot)}.`); break; }
       if (stage.querySelectorAll('.card').length > 3) stage.querySelector('.card').remove();
     }
   }
@@ -327,6 +357,7 @@ NPCS.push(
 
 Object.assign(PROPS, {
   gokkast: async () => { await playSlot(); },
+  gokkast2: async () => { await goudenGokkast(); },
   roulette: async () => { await playRoulette(); },
   hogerlager: async () => { await playHogerLager(); },
   jackpotbord: () => me(`JACKPOT: drie zevens = 100× je inzet. Daaronder in kleine letters: "Gokken kost geld."${F().aronVerlies ? ` Iemand heeft er met pen bijgeschreven: "Aron-verlies: EUR ${F().aronVerlies}".` : ''}`),

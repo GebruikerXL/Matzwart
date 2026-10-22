@@ -50,7 +50,7 @@ const E3 = {
     for (const l of this.lights) l.intensity = 0;
     this.lightT = 0;
     // huizen met vijanden
-    if (m.foes && foesReady(id)) CB.spawnIndoor(m);
+    if (m.foes && foesReady(id) && !NET.othersClaim(id)) CB.spawnIndoor(m);
     this.vaperTimer = 2;
   },
   w(v) { return v * this.S; },
@@ -516,6 +516,6 @@ window.CreatorPreview = function (cv, L, t) {
     if (G.S.ap && G.S.ap.cl == null) setTimeout(() => chooseClass(), 600);
     return r;
   };
-  G.presenceExtra = () => ({ ...PV.presence(), px: Math.round(E3.pos.x * 100) / 100, pz: Math.round(E3.pos.z * 100) / 100, fy: Math.round(E3.fy * 100) / 100, r: Math.round(E3.yaw * 100) / 100, vp: E3.lastPuff, st: E3.seat ? 1 : 0 });
+  G.presenceExtra = () => ({ ...PV.presence(), ...NET.presence(), px: Math.round(E3.pos.x * 100) / 100, pz: Math.round(E3.pos.z * 100) / 100, fy: Math.round(E3.fy * 100) / 100, r: Math.round(E3.yaw * 100) / 100, vp: E3.lastPuff, st: E3.seat ? 1 : 0 });
   E3.init();
 })();

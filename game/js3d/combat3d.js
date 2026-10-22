@@ -103,7 +103,11 @@ const CB = {
   atk() { const P = G.P, w = P.wpn && WEAPONS[P.wpn]; return P.atk + (w ? w.atk : 0) + clothBonus(P).atk; },
   def() { return G.P.def + clothBonus(G.P).def; },
   fixEnergy() { const P = G.P; const want = 100 + 5 * (P.lvl - 1); if (P.maxEp !== want) { P.maxEp = want; P.ep = Math.min(P.ep, want); } },
-  inCombat() { return this.mobs.some((m) => m.state === 'chase'); },
+  inCombat() { return this.mobs.some((m) => this.chasesMe(m)); },
+  // jagen ze op jou (en niet op een andere speler)?
+  chasesMe(v) { return v.state === 'chase' && (!v.tgt || v.tgt === NET.myShort()); },
+  // vijanden die iedereen in het gebied ziet (verhaalgevechten en de kleedkamer blijven van jezelf)
+  shared(v) { return !v.story && !v.brawl; },
 
   // ---------- vijanden ----------
   makeMob(id, x, z, opts = {}) {
@@ -115,7 +119,7 @@ const CB = {
     const mob = {
       id, E, name: E.name, lvl: Math.max(1, P.lvl + (E.dz ? 3 : 0) + (E.boss ? 1 : 0) - (E.dz || E.boss ? 0 : 1)), hp: maxHp, maxHp,
       atk: E.atk + boost, def: E.def || 0, x, z, sx: x, sz: z, tx: x, tz: z, wait: 1, state: 'idle', g, atkT: 1, blowT: 4 + Math.random() * 4,
-      st: {}, story: !!opts.story, npc: opts.npc || null, lostT: 0,
+      st: {}, story: !!opts.story, npc: opts.npc || null, lostT: 0, nid: opts.nid || NET.newId(),
     };
     mob.plate = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(makeCanvas(128, 28, () => {})), depthTest: false, transparent: true }));
     mob.plate.scale.set(1.6, 0.35, 1); mob.plate.position.y = (E.dz ? 2.1 : 2.25) / g.scale.y; mob.plate.renderOrder = 11;
@@ -133,18 +137,18 @@ const CB = {
     x.fillStyle = 'rgba(0,0,0,.6)'; x.fillText(`${mob.lvl} ${mob.name}`.slice(0, 22), 65, 1);
     x.fillStyle = hostile ? '#ff6a5a' : '#f2c22e'; x.fillText(`${mob.lvl} ${mob.name}`.slice(0, 22), 64, 0);
     x.fillStyle = '#000'; x.fillRect(14, 16, 100, 9);
-    x.fillStyle = mob.st.dot > 0 ? '#9ad040' : '#d83a2e'; x.fillRect(15, 17, Math.max(0, 98 * mob.hp / mob.maxHp), 7);
+    x.fillStyle = (mob.hst || mob.st).dot > 0 ? '#9ad040' : '#d83a2e'; x.fillRect(15, 17, Math.max(0, 98 * mob.hp / mob.maxHp), 7);
     tex.needsUpdate = true;
     mob.plate.visible = mob.state !== 'dead';
   },
   spawnVapers(dt) {
     const m = G.map;
-    if (!m.encounters || !G.flags.intro) return;
+    if (!m.encounters || !G.flags.intro || !NET.host) return;
     const pool = m.pool || RANDOM_POOL;
     const want = m.id === 'delfzijl' || m.pvp ? 7 : m.id === 'dorp' ? 5 : 4;
     E3.vaperTimer -= dt;
     // vijanden komen vanzelf terug in het gras, buiten je zicht
-    const alive = this.mobs.filter((v) => !v.story && !v.brawl && v.state !== 'dead').length;
+    const alive = this.mobs.filter((v) => this.shared(v) && v.state !== 'dead').length;
     if (alive < want && E3.vaperTimer <= 0) {
       E3.vaperTimer = alive < want - 2 ? 1 : m.id === 'delfzijl' || m.pvp ? 4 : 6;
       const tall = [];
@@ -169,12 +173,32 @@ const CB = {
   // afstand in meters van speler tot vijand
   dist(mob) { return E3.w(Math.hypot(mob.x - E3.pos.x, mob.z - E3.pos.z)); },
 
+  // wie kan een vijand aanvallen: jij, en bij gedeelde vijanden ook de anderen in dit gebied
+  players() {
+    const out = [], me = NET.myShort();
+    const meC = { id: me, me: true, x: E3.pos.x, z: E3.pos.z, above: E3.fy - E3.ground(E3.pos.x, E3.pos.z) > 0.6 };
+    const ok = G.mode === 'map' && !this.dying;
+    if (ok && !(this.buffs.damp > 0)) out.push(meC);
+    const peers = [];
+    for (const p of NET.here()) {
+      const s = p.presence;
+      if (!(Number(s.hp) > 0) || s.dp) continue;
+      const e = E3.peers[p.peer], q = e ? { x: e.x, z: e.z } : E3.peerPos(p);
+      peers.push({ id: NET.short(p.peer), me: false, peer: p.peer, x: q.x, z: q.z, above: typeof s.fy === 'number' && s.fy - E3.ground(q.x, q.z) > 0.6 });
+    }
+    return { all: out.concat(peers), mine: out, story: ok ? [meC] : [] };
+  },
+  nearest(cands, v) {
+    let best = null;
+    for (const c of cands) { const d = E3.w(Math.hypot(c.x - v.x, c.z - v.z)); if (!best || d < best.d) best = { c, d }; }
+    return best;
+  },
   updateMobs(dt) {
     const S = E3.S;
-    const stealth = this.buffs.damp > 0;
+    const P3 = this.players();
     for (const v of this.mobs) {
       const st = v.st;
-      for (const k of Object.keys(st)) if (k !== 'dps' && st[k] > 0) st[k] = Math.max(0, st[k] - dt);
+      if (!v.remote) for (const k of Object.keys(st)) if (k !== 'dps' && st[k] > 0) st[k] = Math.max(0, st[k] - dt);
       if (v.state === 'dead') {
         v.deadT += dt;
         v.g.rotation.x = Math.max(-Math.PI / 2, v.g.rotation.x - dt * 5);
@@ -182,34 +206,45 @@ const CB = {
         if (v.glint) { v.glint.visible = !!(v.loot && v.loot.length); v.glint.material.opacity = 0.6 + Math.sin(E3.t * 5) * 0.4; }
         continue;
       }
+      // vijanden van een andere speler: die bewegen zoals hij ze ziet
+      if (v.remote) { NET.step(v, dt); continue; }
       // schade over tijd
       if (st.dot > 0) {
         v.dotTick = (v.dotTick || 0) + dt;
-        if (v.dotTick >= 1) { v.dotTick -= 1; this.hurtMob(v, st.dps, { quiet: true, col: '#b8f070' }); if (v.state === 'dead') continue; }
+        if (v.dotTick >= 1) { v.dotTick -= 1; this.hurtMob(v, st.dps, { quiet: true, dot: true, col: '#b8f070' }); if (v.state === 'dead') continue; }
       }
-      const d = this.dist(v);
+      // op wie jaagt hij?
+      const cands = v.story ? P3.story : this.shared(v) ? P3.all : P3.mine;
+      let T = null;
+      if (v.state === 'chase') {
+        T = cands.find((c) => c.id === (v.tgt || NET.myShort())) || null;
+        if (!T) { const n = this.nearest(cands, v); if (n && n.d < 12) { v.tgt = n.c.id; T = n.c; } else { v.state = 'return'; this.paintPlate(v); } }
+      }
+      const near = T ? { c: T, d: E3.w(Math.hypot(T.x - v.x, T.z - v.z)) } : this.nearest(cands, v);
+      const d = near ? near.d : 999, F = near && near.c;
       const busy = st.stun > 0 || st.dance > 0;
       // aggro
-      if (v.state === 'idle' && !stealth && d < (v.E.dz ? 9 : 7) && G.mode === 'map') this.aggro(v);
-      if (v.state === 'chase' && stealth && !v.story) { v.state = 'return'; this.paintPlate(v); }
+      if (v.state === 'idle' && F && d < (v.E.dz ? 9 : 7)) { this.aggro(v, F.id); T = F; }
       let mv = false;
       const speedM = (v.E.dz ? 3.6 : 3.0) * (st.slow > 0 ? 0.5 : 1);
       if (st.dance > 0) {
         // polonaise: hij danst achter je aan
         v.g.rotation.y += dt * 6;
-        if (d > 2.5) { const a = Math.atan2(E3.pos.x - v.x, E3.pos.z - v.z); this.step(v, Math.sin(a), Math.cos(a), 2 * dt / S); mv = true; }
-      } else if (v.state === 'chase' && !busy) {
+        if (F && d > 2.5) { const a = Math.atan2(F.x - v.x, F.z - v.z); this.step(v, Math.sin(a), Math.cos(a), 2 * dt / S); mv = true; }
+      } else if (v.state === 'chase' && !busy && T) {
         const reach = 1.9;
-        const a = Math.atan2(E3.pos.x - v.x, E3.pos.z - v.z);
+        const a = Math.atan2(T.x - v.x, T.z - v.z);
         v.g.rotation.y = a;
         if (d > reach) { mv = this.step(v, Math.sin(a), Math.cos(a), speedM * dt / S); }
         // kan hij je niet bereiken (je staat op een dak)? dan geeft hij het na een tijdje op
-        const above = E3.fy - E3.ground(E3.pos.x, E3.pos.z) > 0.6;
-        v.lostT = (d > reach + 0.5 && (!mv || above)) || this.dist({ x: v.sx, z: v.sz }) > 40 ? v.lostT + dt : 0;
+        const above = T.above;
+        v.lostT = (d > reach + 0.5 && (!mv || above)) || E3.w(Math.hypot(v.sx - T.x, v.sz - T.z)) > 40 ? v.lostT + dt : 0;
         if (v.lostT > (v.story ? 99 : 6)) { v.state = 'return'; this.paintPlate(v); }
         v.atkT -= dt; v.blowT -= dt;
-        if (d <= reach + 0.4 && v.atkT <= 0 && !above) { v.atkT = (v.E.dz ? 2.3 : 2.7) * (0.9 + Math.random() * 0.2); this.mobHit(v); }
-        else if (v.E.vaper && v.blowT <= 0 && d < 8) { v.blowT = 10 + Math.random() * 5; this.mobBlow(v); }
+        if (d <= reach + 0.4 && v.atkT <= 0 && !above) {
+          v.atkT = (v.E.dz ? 2.3 : 2.7) * (0.9 + Math.random() * 0.2);
+          if (T.me) this.mobHit(v); else { v.swingT = 0.3; NET.attack(v, T, v.atk * (0.85 + Math.random() * 0.3)); }
+        } else if (v.E.vaper && v.blowT <= 0 && d < 8) { v.blowT = 10 + Math.random() * 5; this.mobBlow(v, T, d); }
       } else if (v.state === 'return') {
         const dx = v.sx - v.x, dz = v.sz - v.z, l = Math.hypot(dx, dz);
         v.hp = Math.min(v.maxHp, v.hp + v.maxHp * dt * 0.3);
@@ -227,7 +262,7 @@ const CB = {
         }
         const mx = v.tx - v.x, mz = v.tz - v.z, ml = Math.hypot(mx, mz);
         if (ml > 0.02) { const s = Math.min(ml, dt * 0.9 / S); v.x += mx / ml * s; v.z += mz / ml * s; v.g.rotation.y = Math.atan2(mx, mz); mv = true; }
-        if (d < 8) v.g.rotation.y = Math.atan2(E3.pos.x - v.x, E3.pos.z - v.z);
+        if (F && d < 8) v.g.rotation.y = Math.atan2(F.x - v.x, F.z - v.z);
       }
       v.g.position.set(E3.w(v.x), E3.ground(v.x, v.z), E3.w(v.z));
       animateFigure(v.g, E3.t, mv);
@@ -238,6 +273,12 @@ const CB = {
     for (const v of this.mobs.filter((v) => v.state === 'dead' && (v.deadT > 120 || (v.deadT > (v.story ? 1.5 : 15) && !(v.loot && v.loot.length))))) { E3.scene.remove(v.g); if (this.loot && this.loot.mob === v) this.closeLoot(); }
     this.mobs = this.mobs.filter((v) => !(v.state === 'dead' && (v.deadT > 120 || (v.deadT > (v.story ? 1.5 : 15) && !(v.loot && v.loot.length)))));
   },
+  removeMob(v) {
+    E3.scene.remove(v.g);
+    if (this.target === v) this.setTarget(null);
+    if (this.loot && this.loot.mob === v) this.closeLoot();
+    this.mobs = this.mobs.filter((m) => m !== v);
+  },
   step(v, sx, sz, len) {
     const nx = v.x + sx * len, nz = v.z + sz * len;
     let moved = false;
@@ -245,11 +286,17 @@ const CB = {
     if (this.mobFree(v.x, nz)) { v.z = nz; moved = true; }
     return moved;
   },
-  aggro(v) {
+  // who: de speler op wie hij afkomt (leeg = jij)
+  aggro(v, who) {
     if (v.state === 'dead') return;
-    if (v.state !== 'chase') { v.state = 'chase'; v.atkT = 0.8; v.lostT = 0; SFX.tone(150, 0.15, 'sawtooth', 0.04, 60); }
-    if (!this.target || this.target.state === 'dead') this.setTarget(v);
-    this.combatT = 0;
+    const mine = !who || who === NET.myShort();
+    // een vijand van de gastheer: die beslist zelf op wie hij afkomt
+    if (v.remote) { if (mine && (!this.target || this.target.state === 'dead')) this.setTarget(v); return; }
+    if (v.state !== 'chase') { v.state = 'chase'; v.atkT = 0.8; v.lostT = 0; v.tgt = who || NET.myShort(); if (mine) SFX.tone(150, 0.15, 'sawtooth', 0.04, 60); }
+    if (mine) {
+      if (!this.target || this.target.state === 'dead') this.setTarget(v);
+      this.combatT = 0;
+    }
     this.paintPlate(v);
   },
 
@@ -274,6 +321,19 @@ const CB = {
       return;
     }
     const dmg = Math.max(1, Math.round(n - (o.quiet ? 0 : v.def * 0.6)));
+    // een vijand van de gastheer: de klap gaat naar hem, en hier zie je hem alvast (hij sterft pas als de gastheer het zegt)
+    if (v.remote) {
+      NET.hit(v, dmg);
+      v.hitByMe = true;
+      v.hp = Math.max(1, v.hp - dmg); v.predT = 1.2;
+      this.floatText(o.crit ? `${dmg}!` : String(dmg), new THREE.Vector3(E3.w(v.x), 2.0 + Math.random() * 0.3, E3.w(v.z)), o.crit ? '#ffd25a' : '#f4f1ea', o.crit ? 1.5 : 1);
+      SFX.hit();
+      this.aggro(v);
+      this.combatT = 0;
+      this.paintPlate(v);
+      return;
+    }
+    if (!o.dot) v.hitByMe = true;
     v.hp -= dmg;
     this.floatText(o.crit ? `${dmg}!` : String(dmg), new THREE.Vector3(E3.w(v.x), (o.quiet ? 1.6 : 2.0) + Math.random() * 0.3, E3.w(v.z)), o.col || (o.crit ? '#ffd25a' : '#f4f1ea'), o.crit ? 1.5 : 1);
     if (!o.quiet) { v.hitT = 0.15; SFX.hit(); }
@@ -288,6 +348,8 @@ const CB = {
     if (this.target === v) this.setTarget(null);
     SFX.tone(330, 0.3, 'triangle', 0.05, -200);
     const P = G.P, E = v.E;
+    // alleen wie meesloeg krijgt XP en buit (iedereen zijn eigen buit)
+    if (!(v.hitByMe || v.story || v.brawl)) { v.loot = []; return; }
     // XP meteen, de rest ligt op het lijk
     const xp = xpFor(E.xp);
     P.xp += xp;
@@ -300,6 +362,27 @@ const CB = {
     v.glint.scale.set(0.9, 0.9, 1); v.glint.position.set(0, 0.5, 0.6);
     v.g.add(v.glint);
     if (v.story && this.story) { const s = this.story; this.story = null; G.busy = true; s.resolve('win'); }
+  },
+  // gastheer: een andere speler raakt een van onze vijanden
+  netHit(v, h, p) {
+    if (v.state === 'dead') return;
+    const n = (x, max) => Math.max(0, Math.min(max, Number(x) || 0));
+    const e = h.e && typeof h.e === 'object' ? h.e : null;
+    if (e) {
+      if (e.stun) v.st.stun = Math.max(v.st.stun || 0, n(e.stun, 5));
+      if (e.slow) v.st.slow = Math.max(v.st.slow || 0, n(e.slow, 8));
+      if (e.dance) v.st.dance = Math.max(v.st.dance || 0, n(e.dance, 6));
+      if (e.dot) { v.st.dot = n(e.dot, 12); v.st.dps = n(e.dps, 999); }
+      if (Array.isArray(e.p) && Math.hypot(n(e.p[0], 999) - v.x, n(e.p[1], 999) - v.z) < 6 && this.mobFree(+e.p[0], +e.p[1])) { v.x = +e.p[0]; v.z = +e.p[1]; }
+    }
+    const d = n(h.d, 5000);
+    if (d > 0) {
+      v.hp -= d; v.hitT = 0.15;
+      this.floatText(String(Math.round(d)), new THREE.Vector3(E3.w(v.x), 2.0 + Math.random() * 0.3, E3.w(v.z)), '#8ac8ff', 0.8);
+      if (v.hp <= 0) { this.killMob(v); return; }
+    }
+    if (v.state !== 'chase') this.aggro(v, NET.short(p.peer));
+    this.paintPlate(v);
   },
   rollLoot(v) {
     const E = v.E, P = G.P, L = [];
@@ -336,11 +419,12 @@ const CB = {
     if (v.E.inflict && Math.random() < v.E.inflict.ch * 0.5) { this.buffs.misselijk = 5; UI.toast(v.E.inflict.t, 2000); }
     if (Math.random() < 0.15) UI.toast(`${v.name} ${t}.`, 1800);
   },
-  mobBlow(v) {
+  mobBlow(v, T, d) {
     // vaper blaast een wolk in je gezicht: beetje schade en misselijk
     const from = new THREE.Vector3(E3.w(v.x), 1.5, E3.w(v.z));
     const k = v.E.cloudScale || 1;
     for (let i = 0; i < 3; i++) E3.puff(new THREE.Color(v.E.cloud || '#ffffff').getHex(), 4, from.clone(), { size: 0.5 * k, up: 0.3, life: 2.5, grow: 3 });
+    if (T && !T.me) { if (d < 6) NET.attack(v, T, v.atk * 0.4, true); return; }
     if (this.dist(v) < 6) {
       this.hurtMe(v.atk * 0.4, '#b8f070', `${v.name} heeft je weggeblazen.`);
       this.buffs.misselijk = Math.max(this.buffs.misselijk || 0, 3);
@@ -366,7 +450,7 @@ const CB = {
     if (this.dying) return;
     this.dying = true;
     SFX.lose();
-    for (const v of this.mobs) if (v.state === 'chase') { v.state = 'return'; this.paintPlate(v); }
+    for (const v of this.mobs) if (!v.remote && this.chasesMe(v)) { v.state = 'return'; this.paintPlate(v); }
     this.setTarget(null);
     PV.dismount();
     if (byPlayer && this.lastAttacker) PV.killedBy = { to: this.lastAttacker, s: Date.now() };
@@ -441,7 +525,7 @@ const CB = {
       case 'rookring': E3.puff(0xffffff, 4); shoot('ring', () => this.hitT(t, a), 14); SFX.tone(140, 0.3, 'sawtooth', 0.03, -40); break;
       case 'wolk': shoot('puff', () => { this.hitT(t, a); t.st.dot = a.dot; t.st.dps = this.power(a.k).n; this.paintPlate(t); this.cloudAt(t, 0xc8f070, 1.2); }, 9); E3.puff(0xc8f070, 10); break;
       case 'blast': E3.puff(0xffd9a0, 30); for (const v of this.inCone(a.range)) this.hitT(v, a); SFX.tone(90, 0.5, 'sawtooth', 0.04, -30); break;
-      case 'damp': this.buffs.damp = 5; E3.puff(0xffffff, 40); for (const v of this.mobs) if (v.state === 'chase' && !v.story) { v.state = 'return'; this.paintPlate(v); } UI.toast('Je verdwijnt in een wolk mango.', 1600); break;
+      case 'damp': this.buffs.damp = 5; E3.puff(0xffffff, 40); for (const v of this.mobs) if (!v.remote && this.chasesMe(v) && !v.story) { v.state = 'return'; this.paintPlate(v); } UI.toast('Je verdwijnt in een wolk mango.', 1600); break;
       case 'chaser': shoot('puff', () => { this.cloudAt(t, 0xc8a0ff, 4); for (const v of this.around(t.x, t.z, a.aoe)) { this.hitT(v, a); if (v.state !== 'dead') { v.st.dot = a.dot; v.st.dps = this.power(0.3).n; } } this.shock(t.x, t.z, a.aoe, 0xc8a0ff); }, 10); E3.puff(0xc8a0ff, 30); break;
       // Crimineel
       case 'buks': shoot('kogel', () => this.hitT(t, a), 45); SFX.tone(900, 0.06, 'square', 0.05, -700); E3.flash(); break;
@@ -480,8 +564,10 @@ const CB = {
     SFX.tone(200, 0.3, 'noise' in SFX ? 'square' : 'sawtooth', 0.04, -150);
     if (this.dist(t) < 3.5) { this.hitT(t, a); if (t.state !== 'dead') t.st.stun = 2; this.paintPlate(t); }
   },
-  pull(t) { const dx = E3.pos.x - t.x, dz = E3.pos.z - t.z, d = Math.hypot(dx, dz), want = d - 1.6 / E3.S; for (let i = 0; i < 20; i++) if (!this.step(t, dx / d, dz / d, want / 20)) break; },
-  knock(v, m) { const dx = v.x - E3.pos.x, dz = v.z - E3.pos.z, d = Math.hypot(dx, dz) || 1; for (let i = 0; i < 10; i++) if (!this.step(v, dx / d, dz / d, m / E3.S / 10)) break; v.st.stun = Math.max(v.st.stun || 0, 1); },
+  pull(t) { const dx = E3.pos.x - t.x, dz = E3.pos.z - t.z, d = Math.hypot(dx, dz), want = d - 1.6 / E3.S; for (let i = 0; i < 20; i++) if (!this.step(t, dx / d, dz / d, want / 20)) break; this.moved(t); },
+  knock(v, m) { const dx = v.x - E3.pos.x, dz = v.z - E3.pos.z, d = Math.hypot(dx, dz) || 1; for (let i = 0; i < 10; i++) if (!this.step(v, dx / d, dz / d, m / E3.S / 10)) break; v.st.stun = Math.max(v.st.stun || 0, 1); this.moved(v); },
+  // weggetrokken of weggeduwd: bij een vijand van de gastheer gaat de nieuwe plek mee
+  moved(v) { if (v.remote) { v.st.p = [Math.round(v.x * 100) / 100, Math.round(v.z * 100) / 100]; v.nx = v.x; v.nz = v.z; } },
   callNeven() {
     for (let i = 0; i < 2; i++) {
       const look = { skin: '#d8a880', hair: '#1b1b1b', style: i ? 'cap' : 'short', cap: '#1b1b1b', shirt: i ? '#2a2a2e' : '#3a3a44', pants: '#2a2a3a', pat: 'tracksuit', extra: [] };
@@ -626,6 +712,7 @@ const CB = {
     for (const k of Object.keys(this.cds)) this.cds[k] = Math.max(0, this.cds[k] - dt);
     for (const k of Object.keys(this.buffs)) if (typeof this.buffs[k] === 'number') this.buffs[k] = Math.max(0, this.buffs[k] - dt);
     PV.update();
+    NET.tick();
     this.guardLoot();
     this.spawnVapers(dt);
     this.updateMobs(dt);
@@ -817,7 +904,8 @@ function paintTargetFrame() {
   if (tf.dataset.k !== key) { tf.dataset.k = key; tf.querySelector('.nm').textContent = t.name; tf.querySelector('.lv').textContent = `Lvl ${t.lvl}${t.E.boss ? ' · Baas' : t.E.dz ? ' · Elite' : ''}`; }
   tf.querySelector('.hp i').style.width = `${100 * Math.max(0, t.hp) / t.maxHp}%`;
   tf.querySelector('.hp span').textContent = `${Math.max(0, Math.ceil(t.hp))} / ${t.maxHp}`;
-  const st = [t.st.dot > 0 && 'Misselijk', t.st.stun > 0 && 'Verdoofd', t.st.slow > 0 && 'Vertraagd', t.st.dance > 0 && 'Danst', t.state === 'chase' && t.dist !== 0 && CB.dist(t) > 3 && ''].filter(Boolean).join(' · ');
+  const ts = t.hst || t.st;
+  const st = [ts.dot > 0 && 'Misselijk', ts.stun > 0 && 'Verdoofd', ts.slow > 0 && 'Vertraagd', ts.dance > 0 && 'Danst'].filter(Boolean).join(' · ');
   const bf = tf.querySelector('.bf'); if (bf.textContent !== st) bf.textContent = st;
 }
 function flashSlot(i) { const s = $('#abar').children[i]; if (!s) return; s.classList.remove('hit'); void s.offsetWidth; s.classList.add('hit'); }

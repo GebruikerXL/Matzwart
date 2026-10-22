@@ -50,6 +50,10 @@ Statuseffecten: vijanden kunnen Ongemakkelijk (slaat beurt over), Misselijk (sch
 
 Het Gokpaleis staat in de A-framestraat, achter de parkeerplaats van de EKA. Er staan een gokkast, een roulettetafel en een hoger-lagertafel. Naast de gokkast staat Aron van der Wal met investeringsadviezen. Volg je zijn tip, dan verlies je gegarandeerd. Doe je precies het omgekeerde, dan win je.
 
+Bij elk spel kun je EUR 1, 10, 100, 1.000 of 10.000 inzetten, of ALL-IN gaan: alles wat je hebt in één keer. Midden in de zaal staat ook een gouden gokkast. Loop eromheen: op de achterkant zit een piepklein knopje. Staat het aan, dan draait de kast bij verlies stiekem nog een keer, en win je ongeveer de helft vaker (49% in plaats van 29%). Nog een keer drukken zet het weer uit.
+
+De eigenaar kan spelers geld geven via de collectie `giften` in de database (`aan`: spelersnaam, `geld`: bedrag, `bericht`): de speler krijgt het zodra hij online is, één keer. Accenten in de naam tellen niet mee (Daniel = Daniël).
+
 ## Online
 
 Bij het starten kies je een spelersnaam. Iedereen die het spel op hetzelfde moment open heeft (op claude.ai), ziet elkaar rondlopen met de naam boven het hoofd. Sta je naast iemand, dan zie je hoeveel geld die speler heeft. Met Spatie kun je zwaaien of ruilen: spullen, wapens, vapes of geld. Linksboven staat altijd hoeveel geld en schuld je hebt.
@@ -78,7 +82,9 @@ In de 3D-versie vecht je realtime. Bij het maken van je personage kies je een cl
 - **Kroegtijger**: Bierviltje, Rondje geven (heal), Barkruk, Polonaise (vijanden dansen mee), Laatste ronde.
 - **Havenwerker** (25% minder schade): Haak, Harpoen (trekt naar je toe), Anker gooien, Scheepshoorn, Stormvloed.
 
-Verslagen vijanden blijven liggen. Loop naar het lijk en druk E om het te looten: geld, vapes, gouden vapes, snacks, wapens en heel soms zeldzame kleding. Puutje, de keeper en de Koning van de Zeedijk zijn ook gewoon realtime gevechten. Derkje vecht niet: zij praat in geluiden, die je moet nadoen.
+Verslagen vijanden blijven liggen. Loop naar het lijk en druk E om het te looten: geld, vapes, gouden vapes, snacks, wapens en heel soms zeldzame kleding. Puutje, de keeper en de Koning van de Zeedijk zijn ook gewoon realtime gevechten.
+
+**Samen vechten.** Spelers in hetzelfde gebied zien dezelfde vijanden en kunnen ze tegelijk aanvallen. Vijanden komen af op wie het dichtst bij is of op wie ze aanvalt. Iedereen die een vijand raakte krijgt XP en zijn eigen buit. Eén speler per gebied (wie er het langst is) laat de vijanden lopen; gaat die weg, dan neemt de volgende het naadloos over. Verhaalgevechten en de kleedkamer blijven van jezelf. Derkje vecht niet: zij praat in geluiden, die je moet nadoen.
 
 Met Spatie spring je. Achter het dorpshuis kun je via een kliko, bierkratten, een kist en een steiger op het platte dak springen. Daar liggen de zeldzame Paashaasoren (+1 verdediging, +1 Stoerheid).
 
@@ -150,6 +156,7 @@ Menu → Ranglijst toont alle spelers op volgorde van level (bij gelijk level: w
 - `js3d/world3d.js`: bouwt de 3D-wereld uit een kaart (gebouwen, molen, paleis)
 - `js3d/props3d.js`: 3D-modellen voor al het decor
 - `js3d/pvp3d.js`: spullen op de grond, PvP in Zwolle en de fatbike (via presence)
+- `js3d/net3d.js`: samen vechten: gedeelde vijanden, klappen heen en weer, overnemen als de gastheer weggaat (via presence)
 - `js3d/ride3d.js`: de rit met Koen over de A28
 - `js3d/puzzles3d.js`: de jump puzzles naar de daken
 - `js3d/scenes3d.js`: cutscenes in de wereld: de sloop van Café Josje, de bruine meneer en de vlucht met Hermann
