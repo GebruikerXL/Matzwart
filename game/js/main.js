@@ -250,6 +250,7 @@ const G = {
       const w = this.P && this.P.wpn, x = pl.px - cx, y = pl.py - cy;
       drawHeld(ctx, w, pl.dir, x, y, pfr, true);
       drawPerson(lookFrom(this.S && this.S.ap, this.P && this.P.wear), pl.dir, pfr, x, y);
+      if (this.S && isDaniel(this.S.name)) drawSparkles(ctx, x, y, this.time);
       drawHeld(ctx, w, pl.dir, x, y, pfr, false);
     } });
     }

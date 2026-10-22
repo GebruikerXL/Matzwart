@@ -3,6 +3,19 @@
 const SHIRTS = ['#c8463a', '#3a7ac8', '#2e9a5a', '#d08a2a', '#8a4ac8', '#c84a8a', '#3aa8a8', '#7a6a4a'];
 const shirtFor = (name) => SHIRTS[[...(name || '?')].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7) % SHIRTS.length];
 
+// wie Daniel (of Daniël) heet, glinstert
+const isDaniel = (n) => String(n || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase() === 'daniel';
+// 2D: twinkelende sterretjes rond een poppetje
+function drawSparkles(c, x, y, t) {
+  for (let i = 0; i < 7; i++) {
+    const a = t * 1.7 + i * 0.9, life = (t * 0.8 + i * 0.37) % 1;
+    const sx = Math.round(x + 8 + Math.cos(a) * (7 + (i % 3) * 2)), sy = Math.round(y + 10 - life * 18);
+    c.globalAlpha = 1 - life;
+    c.fillStyle = i % 2 ? '#fff6b0' : '#ffffff';
+    c.fillRect(sx, sy - 1, 1, 3); c.fillRect(sx - 1, sy, 3, 1);
+  }
+  c.globalAlpha = 1;
+}
 const Online = {
   room: null, me: null, peers: [], rt: {}, lastSent: '', status: 'offline',
 
@@ -64,6 +77,7 @@ const Online = {
       list.push({ y: r.py, draw: () => {
         drawHeld(ctx, w, dir, x, y, fr, true);
         drawPerson(look, dir, fr, x, y);
+        if (isDaniel(s.n)) drawSparkles(ctx, x, y, G.time);
         drawHeld(ctx, w, dir, x, y, fr, false);
         nameTag(String(s.n).slice(0, 16) + (s.b ? ' (vecht)' : ''), x + 8, y - 16, '#f4f1ea');
         nameTag(`Lvl ${Number(s.lvl) || 1} · EUR ${(Number(s.eur) || 0).toLocaleString('nl-NL')}`, x + 8, y - 6, near ? '#ffd25a' : '#c8d0e8');

@@ -138,6 +138,29 @@ function textSprite(text, col = '#f4f1ea') {
   return s;
 }
 
+// sparkles: twinkelende sterretjes die rond een poppetje omhoog dwarrelen (voor iedereen die Daniel heet)
+const STAR_CANVAS = makeCanvas(16, 16, (x) => { px(x, 7, 0, 2, 16, '#fff6c8'); px(x, 0, 7, 16, 2, '#fff6c8'); px(x, 5, 5, 6, 6, '#ffffff'); px(x, 6, 3, 4, 10, '#fffbe0'); px(x, 3, 6, 10, 4, '#fffbe0'); });
+function sparkleGroup(n = 16, size = 1, own = false) {
+  const g = new THREE.Group();
+  for (let i = 0; i < n; i++) {
+    // bij anderen goud en normaal gemengd (zichtbaar op lichte achtergrond), bij jezelf zacht oplichtend
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: W3.tex(STAR_CANVAS), color: own ? (i % 3 ? 0xfff2a0 : 0xffffff) : (i % 3 ? 0xffd040 : 0xfff8d0), transparent: true, depthWrite: false, blending: own ? THREE.AdditiveBlending : THREE.NormalBlending }));
+    s.userData.seed = i / n; g.add(s);
+  }
+  g.userData.sparkle = true; g.userData.size = size;
+  return g;
+}
+function animateSparkles(g, t) {
+  for (const s of g.children) {
+    const k = s.userData.seed, life = (t * 0.45 + k) % 1, a = k * Math.PI * 2 + t * 1.3;
+    const r = (0.45 + Math.sin(k * 17) * 0.15) * (1 + ((g.userData.size || 1) - 1) * 0.25);
+    s.position.set(Math.cos(a) * r, 0.1 + life * 2.2, Math.sin(a) * r);
+    const tw = 0.5 + 0.5 * Math.sin(t * 9 + k * 40);
+    const sc = (0.08 + tw * 0.1) * (1 - life * 0.5) * (g.userData.size || 1); s.scale.set(sc, sc, 1);
+    s.material.opacity = (1 - life * 0.75) * (0.55 + tw * 0.45);
+  }
+}
+
 // naamkaartje met twee regels: naam, en daaronder level, class en geld
 function textSprite2(top, bottom, col2) {
   const c = document.createElement('canvas'), x = c.getContext('2d');

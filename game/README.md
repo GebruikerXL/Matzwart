@@ -115,6 +115,8 @@ De soundtrack wordt in code gemaakt (WebAudio, geen bestanden): meestal rustige 
 
 ## Ranglijst
 
+Wie zijn personage Daniel (of Daniël) noemt, glinstert: er dwarrelen sterretjes om hem heen, voor iedereen zichtbaar. Daniël in zijn paleis heeft ze ook.
+
 Menu → Ranglijst toont alle spelers op volgorde van level (bij gelijk level: wie de meeste XP heeft). De lijst komt uit het logboek van het spel; de 2D- en de 3D-versie hebben elk hun eigen ranglijst.
 
 ## Bestanden

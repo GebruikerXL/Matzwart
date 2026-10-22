@@ -312,6 +312,13 @@ const E3 = {
     if (this.world) for (const o of this.world.userData.props) { const p = o.userData.prop; o.visible = !(p.id && PROP_HIDE[p.id] && PROP_HIDE[p.id]()); }
     this.renderPeers();
     PV.render();
+    // heet jij Daniel? dan glinster je zelf ook (kijk maar naar beneden of om je heen)
+    const meSparkle = !!(G.S && isDaniel(G.S.name) && G.mode === 'map' && G.map);
+    if (meSparkle && !this.mySparkle) { this.mySparkle = sparkleGroup(22, 1, true); this.scene.add(this.mySparkle); }
+    if (this.mySparkle) { this.mySparkle.visible = meSparkle; if (meSparkle) { this.mySparkle.position.set(this.w(this.pos.x), this.fy, this.w(this.pos.z)); animateSparkles(this.mySparkle, this.t); } }
+    // en Daniël in zijn paleis natuurlijk ook
+    const dfig = this.figs.daniel;
+    if (dfig) { if (!dfig.userData.sp) { dfig.userData.sp = sparkleGroup(26, 3.2); dfig.add(dfig.userData.sp); } animateSparkles(dfig.userData.sp, this.t); }
     this.renderHand();
     const hurt = $('#hurt'), op = String(Math.min(0.85, this.hurtT * 2.4)); if (hurt.style.opacity !== op) hurt.style.opacity = op;
     if (document.pointerLockElement && this.menuOpen()) document.exitPointerLock();
@@ -342,6 +349,9 @@ const E3 = {
       e.g.rotation.y = (typeof s.r === 'number' ? s.r : 0) + Math.PI;
       animateFigure(e.g, this.t, mv > 0.01);
       if (sitting) for (const l of e.g.userData.legs || []) l.rotation.x = -Math.PI / 2;
+      // Daniel glinstert
+      if (isDaniel(s.n) && !e.sparkle) { e.sparkle = sparkleGroup(26, 3.2); e.g.add(e.sparkle); }
+      if (e.sparkle) animateSparkles(e.sparkle, this.t);
       // op de fatbike
       if (s.mt && !e.bike) { e.bike = PV.bikeModel(); e.bike.rotation.y = Math.PI; e.bike.position.y = -0.35; e.g.add(e.bike); }
       if (e.bike) { e.bike.visible = !!s.mt; if (s.mt) { e.g.position.y += 0.35; for (const l of e.g.userData.legs || []) l.rotation.x = -0.9; } }
