@@ -109,6 +109,10 @@ In Delfzijl staan Kjell en Jornt stomdronken bij hun roestige Opel, naast een pl
 
 Op het voetbalveld staat Hermann met zijn vliegtuigje (HERMANN AIR). Hij ziet eruit als een cryptomannetje en praat als een LinkedIn-post ("Eerlijk verhaal:", "Agree?", "#grindset"). Hij moet "premium witte blokken" naar Duitsland brengen. Ga je mee, dan begint een cutscene met spannende muziek en het geronk van de motor: je kijkt over Hermanns schouder, hij draait zich om en roept NU NU NU, en dan gooi jij tien witte pakketten uit het luik (klik of Spatie). Bij het laatste pakket val je zelf naar buiten, in slow motion. Je parachute gaat open en je daalt heel langzaam neer in de Dorpsstraat van Meedhuizen. Hermann stuurt je EUR 750 provisie en een aanbeveling op LinkedIn.
 
+## Stemmen
+
+Personages praten echt, in het Nederlands, met de spraak van de browser (Web Speech API). Het spel kiest de best klinkende Nederlandse stem die er is, geeft mannen en vrouwen een eigen stem en elk personage een eigen toonhoogte en tempo (Derkje piepklein, de bruine meneer heel laag en traag, Hermann en Koen snel). Ook de regels in de cutscenes worden uitgesproken. Het mooist klinkt het in Microsoft Edge, met de natuurlijke stemmen Fenna, Maarten en Colette; in Chrome praat Google Nederlands. De verteller en dieren praten niet. Menu → Geluid zet ook de stemmen uit.
+
 ## Muziek en Cobra 20
 
 De soundtrack wordt in code gemaakt (WebAudio, geen bestanden): meestal rustige lo-fi, en spannende muziek tijdens cutscenes, de rit met Koen, de dronken rit, verhaalgevechten en de kleedkamer. Menu → Geluid zet muziek en geluid samen aan of uit. Eens per tien minuten klinkt er een enorme knal, trilt het scherm twee seconden en verschijnt: "Puutje is met Cobra 20 aan het spelen."
@@ -125,6 +129,7 @@ Menu → Ranglijst toont alle spelers op volgorde van level (bij gelijk level: w
 - `js/maps.js`: het dorp, de schuur, het café en het dorpshuis
 - `js/ui.js`: dialoogvensters, keuzelijsten en geluid
 - `js/music.js`: de soundtrack en de knal van Cobra 20
+- `js/voice.js`: personages die echt praten (Nederlandse spraak van de browser)
 - `js/battle.js`: vechtsysteem, vijanden en voorwerpen
 - `js/weapons.js`: wapens, statuseffecten, wapen-icoontjes en Mick
 - `js/story.js`: personages en opdrachten

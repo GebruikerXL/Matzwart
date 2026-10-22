@@ -100,7 +100,7 @@ josjeWreck = async function () {
     const step = () => {
       const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000), t = (now - t0) / 1000; last = now;
       ang = 0.6 + t * 0.32;
-      if (li < lines.length && t >= lines[li][0]) { caption.textContent = lines[li][1]; li += 1; }
+      if (li < lines.length && t >= lines[li][0]) { caption.textContent = lines[li][1]; Voice.line(lines[li][1].replace('  Kjell: "JIJ!"', '')); li += 1; }
       // dansen, springen en gooien
       crew.forEach((c, i) => {
         animateFigure(c.g, t * (1.2 + i * 0.2), true);
@@ -146,7 +146,7 @@ josjeWreck = async function () {
   for (const c of crew) E3.scene.remove(c.g);
   for (const th of things) E3.scene.remove(th.o);
   E3.scene.remove(bal);
-  E3.sceneCam = null; E3.hideNpcs = null; G.wrecking = false;
+  E3.sceneCam = null; E3.hideNpcs = null; G.wrecking = false; Voice.stop();
   caption.textContent = '';
   $('#cine').hidden = true;
   $('#view').style.filter = '';
@@ -240,7 +240,7 @@ const Flight = {
       UI.fade(false);
     });
   },
-  say(at, text, big) { if (this.t >= at && !this.lines[at]) { this.lines[at] = true; $('#cine b').textContent = text; $('#cine b').classList.toggle('big', !!big); } },
+  say(at, text, big) { if (this.t >= at && !this.lines[at]) { this.lines[at] = true; $('#cine b').textContent = text; $('#cine b').classList.toggle('big', !!big); Voice.line(text, big ? 'Hermann' : null); } },
   throwOne() {
     if (this.phase !== 'gooi' || this.thrown >= 10) return;
     const k = this.blocks[this.thrown];

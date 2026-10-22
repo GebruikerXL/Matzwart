@@ -96,7 +96,7 @@ const Ride = {
       UI.fade(false);
     });
   },
-  say(at, text) { if (this.t >= at && !this.said[at]) { this.said[at] = true; UI.toast(text, 2600); } },
+  say(at, text) { if (this.t >= at && !this.said[at]) { this.said[at] = true; UI.toast(text, 2600); Voice.line(text); } },
   frame() {
     const now = performance.now(), dt = Math.min(0.05, (now - this.last) / 1000); this.last = now;
     this.t += dt;
