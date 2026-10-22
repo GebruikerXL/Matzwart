@@ -483,6 +483,7 @@ function loop(now) {
 function start(data) {
   requestAnimationFrame(loop);
   Online.init();
+  Logbook.init();
   if (data && data.S) { G.begin(data.S, false); return; }
   G.title();
 }

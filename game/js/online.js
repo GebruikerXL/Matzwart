@@ -36,7 +36,7 @@ const Online = {
   sync() {
     if (!this.room || !G.S || (G.mode !== 'map' && G.mode !== 'battle')) return;
     const P = G.P;
-    const state = { n: G.S.name || 'Naamloos', m: G.map.id, x: G.pl.x, y: G.pl.y, d: G.pl.dir, eur: P.money, w: P.wpn || '', wp: (P.weapons || []).slice(0, 20), ap: G.S.ap || null, wr: P.wear || {}, b: G.mode === 'battle' ? 1 : 0 };
+    const state = { n: G.S.name || 'Naamloos', m: G.map.id, x: G.pl.x, y: G.pl.y, d: G.pl.dir, eur: P.money, lvl: P.lvl, w: P.wpn || '', wp: (P.weapons || []).slice(0, 20), ap: G.S.ap || null, wr: P.wear || {}, b: G.mode === 'battle' ? 1 : 0 };
     const s = JSON.stringify(state);
     if (s === this.lastSent) return;
     this.lastSent = s;
@@ -171,3 +171,33 @@ async function playersMenu() {
   UI.toast('Er is geen plekje vrij naast die speler. Probeer het zo nog eens.');
   return false;
 }
+
+// ---------- logboek: wie speelt er (database, zodat Claude het kan uitlezen) ----------
+// Iedereen die mag schrijven zet zijn eigen regel in spelers/<id>; de eigenaar schrijft ook regels voor wie hij online ziet.
+const Logbook = {
+  db: null, uid: null, owner: false, last: {},
+  async init() {
+    try {
+      this.db = await window.claude?.use?.('db');
+      const u = await window.claude?.use?.('user');
+      if (u) { this.uid = await u.id(); this.owner = await u.isOwner(); }
+    } catch (e) { this.db = null; }
+    if (this.db) setInterval(() => this.tick(), 5000);
+  },
+  row(s, bron) {
+    return { naam: String(s.n || '').slice(0, 16), plek: placeName(s.m), geld: Number(s.eur) || 0, level: Number(s.lvl) || null, laatstGezien: new Date().toISOString(), bron };
+  },
+  write(key, data, kaart) {
+    if (!key || this.last[key] === false) return;
+    const prev = this.last[key];
+    // hooguit eens per 30 seconden, of meteen als iemand van plek wisselt
+    if (prev && prev.kaart === kaart && Date.now() - prev.t < 30000) return;
+    this.last[key] = { t: Date.now(), kaart };
+    this.db.doc('spelers/' + key).set(data).catch((e) => { if (e && e.code === 'invalid_argument') this.last[key] = false; });
+  },
+  tick() {
+    if (!G.S || !this.db) return;
+    if (this.uid) this.write(this.uid, this.row({ n: G.S.name, m: G.map.id, eur: G.P.money, lvl: G.P.lvl }, 'zelf'), G.map.id);
+    if (this.owner) for (const p of Online.others()) if (p.by && p.by !== this.uid) this.write(p.by, this.row(p.presence, 'gezien door de eigenaar'), p.presence.m);
+  },
+};
