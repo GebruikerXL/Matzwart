@@ -212,7 +212,7 @@ PROPS.w_zak = async () => {
 const RARE_DROP = { vaper_tiktok: 'glitterhoed', vaper_scooter: 'leerjack', vaper_training: 'goudbroek', vaper_fatbike: 'goudcrocs', vaper_beugel: 'propellerpet' };
 async function rareDrop(B, f) {
   const id = RARE_DROP[f.id];
-  if (!id || Math.random() > 0.03) return;
+  if (!id || Math.random() > (f.rareChance || 0.03)) return;
   await B.log(`Wacht… ${f.name} laat iets heel zeldzaams vallen: ${CLOTHES[id].name}!`);
   G.give(id, 1, true); SFX.item();
 }
@@ -267,10 +267,11 @@ function creator(ap) {
   const paint = () => {
     el.querySelectorAll('.crow').forEach((r, i) => { r.classList.toggle('sel', i === sel); if (rows[i]) r.querySelector('b').textContent = rows[i][2][ap[rows[i][1]]]; });
   };
+  if (window.CreatorPreview) cv.width = cv.height = 160;
   const draw = (now) => {
     dirI = Math.floor((now - t0) / 1100) % 4;
-    cx.clearRect(0, 0, 16, 16);
-    cx.drawImage(getChar(lookFrom(ap, {}), dirs[dirI], 0), 0, 0);
+    if (window.CreatorPreview) CreatorPreview(cv, lookFrom(ap, {}), (now - t0) / 1000);
+    else { cx.clearRect(0, 0, 16, 16); cx.drawImage(getChar(lookFrom(ap, {}), dirs[dirI], 0), 0, 0); }
     raf = requestAnimationFrame(draw);
   };
   raf = requestAnimationFrame(draw);

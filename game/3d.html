@@ -55,6 +55,7 @@ body {
 @keyframes haze { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
 #flash { inset: 0; pointer-events: none; opacity: 0; background: #fff; }
 #flash.on { animation: flash .5s ease-out; }
+#hurt { inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at center, rgba(220,40,40,.15), rgba(200,20,20,.7)); }
 @keyframes flash { 0% { opacity: .95; } 100% { opacity: 0; } }
 #hotwrap { left: 50%; bottom: 1.5%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.6cqw; pointer-events: none; }
 #hotname { font-size: 2.2cqw; color: var(--ink); text-shadow: 0.25cqw 0.25cqw 0 #000; min-height: 2.8cqw; }
@@ -230,6 +231,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
   <canvas id="hand" width="12" height="12" hidden></canvas>
   <div id="haze" class="ui" aria-hidden="true"></div>
   <div id="flash" class="ui" aria-hidden="true"></div>
+  <div id="hurt" class="ui" aria-hidden="true"></div>
   <div id="hotwrap" class="ui"><div id="hotname"></div><div id="hotbar" hidden></div></div>
   <div id="hud" class="ui win" hidden></div>
   <div id="toast" class="ui win" hidden></div>
@@ -285,11 +287,15 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js/casino.js"></script>
 <script src="js/vapers.js"></script>
 <script src="js/clothes.js"></script>
+<script src="js/world2.js"></script>
+<script src="js/delfzijl.js"></script>
+<script src="js/story3.js"></script>
 <script src="js/trade.js"></script>
 <script src="js/online.js"></script>
 <script src="js/main.js"></script>
 <script src="js3d/world3d.js"></script>
 <script src="js3d/figures3d.js"></script>
+<script src="js3d/props3d.js"></script>
 <script src="js3d/sky3d.js"></script>
 <script src="js3d/hotbar3d.js"></script>
 <script src="js3d/engine3d.js"></script>

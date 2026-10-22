@@ -138,18 +138,22 @@ function textSprite(text, col = '#f4f1ea') {
   return s;
 }
 
-// dampwolk rond een vaper
-function vapeCloud(col) {
+// dampwolk rond een vaper (k = hoe dik; in Delfzijl zijn ze veel dikker)
+function vapeCloud(col, k = 1) {
   const g = new THREE.Group();
   const mat = new THREE.SpriteMaterial({ map: W3.tex(PUFF_CANVAS), color: col, transparent: true, depthWrite: false });
-  for (let i = 0; i < 9; i++) { const s = new THREE.Sprite(mat.clone()); s.userData.seed = i / 9; g.add(s); }
+  const n = Math.round(9 * Math.max(1, k * 0.9));
+  for (let i = 0; i < n; i++) { const s = new THREE.Sprite(mat.clone()); s.userData.seed = i / n; g.add(s); }
+  g.userData.k = k;
   return g;
 }
 function animateCloud(g, t) {
+  const k = g.userData.k || 1;
   for (const s of g.children) {
     const life = (t * 0.35 + s.userData.seed) % 1, a = s.userData.seed * Math.PI * 2 + t * 0.4;
-    s.position.set(Math.cos(a) * (0.35 + life * 0.4), 1.3 + life * 1.1, Math.sin(a) * (0.35 + life * 0.4));
-    const sc = 0.4 + life * 0.7; s.scale.set(sc, sc, 1);
-    s.material.opacity = 0.7 * (1 - life);
+    const r = (0.35 + life * 0.4) * k;
+    s.position.set(Math.cos(a) * r, 1.2 + life * 1.1 * Math.sqrt(k), Math.sin(a) * r);
+    const sc = (0.4 + life * 0.7) * k; s.scale.set(sc, sc, 1);
+    s.material.opacity = (k > 1 ? 0.55 : 0.7) * (1 - life);
   }
 }

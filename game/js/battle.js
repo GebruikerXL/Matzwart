@@ -277,7 +277,7 @@ const Battle = {
         return null;
       }
       if (c === 3) {
-        const need = f.boss ? 4 : 2, stoer = stoerNow(P);
+        const need = f.stoerNeed || (f.boss ? 4 : 2), stoer = stoerNow(P);
         const opts = f.talk.concat([{ t: 'Intimideren', v: f.boss ? 35 : 70, r: f.intim || `Je blaast rook in het gezicht van ${f.name.toLowerCase()} en kijkt heel stoer. Dat maakt indruk.`, stoer: need }]);
         const k = await UI.list('#bsub', opts.map((t) => (t.stoer ? { label: stoer >= t.stoer ? t.t : `${t.t} (Stoerheid ${t.stoer})`, off: stoer < t.stoer } : { label: t.t })), {
           cancel: true, onMove: (i) => { $('#blog').textContent = opts[i].stoer ? `Alleen voor echte stoere types. Jouw Stoerheid: ${stoer}.` : 'Wat zeg je?'; },

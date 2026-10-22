@@ -154,7 +154,8 @@ const G = {
       this.steps += 1;
       if (this.steps > 4 && Math.random() < 0.11) {
         this.steps = 0;
-        const id = RANDOM_POOL[Math.floor(Math.random() * RANDOM_POOL.length)];
+        const pool = m.pool || RANDOM_POOL;
+        const id = pool[Math.floor(Math.random() * pool.length)];
         await this.fight(id);
       }
     }

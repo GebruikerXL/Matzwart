@@ -20,6 +20,17 @@ Opslaan kan via het menu of op het bankje aan de Dorpsstraat (dat vult ook je HP
 - **Onbetaalde frikandellen**: Eka van de EKA vergeeft je als je Puutje aanpakt, die 38 koude frikandellen heeft gejat. Daarna krijg je 20% korting.
 - **De wedstrijdbal**: de bal van VV Meedhuizen ligt in de EKA, tussen de meloenen. Daarna volgt een penaltyduel met de keeper.
 - **Het motorblok van Thijs**: Thijs is het motorblok van zijn BMW kwijt. Derkje, uit het piepkleine huisje, heeft het in haar broekzak. Je krijgt het alleen terug door met de juiste geluiden te antwoorden.
+- **De Koning van de Zeedijk**: havenmeester Jaap in Delfzijl wil van de Koning af. Versla hem op de zeedijk en je krijgt EUR 150 en een harpoen.
+
+## Meedhuizen en Delfzijl
+
+Meedhuizen lijkt meer op het echte dorp: de Laurentiuskerk op een wierde met hoge beuken, de school uit 1936, het Afwateringskanaal van Duurswold met een brug, een Oldambtster boerderij met een enorm schuurdak en de Meedhuizerweg naar het noorden. Bijna elk huis heeft nu een binnenkant: het huis van Henk, mevrouw Bakker (schoenen uit!), de boerderij, de kerk, de school, de kantine en drie A-frames.
+
+Eén A-frame is van **Daniël**. Binnen is het een paleis met marmer, pilaren, fonteinen en kroonluchters. Helemaal achterin zit Daniël RuneScape te spelen op zestien monitoren. Je mag hem niet storen: doe je het toch een vierde keer, dan zet zijn butler je buiten.
+
+Via de Meedhuizerweg kom je in **Delfzijl**: de zeedijk aan de Eems, het strand, de haven met schepen en kranen, het Damsterdiep, molen Adam, het standbeeld van Maigret, de Centrumkerk, het Muzeeaquarium, een snackbar en het Chemiepark. In het hoge gras zitten de zware jongens: vapers met grote messen en nog grotere rookwolken. Ze zijn veel sterker, maar hebben betere buit (gouden vapes die Aron voor EUR 400 koopt, zeldzamere kleding, nieuwe wapens).
+
+Op elk bankje kun je gaan zitten: dat vult je HP en EP en je kunt opslaan.
 
 ## Gevechten
 
@@ -51,7 +62,7 @@ Ruilen werkt zoals in Old School RuneScape: ruilverzoek, ruilscherm waarin alleb
 
 ## 3D-versie
 
-`3d.html` is dezelfde game in 3D, in blokstijl zoals Minecraft, in eerste persoon. Klik in beeld om rond te kijken (muis), WASD om te lopen, Shift om te rennen, E of rechtermuisknop om te praten en M voor het menu. Onderin staat een hotbar (1-9 of scrollwiel): met de linkermuisknop gebruik je wat je vasthoudt. Wapens zwaaien (een vaper eerst raken verrast hem), de vape geeft echte dampwolken, eten eet je op, de selfiestick flitst, het springtouw laat je springen en dartpijlen gooi je weg. De lucht heeft een dag-en-nachtritme met wolken, zonsondergang, sterren en noorderlicht; binnenruimtes hebben muren, een plafond, lampen en een deur. Vapers staan zichtbaar in het hoge gras: loop je ertegenaan, dan start het turn-based gevecht (in de bekende 2D-gevechtsweergave). Het verhaal, de gevechten, kleding, het casino, ruilen en online delen dezelfde code als de 2D-versie (`js/`); alleen de wereld, poppetjes en besturing zitten in `js3d/`. Three.js komt van cdnjs.
+`3d.html` is dezelfde game in 3D, in blokstijl zoals Minecraft, in eerste persoon. Klik in beeld om rond te kijken (muis), WASD om te lopen, Shift om te rennen, E of rechtermuisknop om te praten en M voor het menu. Onderin staat een hotbar (1-9 of scrollwiel): met de linkermuisknop gebruik je wat je vasthoudt. Wapens zwaaien (een vaper eerst raken verrast hem), de vape geeft echte dampwolken, eten eet je op, de selfiestick flitst, het springtouw laat je springen en dartpijlen gooi je weg. De lucht heeft een dag-en-nachtritme met wolken, zonsondergang, sterren en noorderlicht; binnenruimtes hebben muren, een plafond, lampen en een deur. Buiten is de wereld ruim opgezet (een tegel is 2 bij 2 meter, binnen 1,4 meter) en al het decor is echt 3D: lantaarnpalen, bankjes, de bushalte, koeien, de BMW van Thijs, schepen die op het water deinen, kranen, rokende schoorstenen, de draaiende wieken van molen Adam. Op een bankje ga je echt zitten; lopen of E laat je weer opstaan. Vapers staan zichtbaar in het hoge gras: loop je ertegenaan, dan start het turn-based gevecht, en de tegenstander staat dan gewoon in 3D voor je (met zijn rookwolk en, in Delfzijl, zijn mes). Het verhaal, de gevechten, kleding, het casino, ruilen en online delen dezelfde code als de 2D-versie (`js/`); alleen de wereld, poppetjes en besturing zitten in `js3d/`. Three.js komt van cdnjs.
 
 ## Bestanden
 
@@ -67,4 +78,10 @@ Ruilen werkt zoals in Old School RuneScape: ruilverzoek, ruilscherm waarin alleb
 - `js/clothes.js`: kleding, censuurbalk, kringloopwinkel, personage maken
 - `js/trade.js`: het ruilscherm
 - `js/online.js`: andere spelers, ruilen, geld-en-schuldbalk, spelersnaam
+- `js/world2.js`: het uitgebreide Meedhuizen, alle huizen van binnen en het paleis van Daniël
+- `js/delfzijl.js`: de kaart van Delfzijl en de binnenruimtes daar
+- `js/story3.js`: personages, vijanden, buit en de opdracht in Delfzijl, Daniël en zijn butler
 - `js/main.js`: engine (lopen, camera, menu, opslaan)
+- `js3d/world3d.js`: bouwt de 3D-wereld uit een kaart (gebouwen, molen, paleis)
+- `js3d/props3d.js`: 3D-modellen voor al het decor
+- `js3d/figures3d.js`, `sky3d.js`, `hotbar3d.js`, `engine3d.js`: poppetjes, lucht, hotbar en de 3D-engine

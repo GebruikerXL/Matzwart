@@ -144,6 +144,13 @@ async function stealVape(B, f, P) {
   const aron = NPCS.find((n) => n.id === 'aron');
   const talk = aron.talk;
   aron.talk = async function () {
+    const g = G.P.items.gouden_vape || 0;
+    if (g > 0) {
+      const N = 'Aron van der Wal';
+      await say(N, 'Is dat… een GOUDEN vape? Uit Delfzijl? Daar heb ik een koper voor in Hamburg. EUR 400 per stuk.');
+      const k = await ask(N, `${g} gouden vape${g > 1 ? 's' : ''}: EUR ${g * 400}. Deal?`, [`Verkopen (EUR ${g * 400})`, 'Nee, hou ik']);
+      if (k === 0) { G.P.items.gouden_vape = 0; G.P.money += g * 400; SFX.win(); UI.toast(`+EUR ${g * 400}`); await say(N, 'Dit is de beste dag van mijn carrière. En ik had er al zoveel.'); return; }
+    }
     const n = G.P.items.vape || 0;
     if (n > 0) {
       const N = 'Aron van der Wal';
