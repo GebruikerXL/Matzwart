@@ -151,3 +151,247 @@ josjeWreck = async function () {
   $('#cine').hidden = true;
   $('#view').style.filter = '';
 };
+
+// ---------- De vlucht van Hermann: blokken uit het luik, en jij erachteraan ----------
+// Het vliegtuig hangt stil in de lucht (ver weg van de kaart); de wereld eronder schuift voorbij.
+const FIELDS_CANVAS = makeCanvas(64, 64, (x) => {
+  const cols = ['#5f9e3c', '#6aa844', '#c8b050', '#4f8a31', '#8ab040', '#a8783a', '#7ab048'];
+  for (let i = 0; i < 64; i += 8) for (let j = 0; j < 64; j += 16) px(x, i, j, 8, 16, cols[(i * 7 + j * 3) % cols.length]);
+  for (let i = 0; i < 64; i += 16) px(x, i, 0, 1, 64, '#3a6fb0');
+  px(x, 0, 31, 64, 1, '#9a9aa2');
+});
+const Flight = {
+  build() {
+    const R = new THREE.Group(); R.position.set(-6000, 700, 0);
+    const ft = new THREE.CanvasTexture(FIELDS_CANVAS); ft.wrapS = ft.wrapT = THREE.RepeatWrapping; ft.repeat.set(45, 45); ft.magFilter = THREE.NearestFilter; ft.minFilter = THREE.LinearMipmapLinearFilter; ft.anisotropy = 8;
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(9000, 9000), new THREE.MeshLambertMaterial({ map: ft }));
+    ground.rotation.x = -Math.PI / 2; ground.position.y = -700; R.add(ground); this.ground = ground;
+    // wolken
+    this.clouds = [];
+    for (let i = 0; i < 40; i++) {
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: W3.tex(PUFF_CANVAS), color: 0xffffff, transparent: true, opacity: 0.85, depthWrite: false }));
+      const sc = 30 + Math.random() * 50; s.scale.set(sc, sc * 0.55, 1);
+      s.position.set((Math.random() - 0.5) * 400, -60 + Math.random() * 120, -Math.random() * 1500);
+      R.add(s); this.clouds.push(s);
+    }
+    // het vliegtuig van binnen (neus naar -z)
+    const P = new THREE.Group(); R.add(P); this.plane = P;
+    const wall = W3.mat(makeCanvas(16, 16, (x) => { px(x, 0, 0, 16, 16, '#d8d4c8'); px(x, 0, 7, 16, 2, '#c23b2e'); }));
+    M3.b(P, 1.7, 0.1, 5.4, '#4a4a52', 0, 0, 0);
+    for (const s of [-1, 1]) { M3.b(P, 0.1, 0.5, 5.4, wall, s * 0.85, 0.25, 0); M3.b(P, 0.08, 0.45, 5.4, M3.glass(), s * 0.85, 0.75, 0); M3.b(P, 0.1, 0.45, 5.4, wall, s * 0.85, 1.2, 0); }
+    M3.b(P, 1.7, 0.1, 5.4, wall, 0, 1.45, 0);
+    M3.b(P, 1.6, 0.5, 0.3, '#2a2a30', 0, 0.75, -2.4);
+    for (let i = 0; i < 5; i++) M3.b(P, 0.14, 0.14, 0.02, M3.glow(['#7ad46a', '#f2c22e', '#e8433a', '#5ad0f0', '#f4f1ea'][i]), -0.55 + i * 0.27, 0.85, -2.24);
+    M3.b(P, 1.6, 0.45, 0.05, M3.glass(), 0, 1.2, -2.6);
+    M3.b(P, 0.5, 0.45, 0.5, '#3a3a44', -0.35, 0.3, -1.5); M3.b(P, 0.5, 0.35, 0.1, '#3a3a44', -0.35, 0.6, -1.25);
+    M3.b(P, 0.5, 0.45, 0.5, '#3a3a44', 0.35, 0.3, 0.4); M3.b(P, 0.5, 0.7, 0.1, '#3a3a44', 0.35, 0.7, 0.65);
+    // het luik achterin staat open; de deur klappert ernaast
+    this.door = M3.b(P, 0.05, 1.3, 0.9, wall, 0.9, 0.7, 2.9);
+    for (const s of [-1, 1]) M3.b(P, 11, 0.12, 1.4, '#f4f1ea', s * 6, 1.5, -0.6);
+    const prop = new THREE.Group(); prop.position.set(0, 0.75, -3.1); prop.add(box(0.15, 2.2, 0.06, cmat('#2a2a2a'), 0, 0, 0)); P.add(prop); this.prop = prop;
+    // Hermann aan de stuurknuppel
+    const h = buildFigure(LOOKS.hermann); h.rotation.y = Math.PI; h.position.set(-0.35, 0.05, -1.45); h.scale.setScalar(0.9);
+    for (const l of h.userData.legs) l.rotation.x = -Math.PI / 2;
+    for (const a of h.userData.arms) a.rotation.x = -1.3;
+    P.add(h); this.hermann = h;
+    // tien witte blokken, met tape
+    this.blocks = [];
+    for (let i = 0; i < 10; i++) {
+      const b = new THREE.Group();
+      M3.b(b, 0.42, 0.26, 0.3, '#f4f4f0', 0, 0, 0); M3.b(b, 0.43, 0.27, 0.05, '#a8784a', 0, 0, 0); M3.b(b, 0.05, 0.27, 0.31, '#a8784a', 0, 0, 0);
+      const home = new THREE.Vector3(-0.45 + (i % 2) * 0.46, 0.18 + Math.floor(i / 4) * 0.28, 1.5 + (Math.floor(i / 2) % 2) * 0.34);
+      b.position.copy(home); b.rotation.y = (i % 3) * 0.1;
+      P.add(b); this.blocks.push({ b, home, t: -1 });
+    }
+    return R;
+  },
+  camLocal(v) { return v.clone().add(this.root.position); },
+  engine(on) {
+    const c = SFX.ctx;
+    if (!c) return;
+    if (on && !this.eng) {
+      const o = c.createOscillator(), o2 = c.createOscillator(), f = c.createBiquadFilter(), g = c.createGain(), lfo = c.createOscillator(), lg = c.createGain();
+      o.type = 'sawtooth'; o.frequency.value = 62; o2.type = 'square'; o2.frequency.value = 31; f.type = 'lowpass'; f.frequency.value = 520;
+      lfo.frequency.value = 18; lg.gain.value = 0.03; lfo.connect(lg); lg.connect(g.gain);
+      g.gain.value = SFX.on ? 0.09 : 0;
+      o.connect(f); o2.connect(f); f.connect(g); g.connect(c.destination); o.start(); o2.start(); lfo.start();
+      this.eng = { o, o2, g, lfo };
+    } else if (!on && this.eng) {
+      const e = this.eng; this.eng = null;
+      e.g.gain.setTargetAtTime(0, c.currentTime, 0.4);
+      setTimeout(() => { try { e.o.stop(); e.o2.stop(); e.lfo.stop(); } catch (x) {} }, 2000);
+    }
+  },
+  run() {
+    return new Promise((resolve) => {
+      this.root = this.build();
+      E3.scene.add(this.root);
+      if (E3.world) E3.world.visible = false;
+      E3.scene.fog = new THREE.Fog('#cfe0f2', 400, 2600);
+      E3.scene.background = null;
+      SKY.hazeAmt = 0.25;
+      E3.camera.fov = 75; E3.camera.far = 6000; E3.camera.updateProjectionMatrix();
+      this.t = 0; this.phase = 'vlieg'; this.thrown = 0; this.idle = 0; this.last = performance.now(); this.done = resolve; this.lines = {};
+      $('#cine').hidden = false;
+      $('#ridehud').hidden = true;
+      for (const id of ['#pframe', '#tframe', '#abar', '#xpbar', '#prompt', '#atip', '#pvp', '#hud']) $(id).hidden = true;
+      G.mode = 'cut';
+      this.engine(true);
+      UI.fade(false);
+    });
+  },
+  say(at, text, big) { if (this.t >= at && !this.lines[at]) { this.lines[at] = true; $('#cine b').textContent = text; $('#cine b').classList.toggle('big', !!big); } },
+  throwOne() {
+    if (this.phase !== 'gooi' || this.thrown >= 10) return;
+    const k = this.blocks[this.thrown];
+    k.t = 0; this.thrown += 1; this.idle = 0;
+    SFX.tone(200, 0.15, 'triangle', 0.05, -120);
+    $('#cine b').textContent = `Pakket ${this.thrown} van 10 eruit!${this.thrown < 10 ? '  (klik of Spatie)' : ''}`;
+    if (this.thrown >= 10) { this.phase = 'val'; this.fallT = 0; }
+  },
+  frame() {
+    const now = performance.now(), dt = Math.min(0.05, (now - this.last) / 1000); this.last = now;
+    this.t += dt;
+    const cam = E3.camera, P = this.plane;
+    // de wereld schuift onder het vliegtuig door
+    const slow = this.phase === 'val' ? 0.25 : 1;
+    this.ground.material.map.offset.y -= dt * 0.012 * slow;
+    for (const c of this.clouds) { c.position.z += dt * 55 * slow; if (c.position.z > 60) c.position.z -= 1500; }
+    this.prop.rotation.z += dt * 40 * slow;
+    this.door.rotation.y = Math.sin(this.t * 7) * 0.25;
+    const shake = this.phase === 'val' ? 0 : 0.012;
+    P.rotation.z = Math.sin(this.t * 0.8) * 0.03;
+    // blokken die uit het luik vliegen
+    for (const k of this.blocks) {
+      if (k.t < 0) continue;
+      k.t += dt * slow;
+      const hatch = new THREE.Vector3(0.1, 0.7, 2.9);
+      if (k.t < 0.35) k.b.position.lerpVectors(k.home, hatch, k.t / 0.35);
+      else { const u = k.t - 0.35; k.b.position.set(hatch.x + u * 0.5, hatch.y - 4.9 * u * u, hatch.z + u * 30); }
+      k.b.rotation.x += dt * 6 * slow; k.b.rotation.z += dt * 4 * slow;
+    }
+    if (this.phase === 'vlieg') {
+      // over de schouder van Hermann
+      this.say(0.3, 'Hermann: "Eerlijk verhaal: vijf jaar geleden had ik niks. Nu heb ik een vliegtuig."');
+      this.say(2.4, 'Hermann: "We vliegen nu boven Duitsland. Of Drenthe. Agree?"');
+      const p = this.camLocal(new THREE.Vector3(0.4, 1.18, 0.3));
+      cam.position.set(p.x + (Math.random() - 0.5) * shake, p.y + (Math.random() - 0.5) * shake, p.z);
+      cam.lookAt(this.camLocal(new THREE.Vector3(-0.2, 0.95, -3.5)));
+      if (this.t > 4.4) { this.phase = 'nu'; this.nuT = 0; }
+    } else if (this.phase === 'nu') {
+      // Hermann draait zich om: NU NU NU
+      this.nuT += dt;
+      const turn = Math.min(1, this.nuT / 0.4);
+      this.hermann.rotation.y = Math.PI - turn * 2.6;
+      this.hermann.userData.arms[1].rotation.x = -1.3 - turn * 1.4 + Math.sin(this.nuT * 25) * 0.3 * turn;
+      this.say(4.6, 'NU NU NU!', true);
+      if (this.nuT > 0.5 && !this.shout) { this.shout = true; [0, 180, 360].forEach((d) => setTimeout(() => SFX.tone(520, 0.14, 'square', 0.07, -80), d)); }
+      const p = this.camLocal(new THREE.Vector3(0.4, 1.18, 0.3));
+      cam.position.set(p.x + (Math.random() - 0.5) * 0.03, p.y + (Math.random() - 0.5) * 0.03, p.z);
+      // de speler draait zich om naar het luik
+      const k = Math.max(0, Math.min(1, (this.nuT - 1.2) / 0.9));
+      const fwd = this.camLocal(new THREE.Vector3(-0.2, 0.95, -3.5)), back = this.camLocal(new THREE.Vector3(0.1, 0.45, 3.2));
+      cam.lookAt(fwd.lerp(back, k * k * (3 - 2 * k)));
+      if (this.nuT > 2.2) { this.phase = 'gooi'; $('#cine b').classList.remove('big'); $('#cine b').textContent = 'Gooi de 10 pakketten uit het luik! (klik of Spatie)'; }
+    } else if (this.phase === 'gooi') {
+      const p = this.camLocal(new THREE.Vector3(0.2, 1.05, 0.7));
+      cam.position.set(p.x + (Math.random() - 0.5) * shake, p.y + (Math.random() - 0.5) * shake, p.z);
+      cam.lookAt(this.camLocal(new THREE.Vector3(0.1, 0.45, 3.2)));
+      this.idle += dt;
+      if (this.idle > 4) this.throwOne(); // wie niks doet, gooit toch (Hermann schreeuwt)
+    } else if (this.phase === 'val') {
+      // jij glijdt mee naar buiten: slow motion
+      this.fallT += dt;
+      if (!this.slowmo) { this.slowmo = true; $('#view').style.filter = 'saturate(0.35) contrast(1.25)'; $('#cine b').textContent = 'Oei.'; SFX.tone(70, 2.5, 'sawtooth', 0.06, -30); this.engine(false); }
+      const u = Math.max(0, this.fallT - 0.6) * 0.32;
+      const local = new THREE.Vector3(0.2 + u * 0.3, 1.05 - u * u * 20, 0.7 + this.fallT * 1.1 + u * 25);
+      cam.position.copy(this.camLocal(local));
+      P.position.z -= dt * (this.fallT > 0.6 ? 6 : 0);
+      cam.lookAt(this.camLocal(new THREE.Vector3(0, -6 - u * 30, -6 + u * 10)));
+      cam.rotation.z += Math.sin(this.fallT * 1.3) * 0.6 * Math.min(1, u);
+      if (this.fallT > 1.5) $('#cine b').textContent = 'Alles gaat heel langzaam. Hermann zwaait. Of hij post er al over.';
+      if (this.fallT > 5) { this.phase = 'chute'; this.chuteT = 0; this.canopy = parachute(); E3.scene.add(this.canopy); SFX.tone(180, 0.4, 'triangle', 0.08, 300); $('#view').style.filter = ''; $('#cine b').textContent = 'RUK. Je parachute gaat open.'; this.camBase = cam.position.clone(); }
+    } else if (this.phase === 'chute') {
+      this.chuteT += dt;
+      const p = this.camBase.clone().add(new THREE.Vector3(Math.sin(this.chuteT) * 0.6, 1.2 * Math.exp(-this.chuteT * 3) - this.chuteT * 4, 0));
+      cam.position.copy(p);
+      this.canopy.position.copy(p).add(new THREE.Vector3(0, 6, 0));
+      const k = Math.min(1, this.chuteT / 1.5);
+      cam.lookAt(p.clone().add(new THREE.Vector3(0, 6 * (1 - k) - 10 * k, -2 - 8 * k)));
+      if (this.chuteT > 3.6 && !this.ending) { this.ending = true; this.finish(); }
+    }
+    SKY.update(1 / 60, cam.position, E3.hemi, E3.sun, E3.scene, false);
+    E3.updateFx(dt);
+    E3.renderer.render(E3.scene, cam);
+  },
+  async finish() {
+    $('#fade').style.background = '#fff';
+    await UI.fade(true);
+    E3.scene.remove(this.root); E3.scene.remove(this.canopy);
+    if (E3.world) E3.world.visible = true;
+    E3.camera.fov = 70; E3.camera.far = 300; E3.camera.updateProjectionMatrix();
+    this.engine(false);
+    this.slowmo = false; this.shout = false; this.ending = false;
+    $('#cine b').textContent = '';
+    const done = this.done; this.done = null;
+    done();
+  },
+};
+function parachute() {
+  const g = new THREE.Group();
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(3.2, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2.6), new THREE.MeshLambertMaterial({ color: '#e8433a', side: THREE.DoubleSide }));
+  g.add(dome);
+  for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; const st = new THREE.Mesh(new THREE.SphereGeometry(3.22, 12, 6, a, 0.35, 0, Math.PI / 2.6), new THREE.MeshLambertMaterial({ color: '#f4f1ea', side: THREE.DoubleSide })); g.add(st); }
+  for (const [x, z] of [[-2, -2], [2, -2], [-2, 2], [2, 2]]) { const l = box(0.02, 5.2, 0.02, cmat('#888'), x * 0.5, -2.4, z * 0.5); l.rotation.z = -x * 0.08; l.rotation.x = z * 0.08; g.add(l); }
+  return g;
+}
+(function () {
+  const render3d = G.render;
+  G.render = function () { if (this.mode === 'cut') { Flight.frame(); return; } render3d.call(this); };
+  $('#view').addEventListener('mousedown', (e) => { if (G.mode === 'cut') { e.preventDefault(); Flight.throwOne(); } });
+  addEventListener('keydown', (e) => { if (G.mode === 'cut' && (e.code === 'Space' || e.code === 'KeyE' || e.code === 'Enter') && !e.repeat) { e.preventDefault(); Flight.throwOne(); } });
+})();
+hermannFlight = async function () {
+  G.busy = true;
+  PV.dismount(); CB.setTarget(null);
+  if (document.pointerLockElement) document.exitPointerLock();
+  await UI.fade(true);
+  await Flight.run();
+  // landen in de Dorpsstraat: langzaam aan de parachute naar beneden
+  G.mode = 'map';
+  G.loadMap('dorp', 17, 15, 'up');
+  const haze = E3.scene.fog, hazeAmt = SKY.hazeAmt;
+  E3.scene.fog = new THREE.Fog(haze.color.getHex(), 30, 190); SKY.hazeAmt = 0.35;
+  const canopy = parachute(); E3.scene.add(canopy);
+  const H = 42, T = 9;
+  let fy = H;
+  E3.sceneCam = (cam) => {
+    cam.position.y = fy + 1.6;
+    cam.position.x += Math.sin(performance.now() / 900) * 0.4;
+    cam.rotation.set(-0.45 + Math.sin(performance.now() / 1300) * 0.05, E3.yaw, Math.sin(performance.now() / 1100) * 0.05, 'YXZ');
+    canopy.position.set(cam.position.x, fy + 7.5, cam.position.z);
+  };
+  $('#cine b').textContent = 'Je zweeft boven Meedhuizen. Je ziet de kerk, het dorpshuis en Lanting.';
+  await UI.fade(false);
+  $('#fade').style.background = '';
+  await new Promise((resolve) => {
+    const t0 = performance.now();
+    const step = () => {
+      const t = (performance.now() - t0) / 1000;
+      fy = H * Math.pow(Math.max(0, 1 - t / T), 1.4);
+      // hoe lager je komt, hoe dikker de vapedamp weer wordt
+      const k = Math.min(1, t / T);
+      E3.scene.fog.near = 30 * (1 - k) + haze.near * k; E3.scene.fog.far = 190 * (1 - k) + haze.far * k;
+      if (t > 4) $('#cine b').textContent = 'Langzaam. Heel langzaam. Recht op de Dorpsstraat af.';
+      if (t < T) requestAnimationFrame(step); else resolve();
+    };
+    requestAnimationFrame(step);
+  });
+  SFX.tone(110, 0.2, 'triangle', 0.06, -40);
+  E3.sceneCam = null;
+  E3.scene.fog = haze; SKY.hazeAmt = hazeAmt;
+  E3.scene.remove(canopy);
+  E3.fy = 0; E3.pitch = 0;
+  $('#cine').hidden = true; $('#cine b').textContent = '';
+  await hermannLanding();
+};

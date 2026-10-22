@@ -42,7 +42,7 @@ const Music = {
     while (this.nextT < c.currentTime + 0.25) { this.play(song, this.step, this.nextT, s16); this.step += 1; this.nextT += s16; }
   },
   tenseNow() {
-    if (G.mode === 'ride' || G.mode === 'battle') return true;
+    if (G.mode === 'ride' || G.mode === 'battle' || G.mode === 'cut') return true;
     if (typeof E3 !== 'undefined' && E3.sceneCam) return true;
     if (typeof CB !== 'undefined' && (CB.story || CB.brawlP)) return true;
     return false;

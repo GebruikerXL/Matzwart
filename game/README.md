@@ -105,6 +105,10 @@ Buiten hangt zoveel vapedamp dat je maar zo'n 20 meter ver kijkt (in Delfzijl no
 
 In Delfzijl staan Kjell en Jornt stomdronken bij hun roestige Opel, naast een plas kots. Ze vragen of je meegaat naar Café Josje. Zeg je ja, dan rijd jij: een cutscene over de N33 waarin je steeds meer biertjes drinkt, alles wazig wordt en je af en toe kotst. Daarna volgt een flashback: jij, Kjell en Jornt slopen de kroeg, terwijl stoelen, tafels, barkrukken, flessen en kratten door de lucht vliegen en de discobal naar beneden komt. Je wordt wakker in Café Josje met nog 20% HP: een enorme, compleet gesloopte kroeg met een bar, een zaal met een discobal, wc's, een achterhok en een gang naar de uitgang. Bij de uitgang staat de bruine meneer, een enorme meneer in een bruin pak. Je moet drie miljoen euro betalen voor 200.000 biertjes. Dat kan niet. In slow motion word je doodgeslagen (permadeath).
 
+## Hermann en de witte blokken
+
+Op het voetbalveld staat Hermann met zijn vliegtuigje (HERMANN AIR). Hij ziet eruit als een cryptomannetje en praat als een LinkedIn-post ("Eerlijk verhaal:", "Agree?", "#grindset"). Hij moet "premium witte blokken" naar Duitsland brengen. Ga je mee, dan begint een cutscene met spannende muziek en het geronk van de motor: je kijkt over Hermanns schouder, hij draait zich om en roept NU NU NU, en dan gooi jij tien witte pakketten uit het luik (klik of Spatie). Bij het laatste pakket val je zelf naar buiten, in slow motion. Je parachute gaat open en je daalt heel langzaam neer in de Dorpsstraat van Meedhuizen. Hermann stuurt je EUR 750 provisie en een aanbeveling op LinkedIn.
+
 ## Muziek en Cobra 20
 
 De soundtrack wordt in code gemaakt (WebAudio, geen bestanden): meestal rustige lo-fi, en spannende muziek tijdens cutscenes, de rit met Koen, de dronken rit, verhaalgevechten en de kleedkamer. Menu → Geluid zet muziek en geluid samen aan of uit. Eens per tien minuten klinkt er een enorme knal, trilt het scherm twee seconden en verschijnt: "Puutje is met Cobra 20 aan het spelen."
@@ -134,12 +138,13 @@ Menu → Ranglijst toont alle spelers op volgorde van level (bij gelijk level: w
 - `js/hardcore.js`: permadeath, Delfzicht, Zwolle, Koen, de fatbike, de kleedkamer en de hooligans
 - `js/houses.js`: spullen in huizen, krakpanden en huizen met vijanden
 - `js/josje.js`: Kjell, Jornt, Café Josje en de bruine meneer
+- `js/hermann.js`: Hermann, zijn vliegtuigje en de witte blokken
 - `js/main.js`: engine (lopen, camera, menu, automatisch opslaan)
 - `js3d/world3d.js`: bouwt de 3D-wereld uit een kaart (gebouwen, molen, paleis)
 - `js3d/props3d.js`: 3D-modellen voor al het decor
 - `js3d/pvp3d.js`: spullen op de grond, PvP in Zwolle en de fatbike (via presence)
 - `js3d/ride3d.js`: de rit met Koen over de A28
 - `js3d/puzzles3d.js`: de jump puzzles naar de daken
-- `js3d/scenes3d.js`: de slow-motion-scène bij de uitgang van Café Josje
+- `js3d/scenes3d.js`: cutscenes in de wereld: de sloop van Café Josje, de bruine meneer en de vlucht met Hermann
 - `js3d/combat3d.js`: realtime vechten: classes, abilities, doelwit, buit, speler- en doelwitframe
 - `js3d/figures3d.js`, `sky3d.js`, `hotbar3d.js`, `engine3d.js`: poppetjes, lucht, icoontjes en de 3D-engine (lopen, springen, licht)

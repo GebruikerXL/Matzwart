@@ -145,6 +145,18 @@ const PROP3D = {
     for (const x of [-0.5, 0.5]) { const u = M3.cyl(g, 0.08, 0.08, 0.3, '#666', x, 0.3, -3.05, 8); u.rotation.x = Math.PI / 2; }
   },
   autoR() {},
+  // het vliegtuigje van Hermann (HERMANN AIR), neus naar +z
+  vliegtuig(g) {
+    M3.b(g, 1.4, 1.3, 5.6, '#f4f1ea', 0, 1.25, 0); M3.b(g, 1.42, 0.2, 5.62, '#c23b2e', 0, 1.0, 0);
+    M3.b(g, 1.2, 0.5, 1.2, M3.glass(), 0, 1.95, 1.0);
+    M3.b(g, 10, 0.12, 1.4, '#f4f1ea', 0, 2.0, 0.6); M3.b(g, 10.02, 0.13, 0.2, '#c23b2e', 0, 2.0, 0.0);
+    M3.b(g, 3.2, 0.1, 0.9, '#f4f1ea', 0, 1.5, -2.6); M3.b(g, 0.1, 1.3, 1.0, '#c23b2e', 0, 2.3, -2.6);
+    M3.b(g, 0.12, 0.6, 0.9, M3.text('HERMANN\nAIR', 0.9, 0.6, '#c23b2e', '#f4f1ea', 'bold 34px Silkscreen'), 0.07, 2.2, -2.55, (m) => { m.rotation.y = Math.PI / 2; });
+    M3.cyl(g, 0.3, 0.45, 0.5, '#888', 0, 1.25, 3.0, 10).rotation.x = Math.PI / 2;
+    const prop = new THREE.Group(); prop.position.set(0, 1.25, 3.3); prop.add(box(0.15, 2.0, 0.06, cmat('#2a2a2a'), 0, 0, 0)); g.add(prop); g.userData.spin = prop;
+    for (const x of [-1.2, 1.2]) { M3.b(g, 0.08, 0.8, 0.08, '#555', x, 0.4, 1.0); M3.cyl(g, 0.3, 0.3, 0.18, '#1b1b1b', x, 0.3, 1.0, 12).rotation.z = Math.PI / 2; }
+    M3.cyl(g, 0.15, 0.15, 0.12, '#1b1b1b', 0, 0.15, -2.4, 10).rotation.z = Math.PI / 2;
+  },
   // de roestige Opel Kadett van Kjell en Jornt
   opelL(g) {
     M3.b(g, 1.7, 0.6, 4.0, '#c8783a', 0, 0.5, -0.9); M3.b(g, 1.55, 0.55, 2.0, M3.glass(), 0, 1.07, -1.1); M3.b(g, 1.55, 0.06, 2.0, '#a8602a', 0, 1.37, -1.1);

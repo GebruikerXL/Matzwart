@@ -375,11 +375,12 @@ function buildWorld(m) {
         if (p.name === 'bank' && !(TILE_DEF[tileAt(m, p.x, p.y + 1)] || {}).walk) obj.rotation.y = Math.PI;
         if (p.name === 'goal') obj.rotation.y = p.x < m.w / 2 ? Math.PI : 0;
         if (p.name === 'gamestoel') obj.rotation.y = Math.PI;
+        if (p.name === 'vliegtuig') obj.rotation.y = -Math.PI / 2;
         if (p.name === 'kraan') obj.rotation.y = Math.PI / 2;
         if (p.name === 'bmwL' || p.name === 'autoL' || p.name === 'opelL') { obj.rotation.y = Math.PI / 2; obj.position.x = (p.x + 1) * S + 0.9; }
         const u = obj.userData;
         if (u.bob) { const o = obj, ph = p.x + p.y; anim.push((tt) => { o.position.y = Math.sin(tt * 0.8 + ph) * 0.12 - 0.3; o.rotation.z = Math.sin(tt * 0.6 + ph) * 0.02; }); }
-        if (u.spin) { const s = u.spin; anim.push((tt) => { s.rotation.y = tt * 1.5; }); }
+        if (u.spin) { const s = u.spin; const ax = p.name === 'vliegtuig' ? 'z' : 'y'; anim.push((tt) => { s.rotation[ax] = tt * (ax === 'z' ? 4 : 1.5); }); }
         if (u.smoke) root.userData.smoke.push(new THREE.Vector3(c(p.x), u.smoke, c(p.y)));
       } else {
         obj = new THREE.Sprite(new THREE.SpriteMaterial({ map: W3.tex(getProp(p.name)), alphaTest: 0.5 }));
