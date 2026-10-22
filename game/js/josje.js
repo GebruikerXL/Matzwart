@@ -41,7 +41,12 @@ var josjeRide = async function () {
   G.busy = true;
   await UI.fade(true);
   for (const t of ['Je stapt achter het stuur. Kjell geeft je een biertje. En nog een.', 'De weg wordt wazig. Jornt zingt. Je kotst uit het raam. Kjell applaudisseert.', 'Nog een biertje. Waar is de weg? Is dit een weg?']) await UI.say('', t);
+  await josjeWreck();
   await josjeArrive();
+};
+// zonder 3D: de sloopavond als tekst (in 3D een cutscene met rondvliegende spullen, zie scenes3d.js)
+var josjeWreck = async function () {
+  for (const [n, t] of [['', 'Café Josje. Een uur later. Kjell staat op de bar.'], ['Kjell', 'RONDJE VAN DE ZAAK!'], ['Jornt', 'POLONAISE OVER DE BAR!'], ['', 'Jornt gooit een barkruk door de spiegel. Jij gooit een tafel achter de barkruk aan. Kjell gooit... alles.'], ['', 'De discobal valt naar beneden. Iemand roept iets over 200.000 biertjes. Niemand luistert.']]) await UI.say(n, t);
 };
 async function josjeArrive() {
   G.loadMap('josje', 8, 9, 'up');
@@ -50,7 +55,8 @@ async function josjeArrive() {
   await UI.fade(false);
   G.busy = true;
   await me('Je opent je ogen. Je ligt op een kleverige vloer. Café Josje.');
-  await me('Alles is kapot. Tafels, stoelen, de bar, de spiegel. Je hebt nog 20% van je HP. Je hoofd voelt alsof Mick erop heeft gezeten.');
+  await me('Alles is kapot. Tafels, stoelen, de bar, de spiegel. En het komt langzaam terug: dat waren jullie. Jij, Kjell en Jornt.');
+  await me('Je hebt nog 20% van je HP. Je hoofd voelt alsof Mick erop heeft gezeten.');
   G.busy = false;
 }
 
@@ -71,7 +77,7 @@ async function josjeArrive() {
     [4, 7, 'kapottafel'], [10, 9, 'kapottafel'], [7, 10, 'kapottafel'], [5, 8, 'kapotstoel'], [11, 8, 'kapotstoel'], [3, 10, 'kapotstoel'],
     [8, 6, 'scherven', false], [12, 7, 'scherven', false], [6, 9, 'plas', false], [13, 10, 'plas', false],
     // de zaal met de dansvloer
-    [17, 2, 'box'], [30, 2, 'box'], [23, 2, 'bureau', true, 'josje_dj'], [23, 7, 'discobal', false],
+    [17, 2, 'box'], [30, 2, 'box'], [23, 2, 'bureau', true, 'josje_dj'], [12, 6, 'discobal_kapot', false, 'josje_bal'],
     [20, 9, 'kapottafel'], [27, 10, 'kapottafel'], [19, 5, 'kapotstoel'], [22, 10, 'plas', false], [25, 5, 'plas', false], [28, 7, 'scherven', false],
     // de wc's
     [2, 15, 'emmer'], [4, 18, 'kots', false], [6, 19, 'kots', false], [3, 19, 'plas', false],
@@ -82,6 +88,8 @@ async function josjeArrive() {
   ].forEach(([x, y, n, solid, id]) => prop(m, x, y, n, solid !== false, id));
   MAPS.josje = m;
 })();
+// de discobal ligt kapot op de grond (tijdens de flashback hangt hij nog)
+PROP_HIDE.josje_bal = () => !!G.wrecking;
 PROPS.josje_poster = () => me('CAFÉ JOSJE. ALTIJD OPEN. Daaronder, met stift: "200.000 biertjes = record?!"');
 PROPS.josje_piano = () => me('De piano heeft nog drie toetsen. Op een ervan staat een biertje. Het is jouw biertje, zegt iets in je.');
 PROPS.josje_dj = () => me('Het draaitafeltje van de DJ. De plaat is in tweeën gebroken. De DJ ook, zo te zien aan het bloed op de vloer. Nee. Dat is ketchup. Hopelijk.');
@@ -116,4 +124,5 @@ PROP_DRAW.scherven = function (x) { [[3, 12], [7, 10], [11, 13], [9, 11], [5, 14
 PROP_DRAW.kapottafel = function (x) { px(x, 2, 9, 12, 3, '#8c5a32'); px(x, 3, 12, 2, 3, '#4a2c18'); px(x, 11, 6, 2, 4, '#4a2c18'); px(x, 6, 9, 1, 3, '#2a1a0a'); };
 PROP_DRAW.kapotstoel = function (x) { px(x, 3, 10, 8, 2, '#7a4c2a'); px(x, 10, 6, 2, 6, '#6a3c1a'); px(x, 4, 12, 1, 3, '#5a3c1a'); };
 PROP_DRAW.box = function (x) { px(x, 3, 2, 10, 14, '#1b1b20'); px(x, 5, 4, 6, 5, '#3a3a44'); px(x, 6, 10, 4, 4, '#3a3a44'); px(x, 7, 6, 2, 1, '#888'); };
+PROP_DRAW.discobal_kapot = function (x) { px(x, 4, 8, 7, 6, '#c8ccd4'); px(x, 5, 9, 1, 1, '#fff'); px(x, 8, 11, 1, 1, '#fff'); px(x, 11, 12, 2, 1, '#a8acb4'); px(x, 2, 13, 2, 1, '#a8acb4'); };
 PROP_DRAW.discobal = function (x) { px(x, 5, 3, 6, 6, '#c8ccd4'); px(x, 6, 4, 1, 1, '#fff'); px(x, 9, 6, 1, 1, '#fff'); px(x, 7, 0, 2, 3, '#888'); };

@@ -209,11 +209,19 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 #title h1 .hc { display: block; color: #e8433a; font-size: 0.55em; letter-spacing: 0.25em; text-shadow: 0.3cqw 0.3cqw 0 #000, 0 0 2cqw rgba(232,67,58,.6); }
 #title .perma { margin-top: 1.2cqw; color: #ff6a5a; font-family: var(--font-title); font-size: 2.6cqw; text-align: center; text-shadow: 0.25cqw 0.25cqw 0 #000; }
 #title .perma small { display: block; font-family: var(--font-ui); font-size: 1.9cqw; color: var(--ink); max-width: 70cqw; margin: 0.4cqw auto 0; }
+#game.cobra { animation: cobra 2s linear; }
+@keyframes cobra { 0%, 100% { transform: translate(0, 0); } 5% { transform: translate(-14px, 9px) rotate(-0.6deg); } 10% { transform: translate(12px, -11px) rotate(0.5deg); } 15% { transform: translate(-10px, -8px); } 20% { transform: translate(11px, 10px) rotate(-0.4deg); } 30% { transform: translate(-8px, 6px); } 40% { transform: translate(7px, -7px) rotate(0.3deg); } 50% { transform: translate(-6px, 5px); } 60% { transform: translate(5px, -4px); } 70% { transform: translate(-4px, 3px); } 80% { transform: translate(3px, -2px); } 90% { transform: translate(-2px, 1px); } }
+#cobra { left: 50%; top: 34%; transform: translateX(-50%); text-align: center; pointer-events: none; z-index: 40; width: 86%; }
+#cobra b { display: block; font-family: var(--font-title); font-size: 9cqw; color: #ff5a2a; text-shadow: 0.5cqw 0.5cqw 0 #000, 0 0 3cqw rgba(255,180,60,.9); letter-spacing: 0.2em; }
+#cobra span { display: inline-block; margin-top: 1cqw; font-size: 3.2cqw; padding: 0.8cqw 2.4cqw; background: rgba(10,8,20,.85); border: 0.4cqw solid #ff8a3a; border-radius: 1cqw; color: #ffd25a; }
+#cobra.on { animation: cobrain 5.2s ease-out; }
+@keyframes cobrain { 0% { opacity: 0; transform: translateX(-50%) scale(2.4); } 8% { opacity: 1; transform: translateX(-50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
 </style>
 
 <div id="game">
   <canvas id="screen" width="320" height="240" aria-label="Spelscherm"></canvas>
   <div id="hud" class="ui win" hidden></div>
+  <div id="cobra" class="ui" hidden><b>KNAL!</b><span>Puutje is met Cobra 20 aan het spelen.</span></div>
   <div id="toast" class="ui win" hidden></div>
 
   <div id="benemy" class="ui win" hidden></div>
@@ -269,6 +277,7 @@ button:focus-visible, .opt:focus-visible { outline: 2px solid var(--gold); outli
 <script src="js/sprites.js"></script>
 <script src="js/maps.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/music.js"></script>
 <script src="js/battle.js"></script>
 <script src="js/weapons.js"></script>
 <script src="js/story.js"></script>

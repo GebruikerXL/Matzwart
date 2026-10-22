@@ -234,5 +234,6 @@ josjeRide = async function () {
   await UI.fade(true);
   await Ride.run('josje', { drunk: true });
   G.mode = 'map';
+  await josjeWreck();
   await josjeArrive();
 };

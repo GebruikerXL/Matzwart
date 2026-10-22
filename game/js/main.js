@@ -472,6 +472,8 @@ let last = performance.now(), lastSave = performance.now();
 function loop(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   if (G.mode === 'map') { G.update(dt); Online.tick(); } else G.time += dt;
+  Music.tick();
+  Cobra.tick(now);
   // automatisch opslaan: de speler hoeft nooit zelf op te slaan
   if (G.S && G.mode === 'map' && now - lastSave > 15000) { lastSave = now; G.save(); }
   G.render();

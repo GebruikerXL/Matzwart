@@ -301,7 +301,7 @@ const E3 = {
     for (const n of NPCS) {
       const g = this.figs[n.id]; if (!g) continue;
       const r = G.npcRt[n.id];
-      g.visible = !!r && (!n.show || n.show()) && n.id !== this.hideNpc;
+      g.visible = !!r && (!n.show || n.show()) && n.id !== this.hideNpc && !(this.hideNpcs && this.hideNpcs.includes(n.id));
       if (!g.visible) continue;
       const x = r.px / TS + 0.5, z = r.py / TS + 0.5;
       g.position.set(this.w(x), this.ground(x, z), this.w(z));

@@ -103,7 +103,11 @@ Buiten hangt zoveel vapedamp dat je maar zo'n 20 meter ver kijkt (in Delfzijl no
 
 ## Café Josje
 
-In Delfzijl staan Kjell en Jornt stomdronken bij hun roestige Opel, naast een plas kots. Ze vragen of je meegaat naar Café Josje. Zeg je ja, dan rijd jij: een cutscene over de N33 waarin je steeds meer biertjes drinkt, alles wazig wordt en je af en toe kotst. Je wordt wakker in Café Josje met nog 20% HP: een enorme, compleet gesloopte kroeg met een bar, een zaal met een discobal, wc's, een achterhok en een gang naar de uitgang. Bij de uitgang staat de bruine meneer, een enorme meneer in een bruin pak. Je moet drie miljoen euro betalen voor 200.000 biertjes. Dat kan niet. In slow motion word je doodgeslagen (permadeath).
+In Delfzijl staan Kjell en Jornt stomdronken bij hun roestige Opel, naast een plas kots. Ze vragen of je meegaat naar Café Josje. Zeg je ja, dan rijd jij: een cutscene over de N33 waarin je steeds meer biertjes drinkt, alles wazig wordt en je af en toe kotst. Daarna volgt een flashback: jij, Kjell en Jornt slopen de kroeg, terwijl stoelen, tafels, barkrukken, flessen en kratten door de lucht vliegen en de discobal naar beneden komt. Je wordt wakker in Café Josje met nog 20% HP: een enorme, compleet gesloopte kroeg met een bar, een zaal met een discobal, wc's, een achterhok en een gang naar de uitgang. Bij de uitgang staat de bruine meneer, een enorme meneer in een bruin pak. Je moet drie miljoen euro betalen voor 200.000 biertjes. Dat kan niet. In slow motion word je doodgeslagen (permadeath).
+
+## Muziek en Cobra 20
+
+De soundtrack wordt in code gemaakt (WebAudio, geen bestanden): meestal rustige lo-fi, en spannende muziek tijdens cutscenes, de rit met Koen, de dronken rit, verhaalgevechten en de kleedkamer. Menu → Geluid zet muziek en geluid samen aan of uit. Eens per tien minuten klinkt er een enorme knal, trilt het scherm twee seconden en verschijnt: "Puutje is met Cobra 20 aan het spelen."
 
 ## Ranglijst
 
@@ -114,6 +118,7 @@ Menu → Ranglijst toont alle spelers op volgorde van level (bij gelijk level: w
 - `js/sprites.js`: alle pixel-art, in code getekend
 - `js/maps.js`: het dorp, de schuur, het café en het dorpshuis
 - `js/ui.js`: dialoogvensters, keuzelijsten en geluid
+- `js/music.js`: de soundtrack en de knal van Cobra 20
 - `js/battle.js`: vechtsysteem, vijanden en voorwerpen
 - `js/weapons.js`: wapens, statuseffecten, wapen-icoontjes en Mick
 - `js/story.js`: personages en opdrachten
