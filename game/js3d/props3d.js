@@ -13,7 +13,7 @@ const M3 = {
     return new THREE.MeshLambertMaterial({ map: tex });
   },
 };
-const SIGN_TEXT = { plaatsbord: 'MEEDHUIZEN', dz_plaatsbord: 'DELFZIJL', bordoost: 'A-framestraat →\nEKA', bordzuid: '↓ Voetbalveld\nZwemsteiger', borddelfzijl: '↑ Delfzijl', kanaalbord: 'Afwateringskanaal\nvan Duurswold', damsterdiep: 'Damsterdiep', steigerbord: 'ZWEMSTEIGER\nNiet duiken' };
+const SIGN_TEXT = { plaatsbord: 'MEEDHUIZEN', dz_plaatsbord: 'DELFZIJL', bordoost: 'A-framestraat →\nEKA', bordzuid: '↓ Voetbalveld\nZwemsteiger', borddelfzijl: '↑ Delfzijl', kanaalbord: 'Afwateringskanaal\nvan Duurswold', damsterdiep: 'Damsterdiep', steigerbord: 'ZWEMSTEIGER\nNiet duiken', dakbord: 'VERBODEN\nOP HET DAK' };
 
 const PROP3D = {
   lamp(g) { M3.cyl(g, 0.06, 0.09, 3.2, '#3a3a44', 0, 1.6, 0); M3.b(g, 0.5, 0.18, 0.5, '#3a3a44', 0, 3.25, 0); M3.b(g, 0.4, 0.06, 0.4, M3.glow('#ffe9a0'), 0, 3.14, 0); },
@@ -124,6 +124,19 @@ const PROP3D = {
   doos(g) { M3.b(g, 0.8, 0.5, 0.6, '#a8784a', 0, 0.25, 0); M3.b(g, 0.3, 0.2, 0.3, '#c86a9a', -0.15, 0.55, 0); M3.b(g, 0.3, 0.15, 0.3, '#3ab0c0', 0.2, 0.55, 0); },
   kegelprop(g) { M3.b(g, 0.6, 0.06, 0.6, '#3a3a3a', 0, 0.03, 0); const c = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.7, 12), cmat('#ff7a2a')); c.position.y = 0.4; g.add(c); M3.cyl(g, 0.15, 0.17, 0.12, '#f4f1ea', 0, 0.42, 0, 12); },
   jute(g) { M3.b(g, 0.6, 0.7, 0.4, '#b08a50', 0, 0.35, 0); M3.b(g, 0.62, 0.08, 0.42, '#8a6a3a', 0, 0.55, 0); },
+  // de jump puzzle achter het dorpshuis
+  kratten(g) { for (let i = 0; i < 6; i++) { const y = 0.15 + i * 0.3; M3.b(g, 1.3, 0.3, 1.3, i % 2 ? '#e8b030' : '#d89a20', (i % 2) * 0.06, y, 0); M3.b(g, 1.32, 0.06, 1.32, '#a86a10', (i % 2) * 0.06, y + 0.1, 0); } },
+  kist(g) { M3.b(g, 1.6, 1.3, 1.5, '#8c5a32', 0, 0.65, 0); M3.b(g, 1.4, 1.3, 1.3, '#a8784a', 0.05, 1.95, 0.05); for (const y of [0.3, 1.0, 1.6, 2.3]) M3.b(g, 1.62, 0.08, 1.52, '#5a3720', 0, y, 0); },
+  steiger(g) {
+    for (const [x, z] of [[-0.8, -0.8], [0.8, -0.8], [-0.8, 0.8], [0.8, 0.8]]) M3.b(g, 0.08, 3.4, 0.08, '#9aa0aa', x, 1.7, z);
+    for (const y of [1.1, 2.25]) { M3.b(g, 1.7, 0.06, 0.06, '#9aa0aa', 0, y, 0.8); M3.b(g, 1.7, 0.06, 0.06, '#9aa0aa', 0, y, -0.8); }
+    M3.b(g, 1.8, 0.08, 1.8, '#b08a50', 0, 3.36, 0); M3.b(g, 0.3, 0.4, 0.3, '#f4f1ea', 0.5, 3.6, 0.5); M3.b(g, 0.04, 0.5, 0.04, '#8c5a32', 0.5, 3.9, 0.5);
+  },
+  paashaas(g) {
+    for (const x of [-0.12, 0.12]) { M3.b(g, 0.1, 0.45, 0.06, '#f4f1ea', x, 0.33, 0); M3.b(g, 0.05, 0.32, 0.02, '#f0a0b8', x, 0.33, 0.035); }
+    M3.b(g, 0.42, 0.08, 0.2, '#d8d0c0', 0, 0.08, 0);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: W3.tex(PUFF_CANVAS), color: 0xfff0a0, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); s.scale.set(1.2, 1.2, 1); s.position.y = 0.3; g.add(s);
+  },
   hay(g) { M3.b(g, 1.2, 0.9, 0.9, '#d9b24e', 0, 0.45, 0); },
   bal(g) { const s = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), cmat('#f4f1ea')); s.position.y = 0.12; g.add(s); },
   brief(g) { M3.b(g, 0.3, 0.01, 0.2, '#f4f1ea', 0, 0.01, 0); },

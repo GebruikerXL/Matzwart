@@ -26,6 +26,7 @@ function addCloth(id, c) { CLOTHES[id] = c; ITEMS[id] = { name: c.name, desc: `$
 addCloth('zuidwester', { slot: 'hoofd', name: 'Zuidwester', t: 'hoedje', col: '#f2c22e', st: { def: 3, stoer: 1 }, rare: true, desc: 'Zeldzaam. Waterdicht. Stormdicht. Kritiekdicht.' });
 addCloth('reddingsvest', { slot: 'boven', name: 'Reddingsvest', col: '#ff7a2a', pat: 'tracksuit', st: { def: 4 }, rare: true, desc: 'Zeldzaam. Je blijft overal boven drijven.' });
 addCloth('havenbroek', { slot: 'broek', name: 'Havenwerkersbroek', col: '#2a3a5a', st: { def: 3, atk: 1 }, rare: true, desc: 'Zeldzaam. Twaalf zakken. Allemaal leeg.' });
+addCloth('paashaasoren', { slot: 'hoofd', name: 'Paashaasoren', t: 'oren', col: '#f4f1ea', st: { def: 1, stoer: 1 }, rare: true, desc: 'Zeldzaam. Lagen op het dak van het dorpshuis. Niemand weet hoe ze daar kwamen.' });
 addCloth('laarzen', { slot: 'schoenen', name: 'Visserslaarzen', col: '#2e6a3a', st: { def: 3, atk: 1 }, rare: true, desc: 'Zeldzaam. Tot aan je knieën.' });
 
 // ---------- de zware jongens van Delfzijl ----------
@@ -278,3 +279,17 @@ Object.assign(PROPS, {
   fontein: () => me('Een fontein. Het water klatert. Er liggen munten in, en een lege energiedrank.'),
   monitors: () => me('Zestien monitoren. Op elk scherm RuneScape. Op één scherm staat "Congratulations, you just advanced a Woodcutting level." Ernaast een lege pizzadoos.'),
 });
+
+// ---------- de jump puzzle achter het dorpshuis (alleen in 3D kom je op het dak) ----------
+PROP_DRAW.paashaas = function (x) { px(x, 5, 3, 2, 8, '#f4f1ea'); px(x, 9, 3, 2, 8, '#f4f1ea'); px(x, 6, 5, 1, 5, '#f0a0b8'); px(x, 9, 5, 1, 5, '#f0a0b8'); px(x, 4, 11, 8, 2, '#d8d0c0'); };
+PROP_HIDE.paashaas = () => F().paashaas;
+PROPS.paashaas = async () => {
+  F().paashaas = true;
+  await me('Op het dak van het dorpshuis, tussen de dakgoot en een verdwaalde tennisbal: een paar paashaasoren.');
+  await me('Je hebt geen idee hoe die hier komen. Je zet ze meteen op.');
+  G.give('paashaasoren');
+  if (!(G.P.wear || {}).hoofd) { G.P.wear = G.P.wear || {}; G.P.wear.hoofd = 'paashaasoren'; }
+};
+PROPS.dakbord = () => me('VERBODEN OP HET DAK TE KLIMMEN. Daaronder, met stift: "zeker niet via de kliko"');
+PROPS.kratten = () => me('Een stapel bierkratten van Lanting. Allemaal leeg. Ze staan opvallend handig opgestapeld.');
+PROPS.steiger = () => me('Een steiger van de schilder. Hij is al drie jaar met de dakgoot bezig.');

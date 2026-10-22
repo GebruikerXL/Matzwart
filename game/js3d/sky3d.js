@@ -5,12 +5,12 @@ const SKY = {
   mesh: null, uni: null,
 
   build(scene) {
-    this.uni = { uTime: { value: 0 }, uSun: { value: new THREE.Vector3(0, 1, 0) }, uDay: { value: 1 } };
+    this.uni = { uTime: { value: 0 }, uSun: { value: new THREE.Vector3(0, 1, 0) }, uDay: { value: 1 }, uHaze: { value: new THREE.Color('#cfc6dc') }, uHazeAmt: { value: 0 } };
     const mat = new THREE.ShaderMaterial({
       uniforms: this.uni, side: THREE.BackSide, depthWrite: false, fog: false,
       vertexShader: `varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
       fragmentShader: `
-        varying vec3 vDir; uniform float uTime; uniform vec3 uSun; uniform float uDay;
+        varying vec3 vDir; uniform float uTime; uniform vec3 uSun; uniform float uDay; uniform vec3 uHaze; uniform float uHazeAmt;
         float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
         float n(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
           return mix(mix(h(i),h(i+vec2(1,0)),f.x), mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x), f.y); }
@@ -56,6 +56,8 @@ const SKY = {
           }
           // onder de horizon
           col = mix(col, hor*0.7, smoothstep(0.0, -0.15, d.y));
+          // vapedamp: rond de horizon loopt de lucht over in de mist
+          col = mix(col, uHaze, uHazeAmt * (1.0 - smoothstep(-0.05, 0.55, d.y)));
           gl_FragColor = vec4(col, 1.0);
         }`,
     });
@@ -74,15 +76,21 @@ const SKY = {
     this.uni.uTime.value += dt; this.uni.uSun.value.copy(sunV); this.uni.uDay.value = day;
     this.mesh.position.copy(camPos);
     this.mesh.visible = !inside;
+    this.dayF = day;
     if (inside) return;
     const sunset = Math.max(0, 1 - Math.abs(sunV.y) / 0.35);
-    hemi.intensity = 0.25 + 0.65 * day;
-    hemi.color.setRGB(0.55 + 0.45 * day, 0.6 + 0.4 * day, 0.75 + 0.25 * day);
-    sun.intensity = 0.05 + 0.55 * day;
+    // 's nachts maanlicht: blauwig en niet pikzwart
+    hemi.intensity = 0.38 + 0.52 * day;
+    hemi.color.setRGB(0.5 + 0.5 * day, 0.58 + 0.42 * day, 0.85 + 0.15 * day);
+    sun.intensity = 0.12 + 0.48 * day;
     sun.color.setRGB(1, 0.9 - sunset * 0.3, 0.8 - sunset * 0.45);
     sun.position.set(sunV.x * 60, Math.max(sunV.y, 0.1) * 60, sunV.z * 60);
     const hor = new THREE.Color().setRGB(0.06 + 0.62 * day + sunset * 0.3, 0.08 + 0.76 * day + sunset * 0.05, 0.18 + 0.8 * day - sunset * 0.2);
-    scene.fog.color.copy(hor);
+    // de vapedamp: lila overdag, paarsig donker 's nachts
+    const haze = hor.clone().lerp(new THREE.Color().setRGB(0.12 + 0.68 * day + sunset * 0.2, 0.1 + 0.66 * day, 0.2 + 0.68 * day), 0.6);
+    scene.fog.color.copy(haze);
+    this.uni.uHaze.value.copy(haze);
+    this.uni.uHazeAmt.value = this.hazeAmt == null ? 0 : this.hazeAmt;
   },
   label() {
     const p = this.phase;

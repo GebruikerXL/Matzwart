@@ -62,7 +62,27 @@ Ruilen werkt zoals in Old School RuneScape: ruilverzoek, ruilscherm waarin alleb
 
 ## 3D-versie
 
-`3d.html` is dezelfde game in 3D, in blokstijl zoals Minecraft, in eerste persoon. Klik in beeld om rond te kijken (muis), WASD om te lopen, Shift om te rennen, E of rechtermuisknop om te praten en M voor het menu. Onderin staat een hotbar (1-9 of scrollwiel): met de linkermuisknop gebruik je wat je vasthoudt. Wapens zwaaien (een vaper eerst raken verrast hem), de vape geeft echte dampwolken, eten eet je op, de selfiestick flitst, het springtouw laat je springen en dartpijlen gooi je weg. De lucht heeft een dag-en-nachtritme met wolken, zonsondergang, sterren en noorderlicht; binnenruimtes hebben muren, een plafond, lampen en een deur. Buiten is de wereld ruim opgezet (een tegel is 2 bij 2 meter, binnen 1,4 meter) en al het decor is echt 3D: lantaarnpalen, bankjes, de bushalte, koeien, de BMW van Thijs, schepen die op het water deinen, kranen, rokende schoorstenen, de draaiende wieken van molen Adam. Op een bankje ga je echt zitten; lopen of E laat je weer opstaan. Vapers staan zichtbaar in het hoge gras: loop je ertegenaan, dan start het turn-based gevecht, en de tegenstander staat dan gewoon in 3D voor je (met zijn rookwolk en, in Delfzijl, zijn mes). Het verhaal, de gevechten, kleding, het casino, ruilen en online delen dezelfde code als de 2D-versie (`js/`); alleen de wereld, poppetjes en besturing zitten in `js3d/`. Three.js komt van cdnjs.
+`3d.html` is dezelfde game in 3D, in blokstijl zoals Minecraft, in eerste persoon. Klik in beeld om rond te kijken (muis), WASD om te lopen, Shift om te rennen, Spatie om te springen, E of rechtermuisknop om te praten of te looten, 1-5 voor je abilities, Tab of klikken om een doelwit te kiezen en M voor het menu. Eten en drinken gebruik je via Menu → Spullen. De lucht heeft een dag-en-nachtritme met wolken, zonsondergang, sterren en noorderlicht; binnenruimtes hebben muren, een plafond, lampen en een deur. Buiten is de wereld ruim opgezet (een tegel is 2 bij 2 meter, binnen 1,4 meter) en al het decor is echt 3D: lantaarnpalen, bankjes, de bushalte, koeien, de BMW van Thijs, schepen die op het water deinen, kranen, rokende schoorstenen, de draaiende wieken van molen Adam. Op een bankje ga je echt zitten; lopen of E laat je weer opstaan. Vapers staan zichtbaar in het hoge gras; kom je te dichtbij, dan vallen ze aan (zie Vechten in 3D). Het verhaal, de gevechten, kleding, het casino, ruilen en online delen dezelfde code als de 2D-versie (`js/`); alleen de wereld, poppetjes en besturing zitten in `js3d/`. Three.js komt van cdnjs.
+
+## Vechten in 3D (zoals World of Warcraft)
+
+In de 3D-versie vecht je realtime. Bij het maken van je personage kies je een class; elke class heeft vijf abilities op de toetsen 1 tot en met 5. Je begint met twee, op level 2, 4 en 6 komt er telkens een bij. Linksboven staan je HP en je Energydrink (je mana); abilities kosten Energydrink en hebben een cooldown. Klik op een vijand of druk Tab om hem als doelwit te kiezen; naast je eigen balk verschijnt dan zijn balk. Sta je dichtbij, dan sla je vanzelf met je wapen. Wapens en kleding geven alleen nog stats.
+
+- **Vaper**: Rookring, Dikke wolk (schade over tijd), Mango-blast, Opgaan in damp (onzichtbaar), Cloud chaser.
+- **Crimineel**: Schieten, Zakkenrollen, In de rug, Wegscheuren op een scooter, Neven bellen.
+- **Voetballer** (15% minder schade): Knal, Sliding, Schwalbe, Hoge bal, Penalty.
+- **Kroegtijger**: Bierviltje, Rondje geven (heal), Barkruk, Polonaise (vijanden dansen mee), Laatste ronde.
+- **Havenwerker** (25% minder schade): Haak, Harpoen (trekt naar je toe), Anker gooien, Scheepshoorn, Stormvloed.
+
+Verslagen vijanden blijven liggen. Loop naar het lijk en druk E om het te looten: geld, vapes, gouden vapes, snacks, wapens en heel soms zeldzame kleding. Puutje, de keeper en de Koning van de Zeedijk zijn ook gewoon realtime gevechten. Derkje vecht niet: zij praat in geluiden, die je moet nadoen.
+
+Met Spatie spring je. Achter het dorpshuis kun je via een kliko, bierkratten, een kist en een steiger op het platte dak springen. Daar liggen de zeldzame Paashaasoren (+1 verdediging, +1 Stoerheid).
+
+Buiten hangt zoveel vapedamp dat je maar zo'n 20 meter ver kijkt (in Delfzijl nog minder). 's Avonds gaan de lantaarnpalen aan: lichtkringen op straat, en de ramen van de huizen gloeien.
+
+## Ranglijst
+
+Menu → Ranglijst toont alle spelers op volgorde van level (bij gelijk level: wie de meeste XP heeft). De lijst komt uit het logboek van het spel; de 2D- en de 3D-versie hebben elk hun eigen ranglijst.
 
 ## Bestanden
 
@@ -84,4 +104,5 @@ Ruilen werkt zoals in Old School RuneScape: ruilverzoek, ruilscherm waarin alleb
 - `js/main.js`: engine (lopen, camera, menu, opslaan)
 - `js3d/world3d.js`: bouwt de 3D-wereld uit een kaart (gebouwen, molen, paleis)
 - `js3d/props3d.js`: 3D-modellen voor al het decor
-- `js3d/figures3d.js`, `sky3d.js`, `hotbar3d.js`, `engine3d.js`: poppetjes, lucht, hotbar en de 3D-engine
+- `js3d/combat3d.js`: realtime vechten: classes, abilities, doelwit, buit, speler- en doelwitframe
+- `js3d/figures3d.js`, `sky3d.js`, `hotbar3d.js`, `engine3d.js`: poppetjes, lucht, icoontjes en de 3D-engine (lopen, springen, licht)

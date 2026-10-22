@@ -119,6 +119,8 @@ drawCharInto = function (x, L, dir, frame) {
     } else if (h.t === 'hoedje') {
       px(x, 5, 0, 6, 2, C); px(x, 3, 2, 10, 1, D);
       if (C === '#e86fb0') { px(x, 6, 0, 1, 1, '#fff'); px(x, 9, 1, 1, 1, '#fff'); }
+    } else if (h.t === 'oren') {
+      px(x, 5, 0, 2, 3, C); px(x, 9, 0, 2, 3, C); px(x, 6, 0, 1, 2, '#f0a0b8'); px(x, 9, 0, 1, 2, '#f0a0b8');
     } else if (h.t === 'kegel') {
       px(x, 7, 0, 2, 1, C); px(x, 6, 1, 4, 1, '#f4f1ea'); px(x, 5, 2, 6, 1, C); px(x, 3, 3, 10, 1, shade(C, -30));
     }
@@ -260,12 +262,15 @@ function creator(ap) {
     ['Gezicht', 'fc', FACES.map((f) => f[0])],
     ['Formaat', 'z', SIZES],
   ];
-  el.innerHTML = `<h3>Hoe zie je eruit?</h3><div class="cwrap"><canvas width="16" height="16"></canvas><div class="crows">${rows.map((r, i) => `<div class="crow" data-i="${i}"><span class="lbl">${r[0]}</span><button type="button" data-d="-1">◀</button><b></b><button type="button" data-d="1">▶</button></div>`).join('')}<div class="crow done" data-i="${rows.length}"><button type="button" class="ok">Klaar</button></div></div></div><p class="lbl">Je begint naakt. Kleding vind, koop of ruil je in het dorp. Het formaat bepaalt alleen hoe groot de censuurbalk is.</p>`;
+  // in 3D kies je ook je class
+  if (typeof CLASSES !== 'undefined') { if (ap.cl == null) ap.cl = 0; rows.unshift(['Class', 'cl', CLASS_KEYS.map((k) => CLASSES[k].name)]); }
+  el.innerHTML = `<h3>Hoe zie je eruit?</h3><div class="cwrap"><canvas width="16" height="16"></canvas><div class="crows">${rows.map((r, i) => `<div class="crow" data-i="${i}"><span class="lbl">${r[0]}</span><button type="button" data-d="-1">◀</button><b></b><button type="button" data-d="1">▶</button></div>`).join('')}<div class="crow done" data-i="${rows.length}"><button type="button" class="ok">Klaar</button></div></div></div>${typeof CLASSES !== 'undefined' ? '<p class="cdesc"></p>' : ''}<p class="lbl">Je begint naakt. Kleding vind, koop of ruil je in het dorp. Het formaat bepaalt alleen hoe groot de censuurbalk is.</p>`;
   const cv = el.querySelector('canvas'), cx = cv.getContext('2d');
   let sel = 0, dirI = 0, t0 = performance.now(), raf;
   const dirs = ['down', 'right', 'up', 'left'];
   const paint = () => {
     el.querySelectorAll('.crow').forEach((r, i) => { r.classList.toggle('sel', i === sel); if (rows[i]) r.querySelector('b').textContent = rows[i][2][ap[rows[i][1]]]; });
+    if (typeof CLASSES !== 'undefined') { const c = CLASSES[CLASS_KEYS[ap.cl]]; el.querySelector('.cdesc').innerHTML = `<b>${c.name}</b>: ${c.desc} Begint met ${c.abil.filter((a) => a.lvl <= 1).map((a) => a.name).join(' en ')}.`; }
   };
   if (window.CreatorPreview) cv.width = cv.height = 160;
   const draw = (now) => {

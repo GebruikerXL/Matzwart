@@ -19,6 +19,33 @@ const ceilH = (m) => CEIL_H[m.id] || 3.2;
 const BLOCK_H = { counter: 1.05, hay: 1.0, schap: 2.0, kast: 2.0, hedge: 1.2 };
 const GROUND_H = { wierde: 0.5, dijk: 0.9, beuk: 0.5 };
 const groundH = (m, tx, ty) => GROUND_H[tileAt(m, tx, ty)] || 0;
+// waar je op kunt springen: decor (bovenkant in meters), heggen en platte daken
+const CLIMB_H = { kliko: 1.03, kratten: 1.8, kist: 2.6, steiger: 3.4, container: 1.34, hay: 0.9, biervat: 0.9, emmer: 0.35, doos: 0.5, sokkel: 0.25 };
+const FLAT_H = 3.85;
+const roofAt = (m, tx, ty) => m.buildings.find((b) => b.flat && tx >= b.x && tx < b.x + b.w && ty >= b.y && ty < b.y + b.h);
+
+// ramen die 's avonds gloeien: dezelfde tekening, maar alleen het glas
+const GLASS = new Set(['154,180,208', '94,127,166', '247,220,138']);
+const glowCache = new Map();
+function glowCanvas(cv) {
+  if (glowCache.has(cv)) return glowCache.get(cv);
+  const c = makeCanvas(cv.width, cv.height, (x) => {
+    const src = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data;
+    const img = x.createImageData(cv.width, cv.height);
+    for (let i = 0; i < src.length; i += 4) if (src[i + 3] > 0 && GLASS.has(`${src[i]},${src[i + 1]},${src[i + 2]}`)) { img.data[i] = 255; img.data[i + 1] = 200; img.data[i + 2] = 120; img.data[i + 3] = 255; }
+    else img.data[i + 3] = 255;
+    x.putImageData(img, 0, 0);
+  });
+  glowCache.set(cv, c);
+  return c;
+}
+const GLOW_MATS = new Set();
+function glowMat(cv, extra) {
+  const m = new THREE.MeshLambertMaterial({ map: W3.tex(cv), emissive: new THREE.Color('#ffffff'), emissiveMap: W3.tex(glowCanvas(cv)), emissiveIntensity: 0, ...(extra || {}) });
+  GLOW_MATS.add(m);
+  return m;
+}
+const POOL_CANVAS = makeCanvas(64, 64, (x) => { const g = x.createRadialGradient(32, 32, 2, 32, 32, 31); g.addColorStop(0, 'rgba(255,220,150,.9)'); g.addColorStop(0.5, 'rgba(255,200,120,.35)'); g.addColorStop(1, 'rgba(255,190,110,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); });
 const GROUND_UNDER = { tree: 'grass', beuk: 'wierde', fence: 'grass', block: 'grass', hedge: 'grass', tall: 'grass', wall: 'floor', counter: 'floor', table: 'floor', chair: 'floor', hay: 'straw', schap: 'tegel', kast: 'floor', dark: null, water: null, deep: null, zee: null };
 
 function makeCanvas(w, h, fn) { const [c, x] = mk(w, h); fn(x); return c; }
@@ -60,7 +87,7 @@ function buildingMesh(b, S, anim) {
   const roofMat = new THREE.MeshLambertMaterial({ color: b.roof || '#2f3340' });
   const kind = b.kind || 'normaal';
   const facePlane = (cv, w, h, y) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshLambertMaterial({ map: W3.tex(cv), transparent: true, alphaTest: 0.5 }));
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), glowMat(cv, { transparent: true, alphaTest: 0.5 }));
     m.position.set(cx, y, front + 0.02); g.add(m); return m;
   };
   const door = (x, z) => { g.add(box(1.1, 2.2, 0.1, cmat('#5a3720'), x, 1.1, z)); g.add(box(0.08, 0.08, 0.06, cmat('#f2c22e'), x + 0.38, 1.1, z + 0.07)); };
@@ -81,6 +108,16 @@ function buildingMesh(b, S, anim) {
     g.add(box(W, H, D, new THREE.MeshLambertMaterial({ color: kind === 'casino' ? '#3a1f4a' : '#e8e6e0' }), cx, H / 2, cz));
     g.add(box(W + 0.3, 0.3, D + 0.3, cmat('#5a5e68'), cx, H + 0.15, cz));
     facePlane(canvas, W, H, H / 2);
+  } else if (b.flat) {
+    // plat dak (het dorpshuis): daar kun je op staan
+    const H = FLAT_H - 0.05;
+    const roofH = Math.floor(canvas.height * 0.45);
+    const crop = Math.max(0, roofH - 12);
+    const facade = makeCanvas(canvas.width, canvas.height - crop, (x) => x.drawImage(canvas, 0, -crop));
+    const top = W3.mat(makeCanvas(16, 16, (x) => { px(x, 0, 0, 16, 16, '#4a4a50'); for (let i = 0; i < 20; i++) px(x, (i * 7) % 16, (i * 5) % 16, 1, 1, i % 2 ? '#5a5a62' : '#3a3a40'); }));
+    g.add(box(W, H, D, [brick, brick, top, roofMat, glowMat(facade), brick], cx, H / 2, cz));
+    for (const [w, d, x, z] of [[W, 0.25, cx, b.y * S + 0.12], [W, 0.25, cx, front - 0.12], [0.25, D, b.x * S + 0.12, cz], [0.25, D, b.x * S + W - 0.12, cz]]) g.add(box(w, 0.35, d, cmat('#d8d4c8'), x, H + 0.17, z));
+    g.add(box(1.2, 0.8, 1.2, cmat('#9aa0aa'), cx + W * 0.25, H + 0.4, cz - D * 0.2));
   } else if (kind === 'molen') {
     // molen Adam: bakstenen onderbouw, stelling, achtkantige romp, kap en draaiende wieken
     const base = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.8, 4.5, 8), brick); base.position.set(cx, 2.25, cz); g.add(base);
@@ -106,7 +143,7 @@ function buildingMesh(b, S, anim) {
     const roofH = Math.floor(canvas.height * (church ? 0.55 : 0.45));
     const crop = Math.max(0, roofH - 12);
     const facade = makeCanvas(canvas.width, canvas.height - crop, (x) => x.drawImage(canvas, 0, -crop));
-    g.add(box(W, H, D, [brick, brick, roofMat, roofMat, W3.mat(facade), brick], cx, H / 2, cz));
+    g.add(box(W, H, D, [brick, brick, roofMat, roofMat, glowMat(facade), brick], cx, H / 2, cz));
     if (oldambt) {
       // Oldambtster boerderij: klein voorhuis, daarachter een enorme schuur onder één groot dak
       const roof = new THREE.Mesh(roofGeometry(W + 0.8, D + 0.8, 8, false), roofMat); roof.position.set(cx, H, cz); g.add(roof);
@@ -219,7 +256,8 @@ function buildWorld(m) {
   const S = mapScale(m);
   const root = new THREE.Group();
   const anim = [];
-  root.userData = { S, anim, props: [], smoke: [] };
+  root.userData = { S, anim, props: [], smoke: [], lamps: [] };
+  GLOW_MATS.clear();
   const groups = new Map(); // key -> [[x,y]]
   const add = (key, x, y) => { if (!groups.has(key)) groups.set(key, []); groups.get(key).push([x, y]); };
   const extras = { tree: [], beuk: [], tall: [], fence: [], water: [], zee: [], table: [], chair: [] };
@@ -316,8 +354,16 @@ function buildWorld(m) {
         obj.position.set(c(p.x), Math.min(1.8, ceilH(m) - 0.6), (p.y + 1) * S + 0.03);
       }
     } else {
-      const base = groundH(m, p.x, p.y);
+      const base = roofAt(m, p.x, p.y) ? FLAT_H : groundH(m, p.x, p.y);
       obj = propModel(p);
+      if (obj && p.name === 'lamp' && !m.inside) {
+        // 's avonds: gloed om de lamp en een lichtkring op de straat
+        const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: W3.tex(PUFF_CANVAS), color: 0xffd890, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }));
+        halo.scale.set(2.4, 2.4, 1); halo.position.y = 3.1; obj.add(halo);
+        const pool = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), new THREE.MeshBasicMaterial({ map: W3.tex(POOL_CANVAS), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }));
+        pool.rotation.x = -Math.PI / 2; pool.position.y = 0.03; obj.add(pool);
+        root.userData.lamps.push({ pos: new THREE.Vector3(c(p.x), base + 3.0, c(p.y)), halo, pool });
+      }
       if (obj) {
         obj.position.set(c(p.x), base, c(p.y));
         if (p.name === 'bank' && !(TILE_DEF[tileAt(m, p.x, p.y + 1)] || {}).walk) obj.rotation.y = Math.PI;
@@ -336,6 +382,7 @@ function buildWorld(m) {
       }
     }
     obj.userData.prop = p;
+    obj.userData.baseY = obj.position.y;
     root.add(obj); root.userData.props.push(obj);
   }
   return root;

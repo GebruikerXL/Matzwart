@@ -189,7 +189,8 @@ const Logbook = {
     }
   },
   row(s, bron) {
-    return { naam: String(s.n || '').slice(0, 16), plek: placeName(s.m), geld: Number(s.eur) || 0, level: Number(s.lvl) || null, laatstGezien: new Date().toISOString(), bron };
+    const cl = typeof CLASSES !== 'undefined' && s.ap && CLASS_KEYS[s.ap.cl];
+    return { naam: String(s.n || '').slice(0, 16), plek: placeName(s.m), geld: Number(s.eur) || 0, level: Number(s.lvl) || null, xp: Number(s.xp) || 0, klasse: cl ? CLASSES[cl].name : null, laatstGezien: new Date().toISOString(), bron };
   },
   write(key, data, kaart) {
     if (!key || this.last[key] === false) return;
@@ -220,7 +221,40 @@ const Logbook = {
   tick() {
     this.claimGifts();
     if (!G.S || !this.db) return;
-    if (this.uid) this.write(this.uid, this.row({ n: G.S.name, m: G.map.id, eur: G.P.money, lvl: G.P.lvl }, 'zelf'), G.map.id);
+    if (this.uid) this.write(this.uid, this.row({ n: G.S.name, m: G.map.id, eur: G.P.money, lvl: G.P.lvl, xp: G.P.xp, ap: G.S.ap }, 'zelf'), G.map.id);
     if (this.owner) for (const p of Online.others()) if (p.by && p.by !== this.uid) this.write(p.by, this.row(p.presence, 'gezien door de eigenaar'), p.presence.m);
   },
 };
+
+// ---------- ranglijst: alle spelers die ooit in het logboek kwamen, op level ----------
+function readPlayers() {
+  if (!Logbook.db) return Promise.resolve([]);
+  return new Promise((resolve) => {
+    let un = null, done = false;
+    const finish = (rows) => { if (done) return; done = true; clearTimeout(t); resolve(rows); setTimeout(() => { try { if (typeof un === 'function') un(); } catch (e) {} }, 0); };
+    const t = setTimeout(() => finish([]), 4000);
+    try { un = Logbook.db.collection('spelers').onSnapshot((snap) => finish(snap.docs.filter((d) => d.exists).map((d) => d.data() || {})), () => finish([])); } catch (e) { finish([]); }
+  });
+}
+async function leaderboard() {
+  const panel = $('#panel');
+  panel.innerHTML = '<h3>Ranglijst</h3><div id="rlist" class="rlist">Laden…</div><p class="lbl" id="rdesc"></p>';
+  panel.hidden = false;
+  const rows = await readPlayers();
+  // dubbele namen samenvoegen (hoogste level telt), en jezelf altijd met je echte level
+  const best = new Map();
+  const me = { naam: String(G.S.name || 'Jij').slice(0, 16), level: G.P.lvl, xp: G.P.xp, klasse: typeof CLASSES !== 'undefined' && G.S.ap && CLASS_KEYS[G.S.ap.cl] ? CLASSES[CLASS_KEYS[G.S.ap.cl]].name : null, zelf: true };
+  for (const r of rows.concat([me])) {
+    const naam = String(r.naam || '').trim(); if (!naam) continue;
+    const key = naam.toLowerCase(), prev = best.get(key);
+    const lvl = Number(r.level) || 1, xp = Number(r.xp) || 0;
+    if (!prev || lvl > prev.level || (lvl === prev.level && xp > prev.xp) || r.zelf) best.set(key, { naam, level: Math.max(lvl, prev && !r.zelf ? prev.level : 0), xp, klasse: r.klasse || (prev && prev.klasse) || null, zelf: !!r.zelf || (prev && prev.zelf) });
+  }
+  const list = [...best.values()].sort((a, b) => b.level - a.level || b.xp - a.xp || a.naam.localeCompare(b.naam));
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const myRank = list.findIndex((r) => r.zelf) + 1;
+  $('#rlist').innerHTML = list.slice(0, 12).map((r, i) => `<div class="rrow${r.zelf ? ' me' : ''}"><span class="rk">${i + 1}.</span><span class="rn">${esc(r.naam)}</span><span class="rc">${r.klasse ? esc(r.klasse) : ''}</span><span class="rl">Lvl ${r.level}</span></div>`).join('');
+  $('#rdesc').textContent = (Logbook.db ? '' : 'Offline: je ziet alleen jezelf. ') + `Jij staat op plek ${myRank} van ${list.length}. Druk op een toets om terug te gaan.`;
+  await waitKey();
+  panel.hidden = true;
+}
