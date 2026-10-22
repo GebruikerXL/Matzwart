@@ -111,7 +111,7 @@ Op het voetbalveld staat Hermann met zijn vliegtuigje (HERMANN AIR). Hij ziet er
 
 ## Stemmen
 
-Personages praten echt, in het Nederlands, met de spraak van de browser (Web Speech API). Het spel kiest de best klinkende Nederlandse stem die er is, geeft mannen en vrouwen een eigen stem en elk personage een eigen toonhoogte en tempo (Derkje piepklein, de bruine meneer heel laag en traag, Hermann en Koen snel). Ook de regels in de cutscenes worden uitgesproken. Het mooist klinkt het in Microsoft Edge, met de natuurlijke stemmen Fenna, Maarten en Colette; in Chrome praat Google Nederlands. De verteller en dieren praten niet. Menu → Geluid zet ook de stemmen uit.
+Personages praten echt, in het Nederlands, met de spraak van de browser (Web Speech API). Iedereen heeft een eigen stem: elk personage heeft een vaste toonhoogte en een vast tempo (Derkje piepklein, de bruine meneer heel laag en traag, Koen en Hermann snel, Opa langzaam), en als de browser meerdere Nederlandse stemmen heeft, worden die over de personages verdeeld (in Edge ook de Vlaamse stemmen Arnaud en Dena). Personages die niet in de lijst staan, krijgen een vaste stem die uit hun naam wordt berekend. Ook de regels in de cutscenes worden uitgesproken. Het mooist klinkt het in Microsoft Edge, met de natuurlijke stemmen Maarten, Fenna, Colette, Arnaud en Dena; in Chrome praat Google Nederlands. De verteller en dieren praten niet. Menu → Geluid zet ook de stemmen uit.
 
 ## Muziek en Cobra 20
 
