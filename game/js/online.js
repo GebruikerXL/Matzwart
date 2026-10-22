@@ -10,8 +10,9 @@ const Online = {
     try { this.room = await window.claude?.use?.('room'); } catch (e) { this.room = null; }
     if (!this.room) { this.status = 'offline'; return; }
     this.status = 'verbinden';
-    this.room.onConnection((c) => { this.status = c ? 'online' : 'verbinden'; }, () => { this.status = 'offline'; this.room = null; });
-    this.room.onPeers((ch) => this.onPeers(ch.peers), () => { this.peers = []; });
+    const fail = (e) => { this.status = e && (e.code === 'not_granted' || e.code === 'revoked') ? 'geweigerd' : 'offline'; this.err = e && e.code; this.peers = []; };
+    this.room.onConnection((c) => { if (this.status !== 'geweigerd') this.status = c ? 'online' : 'verbinden'; }, fail);
+    this.room.onPeers((ch) => this.onPeers(ch.peers), fail);
   },
 
   others() { return this.peers.filter((p) => !p.sameTab && p.kind === 'viewer' && p.presence && p.presence.n); },
@@ -21,6 +22,13 @@ const Online = {
     this.peers = peers;
     const mine = peers.find((p) => p.sameTab);
     if (mine) this.me = mine.peer;
+    // melding als er iemand bijkomt, met waar die is
+    this.known = this.known || new Set();
+    for (const p of this.others()) {
+      if (this.known.has(p.peer)) continue;
+      this.known.add(p.peer);
+      if (G.S) UI.toast(`${String(p.presence.n).slice(0, 16)} is online (${placeName(p.presence.m)})`, 3500);
+    }
     Trade.onPeers(peers);
   },
 
@@ -32,7 +40,7 @@ const Online = {
     const s = JSON.stringify(state);
     if (s === this.lastSent) return;
     this.lastSent = s;
-    this.room.presence(state).catch(() => {});
+    this.room.presence(state).then(() => { this.err = null; }, (e) => { this.lastSent = ''; this.err = e && e.code; });
   },
 
   // ---------- tekenen ----------
@@ -93,13 +101,25 @@ function debtText() {
   if (G.quest('onbetaald') >= 1 && G.quest('onbetaald') < 3) d.push('24 frikandellen EKA');
   return d.length ? d.join(' + ') : 'geen';
 }
+function placeName(m) { return (MAPS[m] && MAPS[m].name) || 'onbekend'; }
+function onlineText() {
+  const st = Online.status;
+  if (st === 'offline') return 'Offline: geen verbinding met de lobby';
+  if (st === 'geweigerd') return 'Offline: geen toegang tot de lobby';
+  if (st === 'verbinden') return 'Verbinden met de lobby…';
+  const o = Online.others();
+  if (Online.err) return `Online, maar je positie komt niet door (${Online.err})`;
+  if (!o.length) return 'Online. Nog niemand anders in de lobby.';
+  const here = o.filter((p) => p.presence.m === G.map.id).length;
+  const elders = o.filter((p) => p.presence.m !== G.map.id).slice(0, 2).map((p) => `${String(p.presence.n).slice(0, 12)}: ${placeName(p.presence.m)}`);
+  return `${o.length} speler${o.length > 1 ? 's' : ''} online, ${here} hier${elders.length ? ` · ${esc(elders.join(', '))}` : ''}`;
+}
 let hudLast = '';
 function updateHud() {
   const show = G.S && G.mode === 'map' && $('#menu').hidden && $('#panel').hidden && $('#casino').hidden;
   const el = $('#hud');
   if (!show) { if (!el.hidden) el.hidden = true; return; }
-  const n = Online.count();
-  const html = `<div class="row"><span class="lbl">Geld</span><b>EUR ${G.P.money}</b></div><div class="row"><span class="lbl">Schuld</span><span>${debtText()}</span></div><div class="online">${Online.status === 'offline' ? 'offline' : n ? `${n} andere speler${n > 1 ? 's' : ''} online` : 'alleen online'}</div>`;
+  const html = `<div class="row"><span class="lbl">Geld</span><b>EUR ${G.P.money}</b></div><div class="row"><span class="lbl">Schuld</span><span>${debtText()}</span></div><div class="online">${onlineText()}</div>`;
   if (html !== hudLast) { el.innerHTML = html; hudLast = html; }
   if (el.hidden) el.hidden = false;
 }
