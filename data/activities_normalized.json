@@ -13518,5 +13518,18 @@
     "start_date_local": "2026-11-19T11:14:56Z",
     "type": "Run",
     "year": 2026
+  },
+  {
+    "date": "2026-11-20",
+    "distance": 24594.4,
+    "elevation_gain": 0.0,
+    "id": "21058506227",
+    "moving_time": 3933.0,
+    "name": "20 november",
+    "raw_activity_type": "VirtualRide",
+    "raw_type": "VirtualRide",
+    "start_date_local": "2026-11-20T13:17:38Z",
+    "type": "VirtualRide",
+    "year": 2026
   }
 ]
